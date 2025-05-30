@@ -66,13 +66,13 @@ export async function loadBanner() {
     const term = new TerminalUI(infoBlock, loadBanner);
     term.init();
 
-    // const cursorRow = document.createElement('div');
-    // cursorRow.classList.add('row');
-    // const cursor = document.createElement('span');
-    // cursor.classList.add('command-line');
-    // cursor.innerHTML = '<span class="green">kitty@kittycrypto</span><span class="blue">:~</span><span class="teal">$ </span><span class="cursor">█</span>';
-    // cursorRow.appendChild(cursor);
-    // container.appendChild(cursorRow);
+    const cursorRow = document.createElement('div');
+    cursorRow.classList.add('row');
+    const cursor = document.createElement('span');
+    cursor.classList.add('command-line');
+    cursor.innerHTML = '<span class="green">kitty@kittycrypto</span><span class="blue">:~</span><span class="teal">$ </span><span class="cursor">█</span>';
+    cursorRow.appendChild(cursor);
+    container.appendChild(cursorRow);
 
     await waitForElementHeight(container);
     observeThemeChange();
