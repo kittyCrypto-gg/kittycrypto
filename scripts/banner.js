@@ -1,4 +1,4 @@
-import { Terminal } from './terminal.js';
+import { TerminalUI } from './terminal.js';
 
 export async function loadBanner() {
     const container = document.getElementById('banner');
@@ -63,7 +63,7 @@ export async function loadBanner() {
     contentRow.appendChild(infoBlock);
     container.appendChild(contentRow);
 
-    const term = new Terminal(infoBlock, loadBanner());
+    const term = new TerminalUI(infoBlock, loadBanner);
     term.init();
 
     // const cursorRow = document.createElement('div');
