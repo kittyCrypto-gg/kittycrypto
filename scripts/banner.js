@@ -1,3 +1,5 @@
+import { Terminal } from './terminal.js';
+
 export async function loadBanner() {
     const container = document.getElementById('banner');
 
@@ -61,13 +63,16 @@ export async function loadBanner() {
     contentRow.appendChild(infoBlock);
     container.appendChild(contentRow);
 
-    const cursorRow = document.createElement('div');
-    cursorRow.classList.add('row');
-    const cursor = document.createElement('span');
-    cursor.classList.add('command-line');
-    cursor.innerHTML = '<span class="green">kitty@kittycrypto</span><span class="blue">:~</span><span class="teal">$ </span><span class="cursor">█</span>';
-    cursorRow.appendChild(cursor);
-    container.appendChild(cursorRow);
+    const term = new Terminal(infoBlock, loadBanner());
+    term.init();
+
+    // const cursorRow = document.createElement('div');
+    // cursorRow.classList.add('row');
+    // const cursor = document.createElement('span');
+    // cursor.classList.add('command-line');
+    // cursor.innerHTML = '<span class="green">kitty@kittycrypto</span><span class="blue">:~</span><span class="teal">$ </span><span class="cursor">█</span>';
+    // cursorRow.appendChild(cursor);
+    // container.appendChild(cursorRow);
 
     await waitForElementHeight(container);
     observeThemeChange();
