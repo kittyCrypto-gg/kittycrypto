@@ -216,7 +216,8 @@ class JPExtended {
             return node.textContent.trim();
         }
 
-        const align = node.getAttribute('alignment') || 'vertical';
+        const align = node.getAttribute('alignment');
+        if (!align) return node.textContent.trim();
         const x = parseFloat(node.getAttribute('xcompress')) || 0;
         const y = parseFloat(node.getAttribute('ycompress')) || 0;
 
@@ -269,9 +270,17 @@ class JPExtended {
                 return;
             }
 
+            let readingFound = false;
+
             for (const child of children) {
-                if (child.nodeType === Node.TEXT_NODE) {
+                if (!readingFound && child.nodeType === Node.TEXT_NODE && child.textContent.trim()) {
                     reading += child.textContent.trim();
+                    readingFound = true;
+                    continue;
+                }
+
+                if (child.nodeType === Node.TEXT_NODE) {
+                    base += child.textContent.trim();
                     continue;
                 }
 
