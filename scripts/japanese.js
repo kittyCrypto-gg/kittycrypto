@@ -5,58 +5,62 @@ class Tategaki {
 
     static getCSS() {
         return `
-                    .tategaki {
-                        writing-mode: vertical-rl;
-                        text-orientation: mixed;
-                        font-size: 20px;
-                        line-height: 1.8;
-                        padding: 20px;
-                        border: 1px solid #ccc;
-                        max-height: 90vh;
-                        overflow: auto;
-                    }
-                    ruby {
-                        ruby-position: side;
-                    }
-                    rt {
-                        font-size: 0.5em;
-                        line-height: 1;
-                    }
-                    
-                    .manual-ruby {
-                    display: inline-flex;
-                    flex-direction: row-reverse;
-                    align-items: center;
-                    justify-content: flex-start;
-                    writing-mode: vertical-rl;
-                    vertical-align: top;
-                    }
+            .tategaki {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            line-height: 1.8;
+            }
 
-                    .manual-base {
-                    display: inline-block;
-                    width: 1em;
-                    height: 1em;
-                    line-height: 1;
-                    text-align: center;
-                    position: relative;
-                    }
+            ruby {
+            ruby-position: side;
+            }
 
-                    .manual-rt-column {
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    font-size: 0.5em;
-                    line-height: 1;
-                    margin-left: 0.1em;
-                    }
+            rt {
+            font-size: 0.5em;
+            line-height: 1;
+            }
 
-                    .manual-rt {
-                    writing-mode: horizontal-tb;
-                    white-space: nowrap;
-                    text-align: left;
-                    }
-                `;
+            .manual-ruby {
+            display: inline-flex;
+            flex-direction: row-reverse;
+            align-items: center;
+            justify-content: flex-start;
+            writing-mode: vertical-rl;
+            vertical-align: top;
+            }
+
+            .manual-base {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            line-height: 1;
+            text-align: center;
+            position: relative;
+            }
+
+            .manual-rt-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            font-size: 0.5em;
+            line-height: 1;
+            margin-left: 0.1em;
+            }
+
+            .manual-rt {
+            writing-mode: horizontal-tb;
+            white-space: nowrap;
+            text-align: left;
+            }
+
+            #output {
+            display: flex;
+            flex-direction: row-reverse; /* stack tategaki paragraphs right to left */
+            gap: 1em;
+            }
+        `;
     }
+
 }
 
 class Furigana {
