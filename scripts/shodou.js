@@ -209,15 +209,47 @@ class JPExtended {
         document.head.appendChild(style);
     }
 
+    static buildKanji(node) {
+        if (node.nodeType === Node.TEXT_NODE) return node.textContent.trim();
+
+        if (node.nodeType !== Node.ELEMENT_NODE || node.tagName.toLowerCase() !== 'jp-kanji') {
+            return node.textContent.trim();
+        }
+
+        const align = node.getAttribute('alignment') || 'vertical';
+        const x = parseFloat(node.getAttribute('xcompress')) || 0;
+        const y = parseFloat(node.getAttribute('ycompress')) || 0;
+
+        const children = Array.from(node.childNodes).filter(n =>
+            n.nodeType !== Node.TEXT_NODE || n.textContent.trim() !== ''
+        );
+
+        if (children.length === 1 && children[0].nodeType === Node.TEXT_NODE) {
+            const chars = children[0].textContent.trim().split('').filter(Boolean);
+            return chars.length === 2
+                ? new ComposedKanji(chars[0], chars[1], align, { xCompress: x, yCompress: y })
+                : chars.join('');
+        }
+
+        if (children.length === 2) {
+            const [g1, g2] = children.map(JPExtended.buildKanji);
+            return new ComposedKanji(g1, g2, align, { xCompress: x, yCompress: y });
+        }
+
+        return node.textContent.trim(); // fallback if malformed
+    }
+
     static parseCustomTags() {
-        document.querySelectorAll('tategaki').forEach(el => {
+        // Step 1: jp-tategaki
+        document.querySelectorAll('jp-tategaki').forEach(el => {
             const wrapped = Tategaki.wrap(el.innerHTML);
             const container = document.createElement('div');
             container.innerHTML = wrapped;
             el.replaceWith(container);
         });
 
-        document.querySelectorAll('furigana').forEach(el => {
+        // Step 2: jp-furigana
+        document.querySelectorAll('jp-furigana').forEach(el => {
             const sizeAttr = el.getAttribute('size');
             const size = sizeAttr !== null ? parseFloat(sizeAttr) : null;
 
@@ -225,73 +257,69 @@ class JPExtended {
             let base = '';
             let reading = '';
 
-            const buildKanji = (node) => {
-                if (node.nodeType === Node.TEXT_NODE) return node.textContent.trim();
+            const hasKanji = children.some(n =>
+                n.nodeType === Node.ELEMENT_NODE && n.tagName.toLowerCase() === 'jp-kanji'
+            );
 
-                if (node.nodeType !== Node.ELEMENT_NODE || node.tagName.toLowerCase() !== 'ck') {
-                    return node.textContent.trim();
-                }
-
-                const align = node.getAttribute('alignment') || 'vertical';
-                const x = parseFloat(node.getAttribute('xcompress')) || 0;
-                const y = parseFloat(node.getAttribute('ycompress')) || 0;
-
-                const children = Array.from(node.childNodes).filter(n =>
-                    n.nodeType !== Node.TEXT_NODE || n.textContent.trim() !== ''
-                );
-
-                if (children.length === 1 && children[0].nodeType === Node.TEXT_NODE) {
-                    const chars = children[0].textContent.trim().split('').filter(Boolean);
-                    return chars.length === 2
-                        ? new ComposedKanji(chars[0], chars[1], align, { xCompress: x, yCompress: y })
-                        : chars.join('');
-                }
-
-                if (children.length === 2) {
-                    const [g1, g2] = children.map(buildKanji);
-                    return new ComposedKanji(g1, g2, align, { xCompress: x, yCompress: y });
-                }
-
-                return node.textContent.trim();  // fallback if malformed
-            };
-
-            const hasCK = children.some(n => n.nodeType === Node.ELEMENT_NODE && n.tagName.toLowerCase() === 'ck');
-
-            if (!hasCK) {
+            if (!hasKanji) {
                 const raw = el.textContent.trim();
                 const mid = Math.floor(raw.length / 2);
                 base = raw.slice(0, mid);
                 reading = raw.slice(mid);
-            } else {
-                for (const child of children) {
-                    if (child.nodeType === Node.TEXT_NODE) {
-                        reading += child.textContent.trim();
-                        continue;
-                    }
+                return;
+            }
 
-                    if (child.nodeType !== Node.ELEMENT_NODE || child.tagName.toLowerCase() !== 'ck') {
-                        continue;
-                    }
-
-                    const composed = buildKanji(child);
-                    if (typeof composed === 'string') {
-                        base += composed;
-                        continue;
-                    }
-
-                    const rendered = composed.renderWithStyles();
-                    base += rendered.html;
-
-                    const style = document.createElement('style');
-                    style.innerHTML = rendered.css;
-                    document.head.appendChild(style);
+            for (const child of children) {
+                if (child.nodeType === Node.TEXT_NODE) {
+                    reading += child.textContent.trim();
+                    continue;
                 }
+
+                if (child.nodeType !== Node.ELEMENT_NODE || child.tagName.toLowerCase() !== 'jp-kanji') {
+                    continue;
+                }
+
+                const composed = JPExtended.buildKanji(child);
+
+                if (typeof composed === 'string') {
+                    base += composed;
+                    continue;
+                }
+
+                const { html, css } = composed.renderWithStyles();
+                base += html;
+
+                const style = document.createElement('style');
+                style.innerHTML = css;
+                document.head.appendChild(style);
             }
 
             const output = Furigana.render(base, reading, size);
             const container = document.createElement('span');
             container.innerHTML = output;
             el.replaceWith(container);
+        });
+
+        // Step 3: standalone jp-kanji
+        document.querySelectorAll('jp-kanji').forEach(node => {
+            if (!node.isConnected) return;
+
+            const composed = JPExtended.buildKanji(node);
+            if (typeof composed === 'string') {
+                const span = document.createElement('span');
+                span.textContent = composed;
+                node.replaceWith(span);
+                return;
+            }
+
+            const rendered = composed.renderWithStyles();
+            const span = document.createElement('span');
+            span.innerHTML = rendered.html;
+            node.replaceWith(span);
+
+            const style = document.createElement('style');
+            style.innerHTML = rendered.css;
+            document.head.appendChild(style);
         });
     }
 
@@ -302,3 +330,5 @@ class JPExtended {
 }
 
 document.addEventListener('DOMContentLoaded', () => JPExtended.init());
+// Export classes for external use
+export default JPExtended;
