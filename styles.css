@@ -581,7 +581,8 @@ nav::-webkit-scrollbar {
   Kitty Intro Block
 ========================================= */
 .kitty-intro {
-  max-width: 800px;
+  /*max-width: 800px;*/
+  width: 90%;
   margin: 2rem auto;
   padding: 1.5rem;
   font-size: 1.1rem;
@@ -1732,7 +1733,7 @@ body.dark-mode .tategaki-container svg text {
 
 .commits-wrapper {
   margin: 40px auto;
-  width: 100%;
+  width: 90%;
   max-width: 1200px;
   padding: 0 20px;
   box-sizing: border-box;
@@ -2008,8 +2009,8 @@ body.dark-mode .tategaki-container svg text {
 
 #blog-wrapper {
   margin: 40px auto;
-  width: 100%;
-  max-width: 720px;   /* <-- match this to .kitty-intro */
+  width: 90%;
+  /*max-width: 720px;*/
   background-color: var(--frame-bg-colour);
   border-radius: 15px;
   box-shadow: 0 4px 18px rgba(0,0,0,0.13);
