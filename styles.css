@@ -2057,6 +2057,15 @@ body.dark-mode .tategaki-container svg text {
   font-size: 1.08em;
   line-height: 1.74;
   margin-bottom: 0;
+  transition: max-height 0.38s cubic-bezier(.36,1.63,.41,.88);
+}
+
+.rss-post-content.content-collapsed {
+  max-height: 0 !important;
+  overflow: hidden;
+}
+.rss-post-content.content-expanded {
+  overflow: visible;
 }
 
 .rss-post-summary {
