@@ -2009,7 +2009,7 @@ body.dark-mode .tategaki-container svg text {
 #blog-wrapper {
   margin: 40px auto;
   width: 100%;
-  max-width: 900px;
+  max-width: 720px;   /* <-- match this to .kitty-intro */
   background-color: var(--frame-bg-colour);
   border-radius: 15px;
   box-shadow: 0 4px 18px rgba(0,0,0,0.13);

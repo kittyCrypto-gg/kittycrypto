@@ -27,12 +27,7 @@ async function loadBlogFeed() {
         const guid = item.querySelector('guid')?.textContent.trim() || '';
         const slug = guid.split('#')[1] || guid.split('/').pop() || Math.random().toString(36).slice(2);
 
-        // Format date beside title, lighter colour
-        let formattedDate = '';
-        if (pubDate) {
-            const d = new Date(pubDate);
-            formattedDate = d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-        }
+        const formattedDate = formatDate(pubDate);
 
         // Build post
         const postDiv = document.createElement('div');
@@ -89,5 +84,15 @@ async function loadBlogFeed() {
         container.appendChild(postDiv);
     });
 }
+
+function formatDate(dateStr) {
+    const d = new Date(dateStr);
+    if (isNaN(d)) return "";
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}.${mm}.${dd}`;
+}
+
 
 window.addEventListener('DOMContentLoaded', loadBlogFeed);
