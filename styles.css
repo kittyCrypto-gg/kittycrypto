@@ -2001,3 +2001,125 @@ body.dark-mode .tategaki-container svg text {
     opacity: 1;
   }
 }
+
+/* =========================================
+  RSS Blog Post Feed Styling
+========================================= */
+
+.rss-posts-wrapper {
+  margin: 40px auto;
+  width: 100%;
+  max-width: 900px;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.rss-post-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 20px 18px 20px;
+  border-radius: 10px;
+  background-color: var(--chatroom-bg-colour);
+  margin-bottom: 22px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: background 0.3s;
+}
+
+/* Alternate backgrounds for each post, similar to commits */
+.rss-post-block:nth-child(even) {
+  background-color: color-mix(in srgb, var(--chatroom-bg-colour) 85%, black);
+}
+
+.dark-mode .rss-post-block:nth-child(even) {
+  background-color: color-mix(in srgb, var(--chatroom-bg-colour) 85%, white);
+}
+
+/* Title */
+.rss-post-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: var(--header-text-colour);
+  margin-bottom: 3px;
+}
+
+/* Metadata (date, author, tags) */
+.rss-post-meta {
+  font-size: 0.95em;
+  color: var(--timestamp-colour);
+  margin-bottom: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.rss-post-meta .rss-post-author {
+  font-weight: 500;
+  color: var(--menu-button-text-colour);
+}
+
+.rss-post-meta .rss-post-date {
+  font-style: italic;
+  color: var(--chat-timestamp-colour);
+}
+
+.rss-post-meta .rss-post-tags {
+  font-size: 0.92em;
+  color: var(--banner-blue);
+}
+
+.rss-post-meta .rss-post-tag {
+  background: var(--menu-button-bg-colour);
+  color: var(--menu-button-text-colour);
+  border-radius: 5px;
+  padding: 2px 8px;
+  margin-right: 2px;
+  font-size: 0.90em;
+  font-weight: 500;
+}
+
+.dark-mode .rss-post-meta .rss-post-tag {
+  background: var(--menu-button-bg-colour);
+  color: var(--menu-button-text-colour);
+}
+
+/* Summary */
+.rss-post-summary {
+  font-size: 1.05em;
+  color: var(--body-text-colour);
+  margin-bottom: 8px;
+  font-style: italic;
+}
+
+/* Main Content */
+.rss-post-content {
+  font-size: 1.09em;
+  color: var(--body-text-colour);
+  margin-bottom: 8px;
+  line-height: 1.7;
+  white-space: pre-line;
+}
+
+.rss-post-image {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 8px;
+  margin: 1rem auto;
+  display: block;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.10);
+}
+
+/* Link to full post (if needed) */
+.rss-post-link {
+  margin-top: 6px;
+  color: var(--banner-teal-bright);
+  font-size: 1em;
+  font-weight: 600;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.rss-post-link:hover {
+  color: var(--banner-blue);
+}
