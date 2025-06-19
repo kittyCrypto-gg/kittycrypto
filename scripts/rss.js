@@ -41,7 +41,7 @@ function renderPost(post) {
         <div class="rss-post-content content-collapsed" style="overflow: hidden; max-height: 0;"></div>
     `;
     // Set content
-    postDiv.querySelector('.rss-post-content').innerHTML = post.content;
+    postDiv.querySelector('.rss-post-content').innerHTML = marked.parse(post.content);
 
     // Toggle logic
     postDiv.querySelector('.rss-post-summary').addEventListener('click', function () {
