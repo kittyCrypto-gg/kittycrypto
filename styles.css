@@ -2122,10 +2122,10 @@ body.dark-mode .tategaki-container svg text {
 
 /* Title */
 .rss-post-title {
-  font-size: 1.4rem;
+  font-size: 1.1rem;
   font-weight: bold;
   color: var(--header-text-colour);
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 }
 
 /* Metadata (date, author, tags) */
