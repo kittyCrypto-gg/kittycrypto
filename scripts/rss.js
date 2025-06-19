@@ -33,7 +33,7 @@ function renderPost(post) {
             <span class="rss-post-title">${post.title}</span>
             <span class="rss-post-date">${formatDate(post.pubDate)}</span>
         </div>
-        <div class="rss-post-meta"><span class="rss-post-author">${post.author}</span></div>
+        <div class="rss-post-meta"><span class="rss-post-author">By: ${post.author}</span></div>
         <div class="rss-post-summary summary-collapsed" tabindex="0">
             <span class="summary-arrow">▶️</span>
             <span class="summary-text">${post.description}</span>
@@ -54,6 +54,12 @@ function renderPost(post) {
         } else {
             this.querySelector('.summary-arrow').textContent = '▶️';
             contentDiv.style.maxHeight = '0px';
+        }
+    });
+    postDiv.querySelector('.rss-post-summary').addEventListener('keypress', function (e) {
+        // Keyboard accessibility: Enter or Space toggles
+        if (e.key === "Enter" || e.key === " ") {
+            this.click();
         }
     });
     return postDiv;
