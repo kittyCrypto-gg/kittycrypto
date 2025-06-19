@@ -55,6 +55,8 @@ function renderPost(post) {
             this.querySelector('.summary-arrow').textContent = '▶️';
             contentDiv.style.maxHeight = '0px';
         }
+        // Remove focus after click to prevent highlight from lingering
+        this.blur();
     });
     postDiv.querySelector('.rss-post-summary').addEventListener('keypress', function (e) {
         // Keyboard accessibility: Enter or Space toggles
