@@ -42,12 +42,14 @@ function renderPost(post) {
     </div>
     <div class="rss-post-content content-collapsed" style="overflow: hidden; max-height: 0;"></div>
   `;
+
   // Set content
   postDiv.querySelector('.rss-post-content').innerHTML = marked.parse(post.content);
 
   // Toggle logic on the whole collapsed area
   const toggleDiv = postDiv.querySelector('.rss-post-toggle');
-  const summaryDiv = toggleDiv.querySelector('.rss-post-summary');
+  const headerDiv = toggleDiv.querySelector('.rss-post-header');
+  const arrowSpan = headerDiv.querySelector('.summary-arrow');
   const contentDiv = postDiv.querySelector('.rss-post-content');
 
   function togglePost() {
@@ -55,10 +57,10 @@ function renderPost(post) {
     contentDiv.classList.toggle('content-collapsed', !expanded);
     toggleDiv.setAttribute('aria-expanded', expanded);
     if (expanded) {
-      summaryDiv.querySelector('.summary-arrow').textContent = '🔽';
+      arrowSpan.textContent = '🔽';
       contentDiv.style.maxHeight = contentDiv.scrollHeight + 'px';
     } else {
-      summaryDiv.querySelector('.summary-arrow').textContent = '▶️';
+      arrowSpan.textContent = '▶️';
       contentDiv.style.maxHeight = '0px';
     }
     toggleDiv.blur();
