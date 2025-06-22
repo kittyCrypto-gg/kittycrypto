@@ -2044,7 +2044,7 @@ body.dark-mode .tategaki-container svg text {
   overflow: auto;
 }
 
-#blog-container {
+.blog-container {
   display: flex;
   flex-direction: column;
   gap: 0px;
