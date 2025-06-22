@@ -2032,7 +2032,7 @@ body.dark-mode .tategaki-container svg text {
   RSS Blog Post Feed Styling
 ========================================= */
 
-#blog-wrapper {
+.blog-wrapper {
   margin: 40px auto;
   width: 90%;
   /*max-width: 720px;*/
