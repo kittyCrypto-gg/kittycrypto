@@ -1750,8 +1750,7 @@ body.dark-mode .tategaki-container svg text {
   background-color: var(--frame-bg-colour);
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  text-align: justify;
-  text-align-last: left;
+  text-align: left;
   box-sizing: border-box;
 }
 
