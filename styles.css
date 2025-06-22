@@ -598,7 +598,6 @@ nav::-webkit-scrollbar {
 
 .kitty-intro a {
   color: var(--menu-button-text-colour);
-  text-decoration: underline;
 }
 
 .kitty-intro code {
