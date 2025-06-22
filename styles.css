@@ -1764,6 +1764,8 @@ body.dark-mode .tategaki-container svg text {
 }
 
 .commits-wrapper > .comments-header {
+  width: 100%;
+  display: block;
   text-align: left;
 }
 
