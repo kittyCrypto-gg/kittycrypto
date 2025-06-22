@@ -2078,6 +2078,22 @@ body.dark-mode .tategaki-container svg text {
   transition: max-height 0.38s cubic-bezier(.36,1.63,.41,.88);
 }
 
+.rss-post-content a {
+  color: var(--menu-button-text-colour);
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.rss-post-content a:hover {
+  color: var(--banner-blue);
+  text-decoration: underline;
+}
+
+/* For dark mode: */
+.dark-mode .rss-post-content a {
+  color: var(--menu-button-text-colour);
+}
+
 .rss-post-content.content-collapsed {
   max-height: 0 !important;
   overflow: hidden;
