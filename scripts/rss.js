@@ -31,12 +31,12 @@ function renderPost(post) {
   postDiv.innerHTML = `
     <div class="rss-post-toggle" tabindex="0" role="button" aria-expanded="false">
       <div class="rss-post-header">
+        <span class="summary-arrow">▶️</span>
         <span class="rss-post-title">${post.title}</span>
         <span class="rss-post-date">${formatDate(post.pubDate)}</span>
       </div>
       <div class="rss-post-meta"><span class="rss-post-author">By: ${post.author}</span></div>
       <div class="rss-post-summary summary-collapsed">
-        <span class="summary-arrow">▶️</span>
         <span class="summary-text">${post.description}</span>
       </div>
     </div>
