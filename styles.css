@@ -1763,6 +1763,10 @@ body.dark-mode .tategaki-container svg text {
   text-align: left;
 }
 
+.commits-wrapper > .comments-header {
+  text-align: left;
+}
+
 .github-output-frame {
   background-color: var(--chatroom-bg-colour);
   border: 1px solid var(--chatroom-border-colour);
