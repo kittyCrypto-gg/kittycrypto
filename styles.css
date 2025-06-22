@@ -1941,6 +1941,16 @@ body.dark-mode .tategaki-container svg text {
   margin-left: 4px;
 }
 
+.commit-meta code {
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  font-size: 0.97em;
+  background: var(--chat-input-bg-colour);
+  border-radius: 4px;
+  padding: 2px 4px;
+  display: inline-block;
+}
+
 .twitter-link {
   border-top: 1px solid var(--nav-border-colour);
   text-align: center;
