@@ -1756,7 +1756,7 @@ body.dark-mode .tategaki-container svg text {
 }
 
 .commits-wrapper {
-  margin: 40px auto;
+  margin: 0 auto;
   width: 90%;
   /*max-width: 1200px;*/
   padding: 0 20px;
