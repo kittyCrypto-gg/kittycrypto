@@ -1761,6 +1761,7 @@ body.dark-mode .tategaki-container svg text {
   /*max-width: 1200px;*/
   padding: 0 20px;
   box-sizing: border-box;
+  text-align: left;
 }
 
 .github-output-frame {
