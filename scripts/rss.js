@@ -69,9 +69,9 @@ function renderPost(post) {
 
 // Fetch and render the feed
 async function loadBlogFeed() {
-    const wrapper = document.getElementById('blog-wrapper');
+    const wrapper = document.querySelector('.blog-wrapper');
     if (!wrapper) return;
-    let container = document.getElementById('blog-container');
+    let container = document.querySelector('.blog-container');
     if (!container) {
         container = document.createElement('div');
         container.id = 'blog-container';
