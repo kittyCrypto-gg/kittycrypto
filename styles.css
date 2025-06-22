@@ -11,7 +11,7 @@
   /* Frame */
   --frame-bg-colour: #ffffff;
   --frame-width: 95%;
-
+  --frame-border-light: transparent;
   --frame-padding: 20px;
 
   /* Banner */
@@ -96,6 +96,14 @@
   --edit-modal-btn-cancel-hover-colour: #b71c1c;
 }
 
+.kitty-intro,
+.comments-container,
+.commits-outer-container,
+.blog-wrapper,
+.rss-post-block {
+  border: 1.5px solid var(--frame-border-light);
+}
+
 /* =========================================
   2) Dark Mode Overrides
 ========================================= */
@@ -106,6 +114,7 @@
 
   /* Frame */
   --frame-bg-colour: #1e1e1e;
+  --frame-border-light: #294149;
 
   /* Banner */
   --banner-green: #44ff44;
