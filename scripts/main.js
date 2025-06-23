@@ -118,6 +118,15 @@ const initialiseUI = async () => {
   } catch (error) {
     console.error('Error loading JSON or updating DOM:', error);
   }
+  // Reader Mode Toggle Button
+  const readerToggle = document.createElement("button");
+  readerToggle.id = "reader-toggle";
+  readerToggle.classList.add("theme-toggle-button");
+  readerToggle.style.bottom = "80px";
+  readerToggle.textContent = data.readerModeToggle.enable;
+  readerToggle.setAttribute('data-enable', data.readerModeToggle.enable);
+  readerToggle.setAttribute('data-disable', data.readerModeToggle.disable);
+  document.body.appendChild(readerToggle);
 };
 
 initialiseUI();

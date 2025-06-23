@@ -11,6 +11,11 @@
     "light": "🌙",
     "dark": "☀️"
   },
+  "readerModeToggle": {
+    "enable": "📖",
+    "disable": "📕"
+  },
   "headScripts": [
+    "./scripts/readerMode.js"
   ]
 }

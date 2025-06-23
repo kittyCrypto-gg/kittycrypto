@@ -13,6 +13,7 @@
   --frame-width: 95%;
   --frame-border-light: transparent;
   --frame-padding: 20px;
+  --frame-box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 
   /* Banner */
   --banner-green: #007733;
@@ -115,6 +116,7 @@
   /* Frame */
   --frame-bg-colour: #1e1e1e;
   --frame-border-light: #294149;
+  --frame-box-shadow: 0 4px 24px 4px rgba(0,255,255,0.10);
 
   /* Banner */
   --banner-green: #44ff44;
@@ -223,7 +225,7 @@ body {
 
   background-color: var(--frame-bg-colour);
   border-radius: 15px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--frame-box-shadow);
   width: var(--frame-width);
   max-width: 1200px;
   margin: 20px auto;
@@ -238,7 +240,7 @@ header {
   text-align: center;
   font-size: 1.8rem;
   font-weight: bold;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--frame-box-shadow);
 }
 
 /* =========================================
@@ -403,7 +405,7 @@ header {
   top: 1rem;
   left: 1rem;
   z-index: 1000;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--frame-box-shadow);
   border: 1px solid var(--frame-bg-colour);
   border-radius: 4px;
 }
@@ -421,7 +423,7 @@ header {
   max-width: 100%;
   font-family: "Courier New", Courier, "Lucida Console", monospace;
   background: var(--term-bg);
-  box-shadow: 0 8px 24px var(--term-shadow);
+  box-shadow: var(--frame-box-shadow);
   border: 1px solid rgba(0, 0, 0, 0.3);
   display: inline-block;
   position: relative;
@@ -599,7 +601,7 @@ nav::-webkit-scrollbar {
   color: var(--body-text-colour);
   background-color: var(--frame-bg-colour);
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--frame-box-shadow);
   text-align: justify;
   text-align-last: left;
   box-sizing: border-box;
@@ -775,7 +777,7 @@ footer {
   color: var(--toggle-btn-text-colour);
   border: none;
   border-radius: 50%;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--frame-box-shadow);
   cursor: pointer;
   transition: background 0.3s ease, transform 0.2s ease-in-out;
   display: flex;
@@ -863,7 +865,7 @@ body.dark-mode .theme-toggle-button {
   background-color: var(--edit-modal-bg-colour);
   color: var(--edit-modal-text-colour);
   border-radius: 10px;
-  box-shadow: 0 4px 10px var(--edit-modal-shadow-colour);
+  box-shadow: var(--frame-box-shadow);
   padding: 20px;
   width: 400px;
   max-width: 90%;
@@ -1105,7 +1107,7 @@ body.no-scroll {
   background-color: var(--frame-bg-colour);
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--frame-box-shadow);
   margin: 20px auto;
   width: 90%;
   max-width: 800px;
@@ -1273,7 +1275,7 @@ body.dark-mode .tategaki-container svg text {
   height: 100%;
   border: 2px solid var(--body-text-colour);
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--frame-box-shadow);
   cursor: zoom-in;
   object-fit: cover;
   transition: transform 0.3s ease, transform-origin 0.3s ease;
@@ -1321,7 +1323,7 @@ body.dark-mode .tategaki-container svg text {
   padding: 0px;
   background: none;
   border: none;
-  box-shadow: none;
+  box-shadow: var(--frame-box-shadow);
   color: inherit;
   transition: transform 0.1s;
 
@@ -1389,7 +1391,7 @@ body.dark-mode .tategaki-container svg text {
 .about-frame {
   background-color: var(--frame-bg-colour);
   border-radius: 15px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--frame-box-shadow);
   width: 80%;
   max-width: 1200px;
   margin: 20px auto;
@@ -1468,7 +1470,7 @@ body.dark-mode .tategaki-container svg text {
   height: 150px;
   border-radius: 50%;
   overflow: hidden;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--frame-box-shadow);
   border: 2px solid var(--nav-border-colour);
   flex-shrink: 0;
   align-self: center;
@@ -1503,7 +1505,7 @@ body.dark-mode .tategaki-container svg text {
   height: 150px;
   border-radius: 50%;
   overflow: hidden;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--frame-box-shadow);
   border: 2px solid var(--nav-border-colour);
   flex-shrink: 0;
   align-self: center;
@@ -1539,7 +1541,7 @@ body.dark-mode .tategaki-container svg text {
   bottom: 10px;
   background-color: var(--frame-bg-colour);
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--frame-box-shadow);
   margin: 40px auto;
   padding: 20px;
   width: 90%;
@@ -1719,7 +1721,7 @@ body.dark-mode .tategaki-container svg text {
   color: var(--chatroom-text-colour);
   border: 2px solid var(--nav-border-colour);
   border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--frame-box-shadow);
   font-weight: bold;
   z-index: 9999;
   transition: opacity 0.3s ease;
@@ -1749,7 +1751,7 @@ body.dark-mode .tategaki-container svg text {
   color: var(--body-text-colour);
   background-color: var(--frame-bg-colour);
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--frame-box-shadow);
   text-align: left;
   box-sizing: border-box;
 }
@@ -1841,7 +1843,7 @@ body.dark-mode .tategaki-container svg text {
   align-items: center;
   justify-content: center;
   background-color: var(--chatroom-bg-colour);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--frame-box-shadow);
 }
 
 .commit-identicon svg {
@@ -1873,7 +1875,7 @@ body.dark-mode .tategaki-container svg text {
   max-width: 600px;
   background-color: var(--frame-bg-colour);
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--frame-box-shadow);
   padding: 20px;
   color: var(--body-text-colour);
   display: flex;
@@ -2054,7 +2056,7 @@ body.dark-mode .tategaki-container svg text {
   /*max-width: 720px;*/
   background-color: var(--frame-bg-colour);
   border-radius: 15px;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.13);
+  box-shadow: var(--frame-box-shadow);
   padding: 30px 32px;
   box-sizing: border-box;
   overflow: auto;
@@ -2165,7 +2167,7 @@ body.dark-mode .tategaki-container svg text {
   border-radius: 10px;
   background-color: var(--chatroom-bg-colour);
   margin-bottom: 22px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: var(--frame-box-shadow);
   transition: background 0.3s;
 }
 
@@ -2254,7 +2256,7 @@ body.dark-mode .tategaki-container svg text {
   border-radius: 8px;
   margin: 1rem auto;
   display: block;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.10);
+  box-shadow: var(--frame-box-shadow);
 }
 
 /* Link to full post (if needed) */
@@ -2269,4 +2271,28 @@ body.dark-mode .tategaki-container svg text {
 
 .rss-post-link:hover {
   color: var(--banner-blue);
+}
+
+/* =========================================
+  Reader Mode Styles
+========================================= */
+
+body.reader-mode > *:not(article):not(#reader-toggle):not(#theme-toggle) {
+  display: none !important;
+}
+
+body.reader-mode article {
+  max-width: 70ch;
+  margin: 4rem auto;
+  font-size: 1.2rem;
+  line-height: 1.8;
+  font-family: Georgia, serif;
+  background: none;
+  box-shadow: var(--frame-box-shadow);
+  padding: 0;
+  color: var(--body-text-colour);
+}
+
+body.reader-mode {
+  background: var(--frame-bg-colour);
 }
