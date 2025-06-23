@@ -116,7 +116,7 @@
   /* Frame */
   --frame-bg-colour: #1e1e1e;
   --frame-border-light: #294149;
-  --frame-box-shadow: 0 4px 24px 4px rgba(0,255,255,0.10);
+  --frame-box-shadow: 0 4px 24px 4px rgba(0, 255, 255, 0.1);
 
   /* Banner */
   --banner-green: #44ff44;
@@ -492,7 +492,7 @@ header {
 
 /* Pseudo-element for hover symbol */
 .window-controls .btn::after {
-  content: '';
+  content: "";
   position: absolute;
   font-size: 10px;
   font-weight: bold;
@@ -511,17 +511,17 @@ header {
 
 /* Specific hover symbols and colours */
 .window-controls .btn.close::after {
-  content: '×';
+  content: "×";
   color: #8b0000; /* Dark red */
 }
 
 .window-controls .btn.toggle-view::after {
-  content: '–';
+  content: "–";
   color: #b8860b; /* Mustard / dark goldenrod */
 }
 
 .window-controls .btn.float::after {
-  content: '+';
+  content: "+";
   color: #006400; /* Dark green */
 }
 
@@ -2102,7 +2102,7 @@ body.dark-mode .tategaki-container svg text {
   font-size: 1.08em;
   line-height: 1.74;
   margin-bottom: 0;
-  transition: max-height 0.38s cubic-bezier(.36,1.63,.41,.88);
+  transition: max-height 0.38s cubic-bezier(0.36, 1.63, 0.41, 0.88);
 }
 
 .rss-post-content a {
@@ -2144,7 +2144,8 @@ body.dark-mode .tategaki-container svg text {
   gap: 8px;
 }
 
-.rss-post-summary:hover, .rss-post-summary:focus {
+.rss-post-summary:hover,
+.rss-post-summary:focus {
   background: var(--menu-button-hover-bg-colour);
   color: var(--banner-blue);
   text-decoration: underline;
@@ -2178,7 +2179,6 @@ body.dark-mode .tategaki-container svg text {
 .dark-mode .rss-post-block:nth-child(even) {
   background-color: color-mix(in srgb, var(--chatroom-bg-colour) 85%, white);
 }
-
 
 /* Title */
 .rss-post-title {
@@ -2220,7 +2220,7 @@ body.dark-mode .tategaki-container svg text {
   border-radius: 5px;
   padding: 2px 8px;
   margin-right: 2px;
-  font-size: 0.90em;
+  font-size: 0.9em;
   font-weight: 500;
 }
 
@@ -2242,7 +2242,7 @@ body.dark-mode .tategaki-container svg text {
   font-size: 0.97em !important;
   color: #2e4242 !important;
   opacity: 0.86;
-  transition: max-height 0.38s cubic-bezier(.36,1.63,.41,.88);
+  transition: max-height 0.38s cubic-bezier(0.36, 1.63, 0.41, 0.88);
 }
 
 .dark-mode .rss-post-content {
@@ -2301,23 +2301,28 @@ body.reader-mode {
   Debug Console
   ========================================= */
 
-  .debug {
+.debug {
   position: fixed;
   bottom: 0;
   left: 0;
   font-size: 12px;
-  background: rgba(0,0,0,0.6);
+  font-family: monospace, monospace;
+  background: rgba(0, 0, 0, 0.85);
   color: #0f0;
-  padding: 4px;
+  padding: 8px 10px;
   z-index: 9999;
   visibility: hidden;
   max-width: 95vw;
   max-height: 40vh;
   overflow-y: auto;
   white-space: pre-wrap;
+  border-radius: 7px 7px 0 0;
   pointer-events: none;
+  box-shadow: 0 -4px 14px 0 rgba(0, 0, 0, 0.6);
+  transition: opacity 0.2s;
 }
 .debug.visible {
   visibility: visible;
   pointer-events: auto;
+  opacity: 1;
 }
