@@ -1,3 +1,5 @@
+import { setupReader } from "./reader.js";
+
 export async function setupReaderToggle() {
 	if (document.readyState === "loading") {
 		await new Promise(resolve =>
@@ -78,12 +80,7 @@ export async function setupReaderToggle() {
 			articleElem.replaceWith(restored);
 
 			// Reinitialise chapter functionality
-			if (typeof window.setupReader === "function") {
-				window.setupReader();
-			}
-			if (typeof window.setupChapterNavigation === "function") {
-				window.setupChapterNavigation();
-			}
+			setupReader();
 		}
 
 		document.body.classList.remove("reader-mode");
