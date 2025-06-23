@@ -2305,10 +2305,13 @@ body.reader-mode article#reader {
 }
 
 body.reader-mode article#reader .chapter-image {
-  max-width: 100%;
-  height: auto;
+  max-width: 100% !important;
+  height: auto !important;
+  object-fit: contain !important;
   display: block;
   margin: 2rem auto;
+  box-shadow: none !important;
+  border: none !important;
 }
 
 body.reader-mode {
