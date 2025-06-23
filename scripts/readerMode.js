@@ -22,3 +22,9 @@ document.addEventListener("DOMContentLoaded", () => {
         readerToggle.textContent = disable;
     });
 });
+
+export function setupReaderToggle() {
+    const readerToggle = document.getElementById("reader-toggle");
+    if (!readerToggle) return;
+    // ... rest of your logic ...
+}

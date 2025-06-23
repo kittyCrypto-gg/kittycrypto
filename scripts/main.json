@@ -16,6 +16,5 @@
     "disable": "📕"
   },
   "headScripts": [
-    "./scripts/readerMode.js"
   ]
 }
