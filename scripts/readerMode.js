@@ -1,4 +1,5 @@
-function setupReaderToggle() {
+export function setupReaderToggle() {
+    console.log('[readerMode] Setting up reader toggle');
     document.addEventListener("DOMContentLoaded", () => {
         console.log('[readerMode] DOMContentLoaded');
 
@@ -44,6 +45,5 @@ function setupReaderToggle() {
             console.log('[readerMode] Reader mode enabled, text set to', disable);
         });
     });
+    console.log('[readerMode] Reader toggle setup complete');
 }
-
-setupReaderToggle();
