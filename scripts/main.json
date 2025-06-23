@@ -16,6 +16,6 @@
     "disable": "📕"
   },
   "headScripts": [
-    ".scripts/debug.js"
+    "./scripts/debug.js"
   ]
 }
