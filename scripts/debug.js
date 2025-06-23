@@ -9,7 +9,7 @@ function setupDebugPanel() {
         document.body.appendChild(debugDiv);
         if (new URLSearchParams(window.location.search).get("debug") === "true") {
             debugDiv.classList.add('visible');
-        } else {
+        } else if (new URLSearchParams(window.location.search).get("debug") === "false" || new URLSearchParams(window.location.search).get("debug") === null || !new URLSearchParams(window.location.search).has("debug")) {
             debugDiv.classList.remove('visible');
         }
     }
