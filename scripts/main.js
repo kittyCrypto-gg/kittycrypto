@@ -41,13 +41,14 @@ const repaint = () => {
 };
 
 // Load JSON file for UI elements
-const initialiseUI = async () => {
+async function initialiseUI() {
   try {
     // Load JSON file for UI elements
     const response = await fetch('scripts/main.json');
     if (!response.ok)
       throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+
     // Inject any scripts defined in main.json into <head>
     if (data.headScripts) {
       data.headScripts.forEach(scriptSrc => {
@@ -57,6 +58,7 @@ const initialiseUI = async () => {
         document.head.appendChild(script);
       });
     }
+
     // Populate the menu
     const menu = document.getElementById('main-menu');
     if (!menu) throw new Error('Element #main-menu not found!');
@@ -67,21 +69,25 @@ const initialiseUI = async () => {
       button.classList.add('menu-button');
       menu.appendChild(button);
     }
+
     // Populate the header
     const header = document.getElementById('main-header');
     if (!header) throw new Error('Element #main-header not found!');
     if (!header.textContent.trim())
       header.textContent = data.header;
+
     // Populate the footer
     const footer = document.getElementById('main-footer');
     if (!footer) throw new Error('Element #main-footer not found!');
     const currentYear = new Date().getFullYear();
     footer.textContent = data.footer.replace('${year}', currentYear);
+
     // Theme Toggle Button
     const themeToggle = document.createElement("button");
     themeToggle.id = "theme-toggle";
     themeToggle.classList.add("theme-toggle-button");
     document.body.appendChild(themeToggle);
+
     // Theme application helpers
     const applyLightTheme = () => {
       document.documentElement.classList.remove("dark-mode");
@@ -101,32 +107,33 @@ const initialiseUI = async () => {
       currentTheme = 'dark';
       console.log("Applied dark theme");
     };
+
     // Set initial theme
     getCookie("darkMode") === "true" ? applyDarkTheme() : applyLightTheme();
-    // Theme toggle event
+
+    // Theme toggle event (concise & robust)
     themeToggle.addEventListener("click", () => {
-      if (currentTheme === 'light') {
-        applyDarkTheme();
-      } else if (currentTheme === 'dark') {
-        applyLightTheme();
-      } else {
-        const isDark = document.body.classList.contains("dark-mode");
-        isDark ? applyLightTheme() : applyDarkTheme();
-        console.warn("currentTheme was null or invalid, fallback logic used.");
-      }
+      const isDark = currentTheme
+        ? currentTheme === 'dark'
+        : document.documentElement.classList.contains("dark-mode");
+      isDark ? applyLightTheme() : applyDarkTheme();
     });
+
+    // Reader Mode Toggle Button (inside try so data is available)
+    const readerToggle = document.createElement("button");
+    readerToggle.id = "reader-toggle";
+    readerToggle.classList.add("theme-toggle-button");
+    readerToggle.style.bottom = "80px"; // Appear just above the theme toggle
+    readerToggle.textContent = data.readerModeToggle.enable;
+    readerToggle.setAttribute('data-enable', data.readerModeToggle.enable);
+    readerToggle.setAttribute('data-disable', data.readerModeToggle.disable);
+    document.body.appendChild(readerToggle);
+
   } catch (error) {
     console.error('Error loading JSON or updating DOM:', error);
   }
-  // Reader Mode Toggle Button
-  const readerToggle = document.createElement("button");
-  readerToggle.id = "reader-toggle";
-  readerToggle.classList.add("theme-toggle-button");
-  readerToggle.style.bottom = "80px";
-  readerToggle.textContent = data.readerModeToggle.enable;
-  readerToggle.setAttribute('data-enable', data.readerModeToggle.enable);
-  readerToggle.setAttribute('data-disable', data.readerModeToggle.disable);
-  document.body.appendChild(readerToggle);
-};
+}
 
-initialiseUI();
+document.addEventListener("DOMContentLoaded", () => {
+  initialiseUI();
+});
