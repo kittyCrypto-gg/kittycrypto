@@ -793,3 +793,10 @@ document.addEventListener("click", (e) => {
     return;
   }
 });
+
+export async function setupReader() {
+  await loadChapterFromUrl();
+  setupChapterNavigation();
+  setupChapterImageZoom();
+  setupFontControls();
+}
