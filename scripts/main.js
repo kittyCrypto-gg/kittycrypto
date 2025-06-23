@@ -1,5 +1,4 @@
 import { loadBanner, setupTerminalWindow, scaleBannerToFit } from "./banner.js";
-import { setupReaderToggle } from './readerMode.js';
 
 document.addEventListener("DOMContentLoaded", () => {
   document.body.style.visibility = "visible";
@@ -137,5 +136,4 @@ async function initialiseUI() {
 
 document.addEventListener("DOMContentLoaded", () => {
   initialiseUI();
-  setupReaderToggle();
 });
