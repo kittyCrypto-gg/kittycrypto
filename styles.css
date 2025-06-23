@@ -2296,3 +2296,28 @@ body.reader-mode article {
 body.reader-mode {
   background: var(--frame-bg-colour);
 }
+
+/* =========================================
+  Debug Console
+  ========================================= */
+
+  .debug {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  font-size: 12px;
+  background: rgba(0,0,0,0.6);
+  color: #0f0;
+  padding: 4px;
+  z-index: 9999;
+  visibility: hidden;
+  max-width: 95vw;
+  max-height: 40vh;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  pointer-events: none;
+}
+.debug.visible {
+  visibility: visible;
+  pointer-events: auto;
+}

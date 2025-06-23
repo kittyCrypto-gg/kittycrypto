@@ -80,7 +80,6 @@ function isMobileDevice() {
 export async function scaleBannerToFit() {
     const wrapper = document.getElementById('banner-wrapper');
     const banner = document.getElementById('banner');
-    const debug = document.getElementById('debug');
 
     wrapBannerForScaling();
 
@@ -122,24 +121,6 @@ export async function scaleBannerToFit() {
             scaler.style.overflow = 'visible';
         }
 
-        if (debug) {
-            debug.innerText = `[scaleBannerToFit]
-            📱 isMobile: ${isMobileDevice()}
-            📏 scaleFactor: ${scaleFactor.toFixed(3)}
-
-            🖼️ banner.offsetHeight: ${actualHeight}
-            🖼️ banner.offsetWidth: ${actualWidth}
-            🖼️ banner.getBoundingClientRect(): { top: ${rect.top}, left: ${rect.left}, width: ${rect.width}, height: ${rect.height} }
-
-            📦 scaler.offsetHeight: ${scaler.offsetHeight}
-            📦 wrapper.offsetHeight: ${wrapper.offsetHeight}
-
-            🌐 window.innerHeight: ${window.innerHeight}
-            🌐 window.innerWidth: ${window.innerWidth}
-
-            🔤 font-size: ${fontSize}
-            🔤 line-height: ${lineHeight}`;
-        }
     };
 
     await waitUntilReady();
