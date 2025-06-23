@@ -1,12 +1,16 @@
+
 export async function setupReaderToggle() {
+  // Wait for DOMContentLoaded if needed
   if (document.readyState === "loading") {
     await new Promise(resolve =>
       document.addEventListener("DOMContentLoaded", resolve, { once: true })
     );
   }
 
+  // Wait for the reader toggle button to be present
   let readerToggle = document.getElementById("reader-toggle");
   if (!readerToggle) {
+    // In case of late injection
     readerToggle = await new Promise(resolve => {
       const observer = new MutationObserver(() => {
         const el = document.getElementById("reader-toggle");
@@ -24,9 +28,11 @@ export async function setupReaderToggle() {
   const enableText = readerToggle.getAttribute("data-enable");
   const disableText = readerToggle.getAttribute("data-disable");
 
+  // Store the original HTML so we can restore it later
+  let originalContent = null;
   let readerActive = false;
-  let originalNodeClone: HTMLElement | null = null;
 
+  // Helper: Load Readability from CDN if not present
   async function ensureReadabilityLoaded() {
     if (window.Readability) return;
     await new Promise((resolve, reject) => {
@@ -40,27 +46,26 @@ export async function setupReaderToggle() {
 
   async function enableReaderMode() {
     await ensureReadabilityLoaded();
-
-    const articleElem = document.querySelector("article#reader, main, article") as HTMLElement;
+    // Try to find the article
+    const articleElem = document.querySelector("article#reader, main, article");
     if (!articleElem) {
       alert("No article found for reader mode.");
       return;
     }
-
-    if (!originalNodeClone) {
-      originalNodeClone = articleElem.cloneNode(true) as HTMLElement;
+    // Save the original for restore
+    if (!originalContent) {
+      originalContent = articleElem.innerHTML;
     }
-
+    // Use Readability
     const docClone = document.cloneNode(true);
-    const reader = new window.Readability(docClone as Document, { debug: false });
+    const reader = new window.Readability(docClone, { debug: false });
     const parsed = reader.parse();
-
-    if (parsed?.content) {
+    if (parsed && parsed.content) {
       articleElem.innerHTML = parsed.content;
-      document.body.classList.add("reader-mode");
-      readerToggle.textContent = disableText;
-      readerToggle.classList.add("active");
       readerActive = true;
+      readerToggle.textContent = disableText;
+      readerToggle.classList.add('active');
+      document.body.classList.add('reader-mode');
     } else {
       alert("Could not extract readable content.");
     }
@@ -68,14 +73,13 @@ export async function setupReaderToggle() {
 
   function disableReaderMode() {
     const articleElem = document.querySelector("article#reader, main, article");
-    if (articleElem && originalNodeClone) {
-      articleElem.replaceWith(originalNodeClone.cloneNode(true));
+    if (articleElem && originalContent !== null) {
+      articleElem.innerHTML = originalContent;
     }
-
-    document.body.classList.remove("reader-mode");
-    readerToggle.textContent = enableText;
-    readerToggle.classList.remove("active");
     readerActive = false;
+    readerToggle.textContent = enableText;
+    readerToggle.classList.remove('active');
+    document.body.classList.remove('reader-mode');
   }
 
   function toggleReaderMode() {
@@ -86,16 +90,18 @@ export async function setupReaderToggle() {
     }
   }
 
+  // Sync initial state
   if (document.body.classList.contains("reader-mode")) {
     readerToggle.textContent = disableText;
-    readerToggle.classList.add("active");
+    readerToggle.classList.add('active');
   } else {
     readerToggle.textContent = enableText;
-    readerToggle.classList.remove("active");
+    readerToggle.classList.remove('active');
   }
 
+  // Attach event listener only once
   if (!readerToggle.__readerListener) {
-    readerToggle.addEventListener("click", toggleReaderMode);
+    readerToggle.addEventListener('click', toggleReaderMode);
     readerToggle.__readerListener = true;
   }
 
