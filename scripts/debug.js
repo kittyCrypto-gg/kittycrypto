@@ -1,7 +1,6 @@
 function setupDebugPanel() {
     if (window.__DEBUG_PANEL__) return window.__DEBUG_PANEL__;
 
-    // Make panel
     const debugDiv = document.createElement('div');
     debugDiv.className = 'debug';
     debugDiv.style.fontFamily = 'monospace, monospace';
@@ -12,7 +11,6 @@ function setupDebugPanel() {
             debugDiv.classList.add('visible');
         } else {
             debugDiv.classList.remove('visible');
-
         }
     }
     if (document.readyState === "loading") {
@@ -35,19 +33,36 @@ function setupDebugPanel() {
         return `${EMOJI[type] || EMOJI.log} [${time}] ${msg}`;
     }
 
-    // Proxy the native console methods
+    // Save native console refs only ONCE
+    const orig = {
+        log: console.log,
+        error: console.error,
+        warn: console.warn,
+        info: console.info,
+        clear: console.clear
+    };
+
+    // Proxy
     ["log", "error", "warn", "info"].forEach(type => {
-        const orig = console[type];
         console[type] = function (...args) {
-            orig.apply(console, args);
-            // Render as string (object support)
-            const msg = args.map(a => typeof a === "object" ? JSON.stringify(a, null, 2) : String(a)).join(" ");
+            orig[type].apply(console, args);
+            // Combine message
+            const msg = args.map(a =>
+                typeof a === "object" && a !== null
+                    ? (a instanceof Error ? (a.stack || a.toString()) : JSON.stringify(a, null, 2))
+                    : String(a)
+            ).join(" ");
             debugDiv.classList.add('visible');
             debugDiv.textContent += (debugDiv.textContent ? "\n" : "") + format(msg, type);
-            // Auto-scroll
             debugDiv.scrollTop = debugDiv.scrollHeight;
         };
     });
+
+    // Proxy clear
+    console.clear = function () {
+        orig.clear.apply(console, arguments);
+        debugDiv.textContent = "";
+    };
 
     window.__DEBUG_PANEL__ = {
         show(msg = "") {
