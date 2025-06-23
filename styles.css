@@ -2275,15 +2275,17 @@ body.dark-mode .tategaki-container svg text {
 
 /* =========================================
   Reader Mode Styles
-========================================= 
+=========================================*/
 
-body.reader-mode .frame > *:not(.frame-content):not(#theme-toggle):not(#reader-toggle) {
+body.reader-mode #banner-wrapper,
+body.reader-mode #main-menu,
+body.reader-mode #main-header,
+body.reader-mode #story-picker,
+body.reader-mode #comments,
+body.reader-mode #main-footer {
   display: none !important;
 }
 
-body.reader-mode .frame-content > *:not(article#reader):not(.chapter-navigation):not(.font-controls) {
-  display: none !important;
-}
 body.reader-mode article#reader {
   display: block !important;
   max-width: 70ch;
@@ -2295,7 +2297,9 @@ body.reader-mode article#reader {
   box-shadow: var(--frame-box-shadow);
   padding: 0;
   color: var(--body-text-colour);
+  text-align: justify;
 }
+
 body.reader-mode {
   background: var(--frame-bg-colour);
 }
