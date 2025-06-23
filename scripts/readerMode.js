@@ -4,13 +4,12 @@ export async function setupReaderToggle() {
         await new Promise(resolve =>
             document.addEventListener("DOMContentLoaded", resolve, { once: true })
         );
-        console.log('[readerMode] DOMContentLoaded (async)');
     }
 
-    // Try direct lookup first
+    // Wait for the reader toggle button to be present
     let readerToggle = document.getElementById("reader-toggle");
     if (!readerToggle) {
-        // Use MutationObserver to wait for injection
+        // In case of late injection
         readerToggle = await new Promise(resolve => {
             const observer = new MutationObserver(() => {
                 const el = document.getElementById("reader-toggle");
@@ -21,47 +20,34 @@ export async function setupReaderToggle() {
             });
             observer.observe(document.body, { childList: true, subtree: true });
         });
-        console.log('[readerMode] #reader-toggle appeared via MutationObserver');
     }
 
-    if (!readerToggle) {
-        console.warn("[readerMode] #reader-toggle not found at all");
-        return false;
+    if (!readerToggle) return false;
+
+    const enableText = readerToggle.getAttribute("data-enable");
+    const disableText = readerToggle.getAttribute("data-disable");
+
+    // Define the toggle function
+    const toggleReaderMode = () => {
+        const active = document.body.classList.toggle("reader-mode");
+        readerToggle.textContent = active ? disableText : enableText;
+        readerToggle.classList.toggle('active', active);
+    };
+
+    // Sync initial state
+    if (document.body.classList.contains("reader-mode")) {
+        readerToggle.textContent = disableText;
+        readerToggle.classList.add('active');
+    } else {
+        readerToggle.textContent = enableText;
+        readerToggle.classList.remove('active');
     }
 
-    // Attach the click event
-    const enable = readerToggle.getAttribute("data-enable");
-    const disable = readerToggle.getAttribute("data-disable");
-    console.log('[readerMode] Enable text:', enable, 'Disable text:', disable);
+    // Only attach once
+    if (!readerToggle.__readerListener) {
+        readerToggle.addEventListener('click', toggleReaderMode);
+        readerToggle.__readerListener = true;
+    }
 
-    readerToggle.addEventListener('click', () => {
-        console.log('[readerMode] Reader toggle clicked');
-
-        // Log function availability
-        console.log(
-            '[readerMode] window.enableReaderMode:', typeof window.enableReaderMode,
-            '| window.disableReaderMode:', typeof window.disableReaderMode,
-            '| window.isReaderModeActive:', typeof window.isReaderModeActive
-        );
-
-        if (!window.enableReaderMode || !window.disableReaderMode || !window.isReaderModeActive) {
-            console.warn('[readerMode] Reader mode functions not found.');
-            return;
-        }
-
-        const isActive = window.isReaderModeActive();
-        console.log('[readerMode] isReaderModeActive:', isActive);
-
-        if (isActive) {
-            window.disableReaderMode();
-            readerToggle.textContent = enable;
-            console.log('[readerMode] Reader mode disabled, text set to', enable);
-            return;
-        }
-
-        window.enableReaderMode();
-        readerToggle.textContent = disable;
-        console.log('[readerMode] Reader mode enabled, text set to', disable);
-    });
     return true;
 }
