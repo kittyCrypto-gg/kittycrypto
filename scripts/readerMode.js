@@ -6,8 +6,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const enable = readerToggle.getAttribute("data-enable");
     const disable = readerToggle.getAttribute("data-disable");
 
-    readerToggle.addEventListener("click", () => {
-        const isReader = document.body.classList.toggle("reader-mode");
-        readerToggle.textContent = isReader ? disable : enable;
+    readerToggle.addEventListener('click', () => {
+        if (!window.enableReaderMode || !window.disableReaderMode || !window.isReaderModeActive) {
+            console.warn('Reader mode functions not found.');
+            return;
+        }
+
+        if (window.isReaderModeActive()) {
+            window.disableReaderMode();
+            readerToggle.textContent = enable;
+            return;
+        }
+
+        window.enableReaderMode();
+        readerToggle.textContent = disable;
     });
 });
