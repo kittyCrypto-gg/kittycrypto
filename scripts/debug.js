@@ -10,6 +10,9 @@ function setupDebugPanel() {
         document.body.appendChild(debugDiv);
         if (new URLSearchParams(window.location.search).get("debug") === "true") {
             debugDiv.classList.add('visible');
+        } else {
+            debugDiv.classList.remove('visible');
+
         }
     }
     if (document.readyState === "loading") {
@@ -64,5 +67,28 @@ function setupDebugPanel() {
     return window.__DEBUG_PANEL__;
 }
 
+function propagateDebugParamInLinks() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("debug") !== "true") return;
+
+    document.querySelectorAll('a[href]').forEach(link => {
+        let href = link.getAttribute('href');
+        if (
+            !href ||
+            href.startsWith('http') ||
+            href.startsWith('#') ||
+            href.startsWith('mailto:') ||
+            href.includes('debug=true')
+        ) return;
+
+        // Split at ? or # to get base and suffix
+        let [base, suffix] = href.split(/([?#].*)/);
+        let joiner = suffix && suffix.startsWith('?') ? '&' : '?';
+        link.setAttribute('href', base + joiner + 'debug=true' + (suffix || ''));
+    });
+}
+
+
 // Call immediately if you want to guarantee the panel is ready
 setupDebugPanel();
+propagateDebugParamInLinks();
