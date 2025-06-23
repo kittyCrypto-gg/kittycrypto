@@ -2277,8 +2277,12 @@ body.dark-mode .tategaki-container svg text {
   Reader Mode Styles
 ========================================= */
 
-body.reader-mode > *:not(article):not(#reader-toggle):not(#theme-toggle) {
+body.reader-mode > *:not(article#reader) {
   display: none !important;
+}
+
+body.reader-mode article#reader {
+  display: block !important;
 }
 
 body.reader-mode article {
