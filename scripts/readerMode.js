@@ -1,4 +1,4 @@
-export function setupReaderToggle() {
+function setupReaderToggle() {
     document.addEventListener("DOMContentLoaded", () => {
         console.log('[readerMode] DOMContentLoaded');
 
@@ -45,3 +45,5 @@ export function setupReaderToggle() {
         });
     });
 }
+
+setupReaderToggle();
