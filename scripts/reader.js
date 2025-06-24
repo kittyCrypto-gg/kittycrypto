@@ -461,7 +461,7 @@ async function initReader() {
   readerRoot.style.setProperty("font-size", `${initialFont}em`);
 }
 
-function activateImageNavigation(root = document) {
+export function activateImageNavigation(root = document) {
   // First, clear any existing overlays and listeners to avoid duplication
   root.querySelectorAll(".image-nav").forEach(nav => nav.remove());
 

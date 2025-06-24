@@ -1,4 +1,4 @@
-import { setupReader } from "./reader.js";
+import { setupReader, activateImageNavigation } from "./reader.js";
 
 export async function setupReaderToggle() {
 	if (document.readyState === "loading") {
@@ -61,6 +61,8 @@ export async function setupReaderToggle() {
 			);
 			if (img) img.classList.add("chapter-image");
 		});
+
+		activateImageNavigation(root);
 	}
 
 	async function enableReaderMode() {
