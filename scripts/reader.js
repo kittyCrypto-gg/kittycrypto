@@ -16,7 +16,7 @@ const storyPickerRoot = document.getElementById("story-picker");
 const buttons = {
   clearBookmark: { icon: "↩️", action: "Clear bookmark for this chapter" },
   prevChapter: { icon: "⏪", action: "Previous chapter" },
-  jumpToChapter: { icon: "🈁", action: "Jump to chapter" },
+  jumpToChapter: { icon: "🆗", action: "Jump to chapter" },
   nextChapter: { icon: "⏩", action: "Next chapter" },
   scrollDown: { icon: "⏬", action: "Scroll down" },
   showInfo: { icon: "ℹ️", action: "Show navigation info" },
