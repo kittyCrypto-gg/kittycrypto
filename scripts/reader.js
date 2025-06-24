@@ -93,7 +93,7 @@ function showTemporaryNotice(message, timeout = 1000) {
 
 // Inject navigation bars at top and bottom
 function injectNav() {
-// if page is not "reader.html" return
+  // if page is not "reader.html" return
   const navHTML = `
   <div class="chapter-navigation">
     <button class="btn-clear-bookmark">${buttons.clearBookmark.icon}</button>
@@ -311,7 +311,7 @@ async function loadChapter(n) {
     bindNavigationEvents(document);
     setReaderCookie(`bookmark_${encodeURIComponent(storyPath)}`, chapter);
     window.scrollTo(0, 0);
-    
+
   } catch (err) {
     readerRoot.innerHTML = `
       <div class="chapter-404">
@@ -747,31 +747,33 @@ function restoreLastStoryRead() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  restoreLastStoryRead();
-  initReader();
-  activateImageNavigation(document);
-});
+function initiateReader() {
+  document.addEventListener("DOMContentLoaded", () => {
+    restoreLastStoryRead();
+    initReader();
+    activateImageNavigation(document);
+  });
 
-document.addEventListener("click", (e) => {
-  const target = e.target;
-  const bookmarks = Array.from(document.querySelectorAll(".reader-bookmark"));
-  if (!bookmarks.length) return;
+  document.addEventListener("click", (e) => {
+    const target = e.target;
+    const bookmarks = Array.from(document.querySelectorAll(".reader-bookmark"));
+    if (!bookmarks.length) return;
 
-  if (target.classList.contains("btn-scroll-down")) {
-    const upBtn = document.querySelector(".btn-scroll-up");
-    if (!upBtn) return;
-    upBtn.scrollIntoView({ behavior: "smooth" });
-    return;
-  }
+    if (target.classList.contains("btn-scroll-down")) {
+      const upBtn = document.querySelector(".btn-scroll-up");
+      if (!upBtn) return;
+      upBtn.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
 
-  if (target.classList.contains("btn-scroll-up")) {
-    const downBtn = document.querySelector(".btn-scroll-down");
-    if (!downBtn) return;
-    downBtn.scrollIntoView({ behavior: "smooth" });
-    return;
-  }
-});
+    if (target.classList.contains("btn-scroll-up")) {
+      const downBtn = document.querySelector(".btn-scroll-down");
+      if (!downBtn) return;
+      downBtn.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+  });
+}
 
 export async function setupReader(root = document) {
   bindNavigationEvents(root);
@@ -779,3 +781,5 @@ export async function setupReader(root = document) {
   refreshTategakiFont(root);
   observeAndSaveBookmarkProgress(root);
 }
+
+if (window.location.pathname.endsWith("reader.html")) initiateReader();
