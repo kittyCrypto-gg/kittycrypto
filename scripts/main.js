@@ -145,13 +145,14 @@ async function initialiseUI() {
       readAloudToggle.setAttribute('data-disable', data.readAloudToggle.disable);
       readAloudToggle.title = data.readAloudToggle.title || "Read Aloud";
       document.body.appendChild(readAloudToggle);
+
+      await setupReaderToggle();
     }
 
   } catch (error) {
     console.error('Error loading JSON or updating DOM:', error);
   }
-
-  await setupReaderToggle();
+  
 }
 
 document.addEventListener("DOMContentLoaded", () => {
