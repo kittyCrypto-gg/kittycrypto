@@ -45,7 +45,27 @@ export async function setupReaderToggle() {
 		});
 	}
 
+	function storeChapterImages(root = document) {
+		return Array.from(root.querySelectorAll("img.chapter-image")).map(img => ({
+			src: img.currentSrc || img.src,
+			alt: img.alt
+		}));
+	}
+
+	function restoreChapterImages(list, root) {
+		if (!Array.isArray(list) || !root) return;
+		const imgs = root.querySelectorAll("img");
+		list.forEach(({ src, alt }) => {
+			const img = Array.from(imgs).find(i =>
+				(i.currentSrc || i.src) === src && i.alt === alt
+			);
+			if (img) img.classList.add("chapter-image");
+		});
+	}
+
 	async function enableReaderMode() {
+		const imgArray = storeChapterImages(document);
+
 		await ensureReadabilityLoaded();
 
 		const articleElem = document.querySelector("article#reader, main, article");
@@ -54,9 +74,8 @@ export async function setupReaderToggle() {
 			return;
 		}
 
-		if (!originalNodeClone) {
+		if (!originalNodeClone)
 			originalNodeClone = articleElem.cloneNode(true);
-		}
 
 		const docClone = document.cloneNode(true);
 		const reader = new window.Readability(docClone);
@@ -64,6 +83,8 @@ export async function setupReaderToggle() {
 
 		if (parsed && parsed.content) {
 			articleElem.innerHTML = parsed.content;
+			restoreChapterImages(imgArray, articleElem);
+
 			document.body.classList.add("reader-mode");
 			readerToggle.textContent = disableText;
 			readerToggle.classList.add("active");
