@@ -1,5 +1,5 @@
 import { loadBanner, setupTerminalWindow, scaleBannerToFit } from "./banner.js";
-import { setupReaderToggle } from "./readerMode.js";
+//import { setupReaderToggle } from "./readerMode.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   document.body.style.visibility = "visible";
