@@ -149,8 +149,8 @@ async function initialiseUI() {
     console.error('Error loading JSON or updating DOM:', error);
   }
 
-  if (document.getElementById('reader'))
-    await setupReaderToggle();
+  // if (document.getElementById('reader'))
+  //   await setupReaderToggle();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
