@@ -126,7 +126,8 @@ async function initialiseUI() {
       const readerToggle = document.createElement("button");
       readerToggle.id = "reader-toggle";
       readerToggle.classList.add("theme-toggle-button");
-      readerToggle.style.bottom = "80px"; // Appear just above the theme toggle
+      // calculate bottom as theme toggle button bottom + width + 10px
+      readerToggle.style.bottom = `${parseInt(themeToggle.style.bottom || "0") + parseInt(themeToggle.style.width || "0") + 10}px`;
       readerToggle.textContent = data.readerModeToggle.enable;
       readerToggle.setAttribute('data-enable', data.readerModeToggle.enable);
       readerToggle.setAttribute('data-disable', data.readerModeToggle.disable);
@@ -136,7 +137,8 @@ async function initialiseUI() {
       const readAloudToggle = document.createElement("button");
       readAloudToggle.id = "read-aloud-toggle";
       readAloudToggle.classList.add("theme-toggle-button");
-      readAloudToggle.style.bottom = "40px"; // Appear just above the reader toggle
+      // calculate bottom as reader toggle button bottom + width + 10px
+      readAloudToggle.style.bottom = `${parseInt(readerToggle.style.bottom || "0") + parseInt(readerToggle.style.width || "0") + 10}px`;
       readAloudToggle.textContent = data.readAloudToggle.enable;
       readAloudToggle.setAttribute('data-enable', data.readAloudToggle.enable);
       readAloudToggle.setAttribute('data-disable', data.readAloudToggle.disable);
