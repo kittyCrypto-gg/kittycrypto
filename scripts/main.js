@@ -121,7 +121,6 @@ async function initialiseUI() {
     });
 
     themeToggle.title = data.themeToggle.title || "Theme";
-    if (window.location.pathname.includes("reader.html")) {
       // Reader Mode Toggle Button (inside try so data is available)
       const readerToggle = document.createElement("button");
       readerToggle.id = "reader-toggle";
@@ -146,13 +145,11 @@ async function initialiseUI() {
       readAloudToggle.title = data.readAloudToggle.title || "Read Aloud";
       document.body.appendChild(readAloudToggle);
 
-      await setupReaderToggle();
-    }
-
   } catch (error) {
     console.error('Error loading JSON or updating DOM:', error);
   }
-  
+
+  await setupReaderToggle();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
