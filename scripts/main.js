@@ -120,15 +120,28 @@ async function initialiseUI() {
       isDark ? applyLightTheme() : applyDarkTheme();
     });
 
-    // Reader Mode Toggle Button (inside try so data is available)
-    const readerToggle = document.createElement("button");
-    readerToggle.id = "reader-toggle";
-    readerToggle.classList.add("theme-toggle-button");
-    readerToggle.style.bottom = "80px"; // Appear just above the theme toggle
-    readerToggle.textContent = data.readerModeToggle.enable;
-    readerToggle.setAttribute('data-enable', data.readerModeToggle.enable);
-    readerToggle.setAttribute('data-disable', data.readerModeToggle.disable);
-    document.body.appendChild(readerToggle);
+    
+    if (window.location.pathname.includes("reader.html")) {
+      // Reader Mode Toggle Button (inside try so data is available)
+      const readerToggle = document.createElement("button");
+      readerToggle.id = "reader-toggle";
+      readerToggle.classList.add("theme-toggle-button");
+      readerToggle.style.bottom = "80px"; // Appear just above the theme toggle
+      readerToggle.textContent = data.readerModeToggle.enable;
+      readerToggle.setAttribute('data-enable', data.readerModeToggle.enable);
+      readerToggle.setAttribute('data-disable', data.readerModeToggle.disable);
+      document.body.appendChild(readerToggle);
+
+      // Read aloud toggle button
+      const readAloudToggle = document.createElement("button");
+      readAloudToggle.id = "read-aloud-toggle";
+      readAloudToggle.classList.add("theme-toggle-button");
+      readAloudToggle.style.bottom = "40px"; // Appear just above the reader toggle
+      readAloudToggle.textContent = data.readAloudToggle.enable;
+      readAloudToggle.setAttribute('data-enable', data.readAloudToggle.enable);
+      readAloudToggle.setAttribute('data-disable', data.readAloudToggle.disable);
+      document.body.appendChild(readAloudToggle);
+    }
 
   } catch (error) {
     console.error('Error loading JSON or updating DOM:', error);

@@ -15,6 +15,10 @@
     "enable": "📖",
     "disable": "📕"
   },
+  "readAloudToggle": {
+    "enable": "▶️",
+    "disable": "⏸️"
+  },
   "headScripts": [
     "./scripts/debug.js"
   ]
