@@ -13,14 +13,27 @@ let lastKnownChapter = parseInt(localStorage.getItem(chapterCacheKey) || "0");
 const readerRoot = document.getElementById("reader");
 const storyPickerRoot = document.getElementById("story-picker");
 
+const buttons = {
+  clearBookmark: { icon: "↩️", action: "Clear bookmark for this chapter" },
+  prevChapter: { icon: "⏪", action: "Previous chapter" },
+  jumpToChapter: { icon: "🈁", action: "Jump to chapter" },
+  nextChapter: { icon: "⏩", action: "Next chapter" },
+  scrollDown: { icon: "⏬", action: "Scroll down" },
+  showInfo: { icon: "ℹ️", action: "Show navigation info" },
+  decreaseFont: { icon: "➖", action: "Decrease font size" },
+  resetFont: { icon: "🔁", action: "Reset font size" },
+  increaseFont: { icon: "➕", action: "Increase font size" },
+  scrollUp: { icon: "⏫", action: "Scroll up" }
+};
+
 // Reader-specific cookie helpers to avoid collision with main.js
-function setReaderCookie(name, value, days = 365) {
+function setReaderCookie(name, value, days = 365, root = document) {
   const expires = new Date(Date.now() + days * 864e5).toUTCString();
-  document.cookie = `reader_${name}=${value}; expires=${expires}; path=/`;
+  root.cookie = `reader_${name}=${value}; expires=${expires}; path=/`;
 }
 
-function getReaderCookie(name) {
-  const cookies = document.cookie.split("; ");
+function getReaderCookie(name, root = document) {
+  const cookies = root.cookie.split("; ");
   const cookie = cookies.find(row => row.startsWith(`reader_${name}=`));
   return cookie ? cookie.split("=")[1] : null;
 }
@@ -42,16 +55,16 @@ function prevBtnEn(chapter, chapters) {
   return true;
 }
 
-function updatePrevButtonState() {
+function updatePrevButtonState(root = document) {
   const chapters = JSON.parse(localStorage.getItem(chapterCacheKey) || "[]");
   const enablePrev = prevBtnEn(chapter, chapters);
 
-  document.querySelectorAll(".btn-prev").forEach(btn => {
+  root.querySelectorAll(".btn-prev").forEach(btn => {
     btn.disabled = !enablePrev;
   });
 }
 
-function clearBookmarkForCurrentChapter() {
+function clearBookmarkForCurrentChapter(root = document) {
   const storyKey = makeStoryKey(storyPath);
   const key = `bookmark_${storyKey}_ch${chapter}`;
   localStorage.removeItem(key);
@@ -82,20 +95,20 @@ function showTemporaryNotice(message, timeout = 1000) {
 function injectNav() {
   const navHTML = `
   <div class="chapter-navigation">
-    <button class="btn-clear-bookmark">↩️</button>
-    <button class="btn-prev">⏪</button>
+    <button class="btn-clear-bookmark">${buttons.clearBookmark.icon}</button>
+    <button class="btn-prev">${buttons.prevChapter.icon}</button>
     <input class="chapter-display" type="text" value="1" readonly style="width: 2ch; text-align: center; border: none; background: transparent; font-weight: bold;" />
     <input class="chapter-input" type="number" min="0" style="width: 2ch; text-align: center;" />
-    <button class="btn-jump">⏯️</button>
+    <button class="btn-jump">${buttons.jumpToChapter.icon}</button>
     <button class="chapter-end" disabled style="width: 2ch; text-align: center; font-weight: bold;"></button>
-    <button class="btn-next">⏩</button>
-    <button class="btn-scroll-down">⏬</button>
-    <button class="btn-info">ℹ️</button>
+    <button class="btn-next">${buttons.nextChapter.icon}</button>
+    <button class="btn-scroll-down">${buttons.scrollDown.icon}</button>
+    <button class="btn-info">${buttons.showInfo.icon}</button>
   </div>
   <div class="font-controls">
-    <button class="font-decrease">➖</button>
-    <button class="font-reset">🔁</button>
-    <button class="font-increase">➕</button>
+    <button class="font-decrease">${buttons.decreaseFont.icon}</button>
+    <button class="font-reset">${buttons.resetFont.icon}</button>
+    <button class="font-increase">${buttons.increaseFont.icon}</button>
   </div>
 `;
 
@@ -106,7 +119,7 @@ function injectNav() {
   // Replace ⏬ with ⏫ in the bottom nav
   const scrollDownBtn = navBottom.querySelector(".btn-scroll-down");
   if (scrollDownBtn) {
-    scrollDownBtn.textContent = "⏫";
+    scrollDownBtn.textContent = buttons.scrollUp.icon;
     scrollDownBtn.classList.remove("btn-scroll-down");
     scrollDownBtn.classList.add("btn-scroll-up");
   }
@@ -127,23 +140,22 @@ function updateFontSize(delta = 0) {
 function showNavigationInfo() {
   alert(`Navigation Button Guide:
 
-  ↩️  – Clear the current bookmark
-  ⏪  – Go to previous chapter
-  ⏯️  – Jump to a specific chapter
-  ⏩  – Go to next chapter
-  ⏬  – Scroll to the end of the page
-  ⏫  – Scroll to the top of the page
+  ${buttons.clearBookmark.icon}  – ${buttons.clearBookmark.action}
+  ${buttons.prevChapter.icon}  – ${buttons.prevChapter.action}
+  ${buttons.jumpToChapter.icon}  – ${buttons.jumpToChapter.action}
+  ${buttons.nextChapter.icon}  – ${buttons.nextChapter.action}
+  ${buttons.scrollDown.icon}  – ${buttons.scrollDown.action}
+  ${buttons.scrollUp.icon}  – ${buttons.scrollUp.action}
 
 Font Controls:
-  ➖  – Decrease font size
-  🔁  – Reset font size to default
-  ➕  – Increase font size`);
+  ${buttons.decreaseFont.icon}  – ${buttons.decreaseFont.action}
+  ${buttons.resetFont.icon}  – ${buttons.resetFont.action}
+  ${buttons.increaseFont.icon}  – ${buttons.increaseFont.action}`);
 }
 
-
-function bindNavigationEvents() {
+function bindNavigationEvents(root = document) {
   const chapters = JSON.parse(localStorage.getItem(chapterCacheKey) || "[]");
-  document.querySelectorAll(".btn-prev").forEach(btn => btn.onclick = () => {
+  root.querySelectorAll(".btn-prev").forEach(btn => btn.onclick = () => {
     if (!prevBtnEn(chapter, chapters)) {
       btn.disabled = true;
       return;
@@ -151,12 +163,12 @@ function bindNavigationEvents() {
     jumpTo(chapter - 1);
   });
 
-  document.querySelectorAll(".btn-next").forEach(btn => btn.onclick = () => {
+  root.querySelectorAll(".btn-next").forEach(btn => btn.onclick = () => {
     if (chapter < lastKnownChapter) jumpTo(chapter + 1);
   });
 
   // Jump to the chapter typed next to this button
-  document.querySelectorAll(".btn-jump").forEach(btn => {
+  root.querySelectorAll(".btn-jump").forEach(btn => {
     btn.onclick = () => {
       const input = btn.parentElement.querySelector(".chapter-input");
       if (!input) return;
@@ -168,7 +180,7 @@ function bindNavigationEvents() {
     };
   });
 
-  document.querySelectorAll(".chapter-input").forEach(input => {
+  root.querySelectorAll(".chapter-input").forEach(input => {
     input.value = chapter;
     input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
@@ -178,34 +190,34 @@ function bindNavigationEvents() {
     });
   });
 
-  document.querySelectorAll(".btn-rescan").forEach(btn => btn.onclick = async () => {
+  root.querySelectorAll(".btn-rescan").forEach(btn => btn.onclick = async () => {
     localStorage.removeItem(chapterCacheKey);
     lastKnownChapter = await discoverChapters();
     updateNav();
   });
 
-  document.querySelectorAll(".btn-clear-bookmark").forEach(btn => {
-    btn.onclick = clearBookmarkForCurrentChapter;
+  root.querySelectorAll(".btn-clear-bookmark").forEach(btn => {
+    btn.onclick = () => clearBookmarkForCurrentChapter(root);
   });
 
-  document.querySelectorAll(".font-increase").forEach(btn => btn.onclick = () => updateFontSize(0.1));
-  document.querySelectorAll(".font-decrease").forEach(btn => btn.onclick = () => updateFontSize(-0.1));
-  document.querySelectorAll(".font-reset").forEach(btn => btn.onclick = () => updateFontSize(0));
-  document.querySelectorAll(".btn-info").forEach(btn => btn.onclick = showNavigationInfo);
+  root.querySelectorAll(".font-increase").forEach(btn => btn.onclick = () => updateFontSize(0.1));
+  root.querySelectorAll(".font-decrease").forEach(btn => btn.onclick = () => updateFontSize(-0.1));
+  root.querySelectorAll(".font-reset").forEach(btn => btn.onclick = () => updateFontSize(0));
+  root.querySelectorAll(".btn-info").forEach(btn => btn.onclick = showNavigationInfo);
 }
 
-async function populateStoryPicker() {
+async function populateStoryPicker(root = document) {
   if (!storyPickerRoot) return;
   try {
     const res = await fetch("scripts/stories.json");
     if (!res.ok) throw new Error("No stories found");
     const stories = await res.json();
 
-    const select = document.createElement("select");
+    const select = root.createElement("select");
     select.className = "story-selector";
     select.innerHTML = `<option value="">Select a story...</option>`;
     Object.entries(stories).forEach(([name, path]) => {
-      const opt = document.createElement("option");
+      const opt = root.createElement("option");
       opt.value = path;
       opt.textContent = name;
       if (path === storyPath) opt.selected = true;
@@ -284,7 +296,7 @@ async function loadChapter(n) {
     readerRoot.innerHTML = htmlContent;
 
     // Start tracking scroll progress
-    observeAndSaveBookmarkProgress();
+    observeAndSaveBookmarkProgress(document);
 
     // Scroll to the saved bookmark after DOM layout is ready
     requestAnimationFrame(() => {
@@ -292,47 +304,13 @@ async function loadChapter(n) {
     });
 
     // Activate features
-    activateImageNavigation();
+    activateImageNavigation(document);
     chapter = n;
-    updateNav();
-    bindNavigationEvents();
+    updateNav(document);
+    bindNavigationEvents(document);
     setReaderCookie(`bookmark_${encodeURIComponent(storyPath)}`, chapter);
     window.scrollTo(0, 0);
-    function injectNav() {
-      const navHTML = `
-    <div class="chapter-navigation">
-      <button class="btn-prev">⏪</button>
-      <input class="chapter-display" type="text" value="1" readonly style="width: 2ch; text-align: center; border: none; background: transparent; font-weight: bold;" />
-      <input class="chapter-input" type="number" min="0" style="width: 2ch; text-align: center;" />
-      <button class="btn-jump">⏯️</button>
-      <button class="chapter-end" disabled style="width: 2ch; text-align: center; font-weight: bold;"></button>
-      <button class="btn-next">⏩</button>
-      <button class="btn-scroll-down">⏬</button>
-    </div>
-    <div class="font-controls">
-      <button class="font-decrease">➖</button>
-      <button class="font-reset">🔁</button>
-      <button class="font-increase">➕</button>
-    </div>
-  `;
-
-      const navTop = document.createElement("div");
-      navTop.innerHTML = navHTML;
-      const navBottom = navTop.cloneNode(true);
-
-      // Replace ⏬ with ⏫ in the bottom nav
-      const scrollDownBtn = navBottom.querySelector(".btn-scroll-down");
-      if (scrollDownBtn) {
-        scrollDownBtn.textContent = "⏫";
-        scrollDownBtn.classList.remove("btn-scroll-down");
-        scrollDownBtn.classList.add("btn-scroll-up");
-      }
-
-      readerRoot.insertAdjacentElement("beforebegin", navTop);
-      readerRoot.insertAdjacentElement("afterend", navBottom);
-
-      updatePrevButtonState();
-    }
+    
   } catch (err) {
     readerRoot.innerHTML = `
       <div class="chapter-404">
@@ -436,31 +414,31 @@ function replaceImageTags(htmlContent) {
   });
 }
 
-function refreshTategakiFont() {
+function refreshTategakiFont(root = document) {
   // current computed body font-size in px
   const px = parseFloat(getComputedStyle(readerRoot).fontSize);
-  document
+  root
     .querySelectorAll(".tategaki-container svg text")
     .forEach(t => t.setAttribute("font-size", px));
 }
 
-function updateNav() {
-  document.querySelectorAll(".chapter-display").forEach(el => el.value = chapter);
-  document.querySelectorAll(".chapter-end").forEach(btn => btn.textContent = lastKnownChapter);
+function updateNav(root = document) {
+  root.querySelectorAll(".chapter-display").forEach(el => el.value = chapter);
+  root.querySelectorAll(".chapter-end").forEach(btn => btn.textContent = lastKnownChapter);
 
   // If Chapter 0 is detected, allow the Previous button to activate when on Chapter 1
   const chapters = JSON.parse(localStorage.getItem(chapterCacheKey) || "[]");
   const hasChapter0 = chapters.includes(0);
 
-  document.querySelectorAll(".btn-next").forEach(btn => {
+  root.querySelectorAll(".btn-next").forEach(btn => {
     btn.disabled = chapter === lastKnownChapter;
   });
 
-  updatePrevButtonState();
+  updatePrevButtonState(root);
 }
 
 async function initReader() {
-  await populateStoryPicker();
+  await populateStoryPicker(document);
   if (!storyPath) return;
 
   injectNav();
@@ -482,15 +460,15 @@ async function initReader() {
   readerRoot.style.setProperty("font-size", `${initialFont}em`);
 }
 
-function activateImageNavigation() {
+function activateImageNavigation(root = document) {
   // First, clear any existing overlays and listeners to avoid duplication
-  document.querySelectorAll(".image-nav").forEach(nav => nav.remove());
+  root.querySelectorAll(".image-nav").forEach(nav => nav.remove());
 
-  document.querySelectorAll(".chapter-image-container").forEach(container => {
+  root.querySelectorAll(".chapter-image-container").forEach(container => {
     const image = container.querySelector(".chapter-image");
 
     // === Create Navigation Overlay ===
-    const navOverlay = document.createElement("div");
+    const navOverlay = root.createElement("div");
     navOverlay.classList.add("image-nav");
     navOverlay.innerHTML = `
       <button class="btn-up">⬆️</button>
@@ -518,13 +496,13 @@ function activateImageNavigation() {
       const interval = setInterval(onHold, 100);
       const stopHold = () => {
         clearInterval(interval);
-        document.removeEventListener("mouseup", stopHold);
-        document.removeEventListener("touchend", stopHold);
-        document.removeEventListener("mouseleave", stopHold);
+        root.removeEventListener("mouseup", stopHold);
+        root.removeEventListener("touchend", stopHold);
+        root.removeEventListener("mouseleave", stopHold);
       };
-      document.addEventListener("mouseup", stopHold);
-      document.addEventListener("touchend", stopHold);
-      document.addEventListener("mouseleave", stopHold);
+      root.addEventListener("mouseup", stopHold);
+      root.addEventListener("touchend", stopHold);
+      root.addEventListener("mouseleave", stopHold);
       onHold(); // immediate execution
     };
 
@@ -681,8 +659,8 @@ function injectBookmarksIntoHTML(htmlContent, storyPath, chapter) {
   );
 }
 
-function observeAndSaveBookmarkProgress() {
-  const bookmarks = Array.from(document.querySelectorAll(".reader-bookmark"));
+function observeAndSaveBookmarkProgress(root = document) {
+  const bookmarks = Array.from(root.querySelectorAll(".reader-bookmark"));
   const observer = new IntersectionObserver((entries) => {
     for (const entry of entries) {
       if (!entry.isIntersecting) return;
@@ -771,7 +749,7 @@ function restoreLastStoryRead() {
 document.addEventListener("DOMContentLoaded", () => {
   restoreLastStoryRead();
   initReader();
-  activateImageNavigation();
+  activateImageNavigation(document);
 });
 
 document.addEventListener("click", (e) => {
@@ -794,9 +772,9 @@ document.addEventListener("click", (e) => {
   }
 });
 
-export async function setupReader() {
-  await loadChapterFromUrl();
-  setupChapterNavigation();
-  setupChapterImageZoom();
-  setupFontControls();
+export async function setupReader(root = document) {
+  bindNavigationEvents(root);
+  activateImageNavigation(root);
+  refreshTategakiFont(root);
+  observeAndSaveBookmarkProgress(root);
 }

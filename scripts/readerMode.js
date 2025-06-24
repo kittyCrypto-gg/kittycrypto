@@ -79,8 +79,9 @@ export async function setupReaderToggle() {
 			const restored = originalNodeClone.cloneNode(true);
 			articleElem.replaceWith(restored);
 
-			// Reinitialise chapter functionality
-			setupReader();
+			// Reinitialise chapter functionality with the new root
+			const newRoot = restored.ownerDocument || document; // in most cases, just document
+			setupReader(restored); // pass the restored article as root
 		}
 
 		document.body.classList.remove("reader-mode");
@@ -88,6 +89,7 @@ export async function setupReaderToggle() {
 		readerToggle.classList.remove("active");
 		readerActive = false;
 	}
+
 
 	function toggleReaderMode() {
 		if (readerActive) {
