@@ -93,6 +93,8 @@ function showTemporaryNotice(message, timeout = 1000) {
 
 // Inject navigation bars at top and bottom
 function injectNav() {
+// if page is not "reader.html" return
+  if (!window.location.pathname.includes("reader.html")) return;
   const navHTML = `
   <div class="chapter-navigation">
     <button class="btn-clear-bookmark">${buttons.clearBookmark.icon}</button>
