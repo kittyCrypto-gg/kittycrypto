@@ -136,6 +136,10 @@ async function editMessage() {
   // { msgId, sessionToken, ip, newMessage }
   const msgId = document.getElementById("edit-message-id")?.textContent.replace("Editing Message ID: ", "").trim() || "";
   const newMessage = document.getElementById("edit-message-input")?.value || "";
+
+  console.log("msgId field:", document.getElementById("edit-message-id")?.textContent);
+  console.log("extracted msgId:", msgId, "newMessage:", newMessage);
+
   if (!msgId || !newMessage) {
     console.log(msgId, newMessage);
     alert("Please provide a message to edit.");
