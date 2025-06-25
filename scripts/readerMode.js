@@ -46,32 +46,22 @@ export async function setupReaderToggle() {
 	}
 
 	function storeChapterImages(root = document) {
-		// Store info about each image: src, alt, and if it's inside .chapter-image-container
 		return Array.from(root.querySelectorAll("img.chapter-image")).map(img => ({
 			src: img.currentSrc || img.src,
-			alt: img.alt,
-			hasContainer: !!img.closest(".chapter-image-container")
+			alt: img.alt
 		}));
 	}
 
 	function restoreChapterImages(list, root) {
 		if (!Array.isArray(list) || !root) return;
 		const imgs = root.querySelectorAll("img");
-		list.forEach(({ src, alt, hasContainer }) => {
+		list.forEach(({ src, alt }) => {
 			const img = Array.from(imgs).find(i =>
 				(i.currentSrc || i.src) === src && i.alt === alt
 			);
-			if (!img) return;
-			img.classList.add("chapter-image");
-			// Ensure .chapter-image-container exists
-			if (hasContainer && !img.closest(".chapter-image-container")) {
-				const wrapper = root.createElement ? root.createElement("div") : document.createElement("div");
-				wrapper.className = "chapter-image-container";
-				img.replaceWith(wrapper);
-				wrapper.appendChild(img);
-			}
+			if (img) img.classList.add("chapter-image");
 		});
-		// Now restore navigation handlers
+
 		activateImageNavigation(root);
 	}
 
