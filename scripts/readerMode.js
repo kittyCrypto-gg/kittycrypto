@@ -14,6 +14,12 @@ class ReaderToggle {
 		this.handleToggleClick = this.handleToggleClick.bind(this);
 	}
 
+	getRootDocument(root) {
+		if (root.createElement) return root;
+		if (root.ownerDocument) return root.ownerDocument;
+		return document;
+	}
+
 	static async setup() {
 		if (document.readyState === "loading") {
 			await new Promise(resolve =>
@@ -80,6 +86,7 @@ class ReaderToggle {
 	restoreChapterImages(list, root) {
 		if (!Array.isArray(list) || !root) return;
 		const imgs = root.querySelectorAll("img");
+		const doc = this.getRootDocument(root);
 		list.forEach(({ src, alt, hasContainer }) => {
 			const img = Array.from(imgs).find(i =>
 				(i.currentSrc || i.src) === src && i.alt === alt
@@ -87,7 +94,7 @@ class ReaderToggle {
 			if (!img) return;
 			img.classList.add("chapter-image");
 			if (hasContainer && !img.closest(".chapter-image-container")) {
-				const wrapper = document.createElement("div");
+				const wrapper = doc.createElement("div");
 				wrapper.className = "chapter-image-container";
 				img.replaceWith(wrapper);
 				wrapper.appendChild(img);
@@ -95,7 +102,7 @@ class ReaderToggle {
 		});
 		activateImageNavigation(root);
 	}
-
+	
 	async enableReaderMode() {
 		const imgArray = this.storeChapterImages(document);
 
