@@ -834,7 +834,9 @@ footer {
 
 .edited-flag {
   font-size: 1em;
-  margin-right: 2px;
+  margin-right: 4px;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 /* Message ID (hidden from users but present in the HTML) */
