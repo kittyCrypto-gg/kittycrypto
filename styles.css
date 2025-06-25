@@ -832,6 +832,11 @@ footer {
   cursor: pointer;
 }
 
+.edited-flag {
+  font-size: 1em;
+  margin-right: 2px;
+}
+
 /* Message ID (hidden from users but present in the HTML) */
 .chat-msg-id {
   display: none;

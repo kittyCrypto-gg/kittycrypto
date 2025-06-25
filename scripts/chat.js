@@ -29,7 +29,7 @@ function setChatCookie(name, value, days = 365) {
 }
 
 // Load Nickname from Cookie 
-function loadNickname()  {
+function loadNickname() {
   const savedNick = getChatCookie("nickname");
   if (savedNick) {
     nicknameInput.value = savedNick;
@@ -102,15 +102,6 @@ function connectToChatStream() {
     eventSource.close();
     setTimeout(connectToChatStream, 3000); // Retry after 3s
   };
-}
-
-// Generates a Unique Seed for Each User 
-async function hashUser(nick, id) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(nick + id);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.slice(0, 4).reduce((acc, val) => (acc << 8) + val, 0);
 }
 
 export async function fetchUserIP() {
@@ -203,51 +194,65 @@ async function sendMessage() {
 // Displays Chat Messages
 async function displayChat(messages, isLocalUpdate = false) {
   if (!isLocalUpdate) {
-    document.querySelectorAll(".chat-message.pending").forEach(el => el.remove());
-    chatroom.innerHTML = "";
+    document.querySelectorAll('.chat-message.pending').forEach(el => el.remove());
+    chatroom.innerHTML = '';
   }
 
-  messages.forEach(({ nick, id, msg, timestamp, msgId, pending }) => {
+  messages.forEach(msgObj => {
+    const {
+      nick, id, msg, timestamp,
+      msgId, pending = false, edited = false
+    } = msgObj;
+
     const colour = `hsl(${parseInt(id, 16) % 360}, 61%, 51%)`;
-    const formattedDate = timestamp.replace("T", " ").slice(0, 19).replace(/-/g, ".");
+    const formattedDate = timestamp.replace('T', ' ').slice(0, 19).replace(/-/g, '.');
 
-    const messageDiv = document.createElement("div");
-    messageDiv.classList.add("chat-message");
-    if (pending) messageDiv.classList.add("pending");
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('chat-message');
+    if (pending) messageDiv.classList.add('pending');
 
-    const headerSpan = document.createElement("span");
-    headerSpan.classList.add("chat-nick");
-    headerSpan.style.color = colour;
-    headerSpan.innerHTML = `${nick} - (${id}):`;
+    const headerDiv = document.createElement('div');
+    headerDiv.classList.add('chat-header');
 
-    const timestampSpan = document.createElement("div");
-    timestampSpan.classList.add("chat-timestamp");
-    timestampSpan.textContent = formattedDate;
+    const nickSpan = document.createElement('span');
+    nickSpan.classList.add('chat-nick');
+    nickSpan.style.color = colour;
+    nickSpan.textContent = `${nick} - (${id}):`;
+    headerDiv.appendChild(nickSpan);
 
-    const msgIdSpan = document.createElement("span");
-    msgIdSpan.classList.add("chat-msg-id");
+    const timeRow = document.createElement('div');
+    timeRow.classList.add('chat-timestamp');
+    timeRow.style.display = 'flex';
+    timeRow.style.alignItems = 'center';
+
+    if (edited) {
+      const editIcon = document.createElement('span');
+      editIcon.textContent = '📝';
+      editIcon.classList.add('edited-flag');
+      timeRow.appendChild(editIcon);
+    }
+
+    const dateSpan = document.createElement('span');
+    dateSpan.textContent = formattedDate;
+    timeRow.appendChild(dateSpan);
+
+    const msgIdSpan = document.createElement('span');
+    msgIdSpan.classList.add('chat-msg-id');
     msgIdSpan.textContent = `ID: ${msgId}`;
 
-    const textDiv = document.createElement("div");
-    textDiv.classList.add("chat-text");
+    const textDiv = document.createElement('div');
+    textDiv.classList.add('chat-text');
     textDiv.textContent = msg;
 
-    const headerDiv = document.createElement("div");
-    headerDiv.classList.add("chat-header");
-    headerDiv.appendChild(headerSpan);
-
-
     messageDiv.appendChild(headerDiv);
-    messageDiv.appendChild(timestampSpan);
+    messageDiv.appendChild(timeRow);
     messageDiv.appendChild(msgIdSpan);
     messageDiv.appendChild(textDiv);
-
     chatroom.appendChild(messageDiv);
   });
 
   chatroom.scrollTop = chatroom.scrollHeight;
-
-  document.dispatchEvent(new Event("chatUpdated"));
+  document.dispatchEvent(new Event('chatUpdated'));
   console.log(`Chat updated with ${messages.length} new messages.`);
 }
 
