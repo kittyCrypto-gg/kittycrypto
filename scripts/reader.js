@@ -469,7 +469,7 @@ export function activateImageNavigation(root = document) {
     const image = container.querySelector(".chapter-image");
 
     // === Create Navigation Overlay ===
-    const navOverlay = root.createElement("div");
+    const navOverlay = document.createElement("div");
     navOverlay.classList.add("image-nav");
     navOverlay.innerHTML = `
       <button class="btn-up">⬆️</button>
