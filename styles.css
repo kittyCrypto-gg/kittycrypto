@@ -30,7 +30,7 @@
   --header-text-colour: #004d40;
 
   /* Terminal Window */
-  --term-bg: linear-gradient(to bottom, #e5e5e5, #d0d0d0);
+  --term-bg: linear-gradient(to bottom, #acacac, #a7a7a7);
   --term-header-bg: linear-gradient(to bottom, #cccccc, #b0b0b0);
   --term-header-fg: #222222;
   --term-title: #333333;
