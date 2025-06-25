@@ -125,7 +125,7 @@ async function getColourForUser(nick, id) {
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
-const fetchUserIP = async () => {
+export async function fetchUserIP() {
   try {
     const response = await fetch("https://kittycrypto.ddns.net:7619/get-ip");
     if (!response.ok) throw new Error(`Failed to fetch IP: ${response.status}`);
