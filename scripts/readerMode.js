@@ -87,7 +87,7 @@ class ReaderToggle {
 			if (!img) return;
 			img.classList.add("chapter-image");
 			if (hasContainer && !img.closest(".chapter-image-container")) {
-				const wrapper = root.createElement ? root.createElement("div") : document.createElement("div");
+				const wrapper = document.createElement("div");
 				wrapper.className = "chapter-image-container";
 				img.replaceWith(wrapper);
 				wrapper.appendChild(img);
