@@ -660,15 +660,11 @@ footer {
 }
 
 /* Chatroom styles */
-.frame-chat {
-  max-height: 100%;
+.frame-chat main#main-content {
+  flex-grow: 1;
   overflow: hidden;
-}
-
-.frame-chat .frame-content {
   display: flex;
   flex-direction: column;
-  height: 100%;
 }
 
 .frame-chat #chatroom {
