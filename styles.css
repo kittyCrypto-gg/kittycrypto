@@ -678,6 +678,14 @@ footer {
   color: var(--chatroom-text-colour);
 }
 
+.chat-message:nth-child(even) {
+  background-color: color-mix(in srgb, var(--chatroom-bg-colour) 85%, black);
+}
+
+.dark-mode .chat-message:nth-child(even) {
+  background-color: color-mix(in srgb, var(--chatroom-bg-colour) 85%, white);
+}
+
 /* Chat message container */
 .chat-message {
   display: flex;
