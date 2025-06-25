@@ -18,8 +18,8 @@
   /* Banner */
   --banner-green: #007733;
   --banner-blue: #004488;
-  --banner-teal: #003333;
-  --banner-teal-bright: #006666;
+  --banner-teal: #006666;
+  --banner-teal-bright: #007777;
   --banner-text-main: var(--banner-teal);
   --banner-text-header: var(--banner-teal-bright);
   --banner-text-footer: var(--banner-teal);
