@@ -2151,8 +2151,8 @@ body.dark-mode .tategaki-container svg text {
   gap: 8px;
 }
 
-.rss-post-summary:hover,
-.rss-post-summary:focus {
+.rss-post-block:hover,
+.rss-post-block:focus {
   background: var(--menu-button-hover-bg-colour);
   color: var(--banner-blue);
   text-decoration: underline;
