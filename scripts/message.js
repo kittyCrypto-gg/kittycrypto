@@ -134,7 +134,7 @@ function closeEditModal() {
 async function editMessage() {
   let sessionToken = window.sessionToken;
   // { msgId, sessionToken, ip, newMessage }
-  const msgId = document.getElementById("edit-message-id")?.textContent.replace("Editing Message ID: ", "").trim() || "";
+  const msgId = document.getElementById("edit-message-id-hidden")?.value || "";
   const newMessage = document.getElementById("edit-message-input")?.value || "";
 
   console.log("msgId field:", document.getElementById("edit-message-id")?.textContent);
@@ -188,6 +188,8 @@ function populateModalFields(messageDiv) {
 
   if (messageInput) messageInput.value = messageText;
   if (messageIdField) messageIdField.textContent = `Editing Message ID: ${msgId}`;
+  const msgIdHidden = modal.querySelector("#edit-message-id-hidden");
+  if (msgIdHidden) msgIdHidden.value = msgId;
   if (userInfoField) userInfoField.value = `${userNick} (${userId})`;
 
   // Ensure the modal uses the same CSS file as the main page
