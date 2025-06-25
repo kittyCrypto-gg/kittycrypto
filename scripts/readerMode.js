@@ -1,78 +1,40 @@
 import { setupReader, activateImageNavigation } from "./reader.js";
 
-class ReaderToggle {
-	readerActive = false;
-	originalNodeClone = null;
-	readerToggle = null;
-	enableText = "";
-	disableText = "";
-
-	constructor(readerToggle) {
-		this.readerToggle = readerToggle;
-		this.enableText = readerToggle.getAttribute("data-enable");
-		this.disableText = readerToggle.getAttribute("data-disable");
-		this.handleToggleClick = this.handleToggleClick.bind(this);
+export async function setupReaderToggle() {
+	if (document.readyState === "loading") {
+		await new Promise(resolve =>
+			document.addEventListener("DOMContentLoaded", resolve, {
+				once: true
+			})
+		);
 	}
 
-	getRootDocument(root) {
-		if (root.createElement) return root;
-		if (root.ownerDocument) return root.ownerDocument;
-		return document;
-	}
-
-	static async setup() {
-		if (document.readyState === "loading") {
-			await new Promise(resolve =>
-				document.addEventListener("DOMContentLoaded", resolve, { once: true })
-			);
-		}
-
-		let readerToggle = document.getElementById("reader-toggle");
-		if (!readerToggle) {
-			readerToggle = await new Promise(resolve => {
-				const observer = new MutationObserver(() => {
-					const el = document.getElementById("reader-toggle");
-					if (el) {
-						observer.disconnect();
-						resolve(el);
-					}
-				});
-				observer.observe(document.body, { childList: true, subtree: true });
+	let readerToggle = document.getElementById("reader-toggle");
+	if (!readerToggle) {
+		readerToggle = await new Promise(resolve => {
+			const observer = new MutationObserver(() => {
+				const el = document.getElementById("reader-toggle");
+				if (el) {
+					observer.disconnect();
+					resolve(el);
+				}
 			});
-		}
-
-		if (!readerToggle) return false;
-
-		const instance = new ReaderToggle(readerToggle);
-		instance.syncButtonState();
-
-		if (!readerToggle.__readerListener) {
-			readerToggle.addEventListener("click", instance.handleToggleClick);
-			readerToggle.__readerListener = true;
-		}
-
-		return true;
+			observer.observe(document.body, {
+				childList: true,
+				subtree: true
+			});
+		});
 	}
 
-	syncButtonState() {
-		if (document.body.classList.contains("reader-mode")) {
-			this.readerToggle.textContent = this.disableText;
-			this.readerToggle.classList.add("active");
-		} else {
-			this.readerToggle.textContent = this.enableText;
-			this.readerToggle.classList.remove("active");
-		}
-	}
+	if (!readerToggle) return false;
 
-	storeChapterImages(root = document) {
-		return Array.from(root.querySelectorAll("img.chapter-image")).map(img => ({
-			src: img.currentSrc || img.src,
-			alt: img.alt,
-			hasContainer: !!img.closest(".chapter-image-container")
-		}));
-	}
+	const enableText = readerToggle.getAttribute("data-enable");
+	const disableText = readerToggle.getAttribute("data-disable");
 
-	async ensureReadabilityLoaded() {
+	let readerActive = false;
+	let originalNodeClone = null;
+
+	async function ensureReadabilityLoaded() {
 		if (window.Readability) return;
 		await new Promise((resolve, reject) => {
 			const script = document.createElement("script");
@@ -83,30 +45,40 @@ class ReaderToggle {
 		});
 	}
 
-	restoreChapterImages(list, root) {
+	function storeChapterImages(root = document) {
+		// Store info about each image: src, alt, and if it's inside .chapter-image-container
+		return Array.from(root.querySelectorAll("img.chapter-image")).map(img => ({
+			src: img.currentSrc || img.src,
+			alt: img.alt,
+			hasContainer: !!img.closest(".chapter-image-container")
+		}));
+	}
+
+	function restoreChapterImages(list, root) {
 		if (!Array.isArray(list) || !root) return;
 		const imgs = root.querySelectorAll("img");
-		const doc = this.getRootDocument(root);
 		list.forEach(({ src, alt, hasContainer }) => {
 			const img = Array.from(imgs).find(i =>
 				(i.currentSrc || i.src) === src && i.alt === alt
 			);
 			if (!img) return;
 			img.classList.add("chapter-image");
+			// Ensure .chapter-image-container exists
 			if (hasContainer && !img.closest(".chapter-image-container")) {
-				const wrapper = doc.createElement("div");
+				const wrapper = root.createElement ? root.createElement("div") : document.createElement("div");
 				wrapper.className = "chapter-image-container";
 				img.replaceWith(wrapper);
 				wrapper.appendChild(img);
 			}
 		});
+		// Now restore navigation handlers
 		activateImageNavigation(root);
 	}
-	
-	async enableReaderMode() {
-		const imgArray = this.storeChapterImages(document);
 
-		await this.ensureReadabilityLoaded();
+	async function enableReaderMode() {
+		const imgArray = storeChapterImages(document);
+
+		await ensureReadabilityLoaded();
 
 		const articleElem = document.querySelector("article#reader, main, article");
 		if (!articleElem) {
@@ -114,8 +86,8 @@ class ReaderToggle {
 			return;
 		}
 
-		if (!this.originalNodeClone)
-			this.originalNodeClone = articleElem.cloneNode(true);
+		if (!originalNodeClone)
+			originalNodeClone = articleElem.cloneNode(true);
 
 		const docClone = document.cloneNode(true);
 		const reader = new window.Readability(docClone);
@@ -123,39 +95,56 @@ class ReaderToggle {
 
 		if (parsed && parsed.content) {
 			articleElem.innerHTML = parsed.content;
-			this.restoreChapterImages(imgArray, articleElem);
+			restoreChapterImages(imgArray, articleElem);
 
 			document.body.classList.add("reader-mode");
-			this.readerToggle.textContent = this.disableText;
-			this.readerToggle.classList.add("active");
-			this.readerActive = true;
+			readerToggle.textContent = disableText;
+			readerToggle.classList.add("active");
+			readerActive = true;
 		} else {
 			alert("Could not extract readable content.");
 		}
 	}
 
-	disableReaderMode() {
+	function disableReaderMode() {
 		const articleElem = document.querySelector("article#reader, main, article");
-		if (articleElem && this.originalNodeClone) {
-			const restored = this.originalNodeClone.cloneNode(true);
+		if (articleElem && originalNodeClone) {
+			const restored = originalNodeClone.cloneNode(true);
 			articleElem.replaceWith(restored);
-			const newRoot = restored.ownerDocument || document;
-			setupReader(restored);
+
+			// Reinitialise chapter functionality with the new root
+			const newRoot = restored.ownerDocument || document; // in most cases, just document
+			setupReader(restored); // pass the restored article as root
 		}
 
 		document.body.classList.remove("reader-mode");
-		this.readerToggle.textContent = this.enableText;
-		this.readerToggle.classList.remove("active");
-		this.readerActive = false;
+		readerToggle.textContent = enableText;
+		readerToggle.classList.remove("active");
+		readerActive = false;
 	}
 
-	handleToggleClick() {
-		if (this.readerActive) {
-			this.disableReaderMode();
+
+	function toggleReaderMode() {
+		if (readerActive) {
+			disableReaderMode();
 		} else {
-			this.enableReaderMode();
+			enableReaderMode();
 		}
 	}
-}
 
-export const setupReaderToggle = ReaderToggle.setup;
+	// Sync button state on load
+	if (document.body.classList.contains("reader-mode")) {
+		readerToggle.textContent = disableText;
+		readerToggle.classList.add("active");
+	} else {
+		readerToggle.textContent = enableText;
+		readerToggle.classList.remove("active");
+	}
+
+	if (!readerToggle.__readerListener) {
+		readerToggle.addEventListener("click", toggleReaderMode);
+		readerToggle.__readerListener = true;
+	}
+
+	return true;
+}
