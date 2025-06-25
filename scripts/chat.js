@@ -16,28 +16,28 @@ nicknameInput.addEventListener("input", () => {
 });
 
 // Utility: Get Cookie
-const getChatCookie = (name) => {
+function getChatCookie(name) {
   const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
   return match ? decodeURIComponent(match[2]) : null;
-};
+}
 
 // Utility: Set Cookie (expires in 1 year) 
-const setChatCookie = (name, value, days = 365) => {
+function setChatCookie(name, value, days = 365) {
   const date = new Date();
   date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
   document.cookie = `${name}=${encodeURIComponent(value)}; expires=${date.toUTCString()}; path=/; SameSite=Lax`;
-};
+}
 
 // Load Nickname from Cookie 
-const loadNickname = () => {
+function loadNickname()  {
   const savedNick = getChatCookie("nickname");
   if (savedNick) {
     nicknameInput.value = savedNick;
   }
-};
+}
 
 // Fetch Session Token 
-const fetchSessionToken = async () => {
+async function fetchSessionToken() {
   try {
     const response = await fetch(SESSION_TOKEN_URL);
     if (!response.ok) throw new Error(`Failed to fetch session token: ${response.status}`);
@@ -52,7 +52,7 @@ const fetchSessionToken = async () => {
   } catch (error) {
     console.error("❌ Error fetching session token:", error);
   }
-};
+}
 
 // Seeded PRNG (Mulberry32) 
 function seededRandom(seed) {
@@ -62,8 +62,8 @@ function seededRandom(seed) {
   return ((t ^ (t >>> 14)) >>> 0) / 4294967296; // Scales to [0, 1)
 }
 
-// Connect to SSE for Real-Time Chat Updates 
-const connectToChatStream = () => {
+// Connect to SSE for Real-Time Chat Updates
+function connectToChatStream() {
   if (!sessionToken) return;
 
   if (eventSource) {
@@ -102,7 +102,7 @@ const connectToChatStream = () => {
     eventSource.close();
     setTimeout(connectToChatStream, 3000); // Retry after 3s
   };
-};
+}
 
 // Generates a Unique Seed for Each User 
 async function hashUser(nick, id) {
@@ -111,18 +111,6 @@ async function hashUser(nick, id) {
   const hashBuffer = await crypto.subtle.digest("SHA-256", data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.slice(0, 4).reduce((acc, val) => (acc << 8) + val, 0);
-}
-
-// Generates a Consistent Colour 
-async function getColourForUser(nick, id) {
-  const seed = await hashUser(nick, id);
-  const rng = seededRandom(seed);
-
-  const hue = Math.floor(rng * 360);
-  const saturation = Math.floor(50 + rng * 30);
-  const lightness = Math.floor(40 + rng * 30);
-
-  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
 export async function fetchUserIP() {
@@ -139,8 +127,8 @@ export async function fetchUserIP() {
   }
 };
 
-// Sends a chat message 
-const sendMessage = async () => {
+// Sends a chat message
+async function sendMessage() {
   const nick = nicknameInput.value.trim();
   const msg = messageInput.value.trim();
 
@@ -210,10 +198,10 @@ const sendMessage = async () => {
     // Remove the pending message on failure
     removePendingMessage(tempId);
   }
-};
+}
 
-// Displays Chat Messages 
-const displayChat = async (messages, isLocalUpdate = false) => {
+// Displays Chat Messages
+async function displayChat(messages, isLocalUpdate = false) {
   if (!isLocalUpdate) {
     document.querySelectorAll(".chat-message.pending").forEach(el => el.remove());
     chatroom.innerHTML = "";
@@ -261,13 +249,13 @@ const displayChat = async (messages, isLocalUpdate = false) => {
 
   document.dispatchEvent(new Event("chatUpdated"));
   console.log(`Chat updated with ${messages.length} new messages.`);
-};
+}
 
 // Remove pending message on failure
-const removePendingMessage = (tempId) => {
+function removePendingMessage(tempId) {
   const pendingMessage = document.querySelector(`.chat-message[data-id="${tempId}"]`);
   if (pendingMessage) pendingMessage.remove();
-};
+}
 
 // Attach Event Listeners 
 sendButton.addEventListener("click", sendMessage);
@@ -275,7 +263,6 @@ messageInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendMessage();
 });
 
-
-// Load nickname on startup 
+// Load nickname on startup
 loadNickname();
 fetchSessionToken();
