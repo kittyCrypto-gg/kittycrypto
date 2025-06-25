@@ -150,7 +150,7 @@ async function editMessage() {
   const body = {
     msgId,
     sessionToken,
-    ip: userHashedIp,
+    ip: await fetchUserIP(),
     newMessage,
   };
 
@@ -235,7 +235,7 @@ async function deleteMessage(msgId) {
   const body = {
     msgId,
     sessionToken,
-    ip: userHashedIp,
+    ip: await fetchUserIP(),
   };
 
   try {
