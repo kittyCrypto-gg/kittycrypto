@@ -2305,13 +2305,26 @@ body.reader-mode article#reader {
 }
 
 body.reader-mode article#reader .chapter-image {
-  /*max-width: 100% !important;*/
-  /*height: auto !important;*/
-  /*object-fit: contain !important;*/
-  /*display: block;*/
-  /*margin: 2rem auto;*/
   box-shadow: none !important;
   border: none !important;
+}
+
+body.reader-mode .image-nav {
+  position: absolute !important;
+  bottom: 15px !important;
+  right: 15px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+  z-index: 10 !important;
+  opacity: 1 !important;
+}
+
+body.reader-mode .image-nav button {
+  font-size: 2.5rem !important;
+  padding: 0 !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
 }
 
 body.reader-mode {
