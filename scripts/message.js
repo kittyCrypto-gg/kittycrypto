@@ -3,8 +3,6 @@ window.MAIN_SERVER = window.MAIN_SERVER || "https://kittycrypto.ddns.net:7619";
 window.GET_IP_HASH_URL = window.GET_IP_HASH_URL || `${window.MAIN_SERVER}/get-ip/sha256`;
 window.nicknameInput = window.nicknameInput || document.getElementById("nickname");
 
-import { fetchUserIP } from "./chat.js";
-
 let userHashedIp = null; // Store the user's hashed IP
 
 // Fetch user's hashed IP on load
@@ -152,7 +150,7 @@ async function editMessage() {
   const body = {
     msgId,
     sessionToken,
-    ip: await fetchUserIP(),
+    ip: userHashedIp,
     newMessage,
   };
 
@@ -237,7 +235,7 @@ async function deleteMessage(msgId) {
   const body = {
     msgId,
     sessionToken,
-    ip: await fetchUserIP(),
+    ip: userHashedIp,
   };
 
   try {
