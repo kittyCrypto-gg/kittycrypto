@@ -21,6 +21,7 @@ const fetchUserHashedIp = async () => {
 // Enhance chat messages with edit/delete buttons
 // Enhance chat messages with edit/delete buttons
 const enhanceMessages = () => {
+  let sessionToken = window.sessionToken;
   if (!sessionToken) return;
   // Convert session token to an integer
   const sessionTokenInt = BigInt(`0x${sessionToken}`);
@@ -131,6 +132,7 @@ function closeEditModal() {
 }
 
 async function editMessage() {
+  let sessionToken = window.sessionToken;
   // { msgId, sessionToken, ip, newMessage }
   const msgId = document.getElementById("edit-message-id")?.textContent.replace("Editing Message ID: ", "").trim() || "";
   const newMessage = document.getElementById("edit-message-input")?.value || "";
@@ -156,8 +158,8 @@ async function editMessage() {
 
   const response = await fetch(`${CHAT_SERVER}/edit`, {
     method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) throw new Error(`❌ Server error: ${response.status} ${response.statusText}`);
@@ -191,6 +193,7 @@ function populateModalFields(messageDiv) {
 }
 
 async function deleteMessage(msgId) {
+  let sessionToken = window.sessionToken;
   console.log("🗑️ Deleting message:", msgId);
 
   // Find the message div based on msgId

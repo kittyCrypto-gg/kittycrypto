@@ -44,6 +44,7 @@ const fetchSessionToken = async () => {
 
     const data = await response.json();
     sessionToken = data.sessionToken;
+    window.sessionToken = sessionToken;
     console.log("🔑 Session Token received:", sessionToken);
 
     // Connect to SSE once session token is received
