@@ -18,7 +18,7 @@
   /* Banner */
   --banner-green: #007733;
   --banner-blue: #004488;
-  --banner-teal: #014747;
+  --banner-teal: #006666;
   --banner-teal-bright: #009999;
   --banner-text-main: var(--banner-teal);
   --banner-text-header: var(--banner-teal-bright);
@@ -27,11 +27,11 @@
 
   /* Header */
   --header-bg-colour: #b2ebf2;
-  --header-text-colour: #004d40;
+  --header-text-colour: #006666;
 
   /* Terminal Window */
   --term-bg: linear-gradient(to bottom, #acacac, #a7a7a7);
-  --term-header-bg: linear-gradient(to bottom, #cccccc, #b0b0b0);
+  --term-header-bg: linear-gradient(to bottom, #6e6e6e, #999999);
   --term-header-fg: #222222;
   --term-title: #333333;
   --term-shadow: rgba(0, 0, 0, 0.25);
