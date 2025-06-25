@@ -267,3 +267,6 @@ async function deleteMessage(msgId) {
     setTimeout(() => pendingMessageDiv.remove(), 5000);
   }
 }
+
+window.editMessage = editMessage;
+window.closeEditModal = closeEditModal;
