@@ -202,7 +202,7 @@ async function sendMessage() {
 async function displayChat(messages, isLocalUpdate = false) {
   if (!isLocalUpdate) {
     document.querySelectorAll('.chat-message.pending').forEach(el => el.remove());
-    //chatroom.innerHTML = '';
+    chatroom.innerHTML = '';
   }
 
   messages.forEach(msgObj => {
