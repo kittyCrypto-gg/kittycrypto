@@ -251,7 +251,10 @@ async function displayChat(messages, isLocalUpdate = false) {
     chatroom.appendChild(messageDiv);
   });
 
-  chatroom.scrollTop = chatroom.scrollHeight;
+  requestAnimationFrame(() => {
+    chatroom.scrollTop = chatroom.scrollHeight;
+  });
+  
   document.dispatchEvent(new Event('chatUpdated'));
   console.log(`Chat updated with ${messages.length} new messages.`);
 }
