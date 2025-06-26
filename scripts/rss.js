@@ -7,7 +7,7 @@ function ensureBlogScrollWrapper() {
   const wrapper = document.querySelector('.blog-wrapper');
   if (!wrapper) return null;
 
-  let scrollBox = wrapper.querySelector('.rss-scroll-2');
+  let scrollBox     = wrapper.querySelector('.rss-scroll-2');
   let blogContainer = wrapper.querySelector('.blog-container');
 
   if (!blogContainer) {
@@ -19,22 +19,54 @@ function ensureBlogScrollWrapper() {
     scrollBox = document.createElement('div');
     scrollBox.className = 'rss-scroll-2';
     scrollBox.appendChild(blogContainer);
-    // Remove any existing blog-container direct children to avoid duplication
-    Array.from(wrapper.children).forEach(child => {
-      if (child.classList?.contains('blog-container')) wrapper.removeChild(child);
+
+    [...wrapper.children].forEach(child => {
+      if (child !== scrollBox && child.classList?.contains('blog-container')) {
+        wrapper.removeChild(child);
+      }
     });
-    // Insert after header, before other stuff (if any)
-    let afterHeader = wrapper.querySelector('.comments-header');
-    if (afterHeader && afterHeader.nextSibling) {
-      wrapper.insertBefore(scrollBox, afterHeader.nextSibling);
-    } else {
-      wrapper.appendChild(scrollBox);
-    }
-  } else if (!scrollBox.contains(blogContainer)) {
-    scrollBox.appendChild(blogContainer);
+
+    const hdr = wrapper.querySelector('.comments-header');
+    hdr?.nextSibling
+      ? wrapper.insertBefore(scrollBox, hdr.nextSibling)
+      : wrapper.appendChild(scrollBox);
   }
 
+  if (!scrollBox.contains(blogContainer)) scrollBox.appendChild(blogContainer);
   return { scrollBox, blogContainer };
+}
+
+function adjustBlogScrollHeight() {
+  const { scrollBox } = ensureBlogScrollWrapper() || {};
+  if (!scrollBox) return;
+
+  const posts       = scrollBox.querySelectorAll('.rss-post-block');
+  const visible     = Math.min(2, posts.length);
+  let   totalHeight = 0;
+
+  for (let i = 0; i < visible; i++) totalHeight += posts[i].offsetHeight;
+  scrollBox.style.maxHeight = `${totalHeight}px`;
+}
+
+function setupDynamicScrollBox() {
+  const { scrollBox } = ensureBlogScrollWrapper() || {};
+  if (!scrollBox) return;
+
+  /* Re-measure when a post finishes its expand/collapse transition */
+  scrollBox.addEventListener('transitionend', adjustBlogScrollHeight, true);
+  window.addEventListener('resize',          adjustBlogScrollHeight);
+}
+
+function triggerAdjustOnToggles() {
+  const blog = document.querySelector('.blog-container');
+  if (!blog) return;
+
+  blog.addEventListener('click', ev => {
+    if (ev.target.closest('.rss-post-toggle')) {
+      /* wait for animation to finish */
+      setTimeout(adjustBlogScrollHeight, 350);
+    }
+  });
 }
 
 // Utility: Parse the XML and extract items
