@@ -27,30 +27,29 @@ function formatDate(dateStr) {
   return `${d.getFullYear()}.${(d.getMonth() + 1).toString().padStart(2, '0')}.${d.getDate().toString().padStart(2, '0')}`;
 }
 
-// Render a single post
+// Render a single post as HTML string
 function renderPost(post) {
-  const postDiv = document.createElement('div');
-  postDiv.className = 'rss-post-block';
-
-  postDiv.innerHTML = `
-    <div class="rss-post-toggle" tabindex="0" role="button" aria-expanded="false">
-      <div class="rss-post-header">
-        <span class="summary-arrow">▶️</span>
-        <span class="rss-post-title">${post.title}</span>
-        <span class="rss-post-date">${formatDate(post.pubDate)}</span>
+  const contentHtml = marked.parse(post.content);
+  return `
+    <div class="rss-post-block">
+      <div class="rss-post-toggle" tabindex="0" role="button" aria-expanded="false">
+        <div class="rss-post-header">
+          <span class="summary-arrow">▶️</span>
+          <span class="rss-post-title">${post.title}</span>
+          <span class="rss-post-date">${formatDate(post.pubDate)}</span>
+        </div>
+        <div class="rss-post-meta"><span class="rss-post-author">By: ${post.author}</span></div>
+        <div class="rss-post-summary summary-collapsed">
+          <span class="summary-text">${post.description}</span>
+        </div>
       </div>
-      <div class="rss-post-meta"><span class="rss-post-author">By: ${post.author}</span></div>
-      <div class="rss-post-summary summary-collapsed">
-        <span class="summary-text">${post.description}</span>
-      </div>
+      <div class="rss-post-content content-collapsed" style="overflow: hidden; max-height: 0;">${contentHtml}</div>
     </div>
-    <div class="rss-post-content content-collapsed" style="overflow: hidden; max-height: 0;"></div>
   `;
+}
 
-  // Set content
-  postDiv.querySelector('.rss-post-content').innerHTML = marked.parse(post.content);
-
-  // Toggle logic on the whole collapsed area
+// Attach toggle logic to all visible posts
+function attachToggleLogic(postDiv) {
   const toggleDiv = postDiv.querySelector('.rss-post-toggle');
   const headerDiv = toggleDiv.querySelector('.rss-post-header');
   const arrowSpan = headerDiv.querySelector('.summary-arrow');
@@ -76,8 +75,12 @@ function renderPost(post) {
       togglePost();
     }
   });
+}
 
-  return postDiv;
+function attachAllToggles(container) {
+  container.querySelectorAll('.rss-post-block').forEach(postDiv => {
+    attachToggleLogic(postDiv);
+  });
 }
 
 // Fetch and render the feed
@@ -95,7 +98,7 @@ async function loadBlogFeed() {
   const response = await fetch('https://kittycrypto.ddns.net:6819/rss/kittycrypto');
   const xmlText = await response.text();
   const posts = parseRSS(xmlText);
-  const rows = posts.map(post => renderPost(post).outerHTML);
+  const rows = posts.map(post => renderPost(post));
 
   if (!blogClusteriser) {
     blogClusteriser = new Clusteriser(container);
@@ -103,6 +106,8 @@ async function loadBlogFeed() {
   }
   blogClusteriser.update(rows);
 
+  // Wait for DOM update (Clusteriser may be async), then attach toggles.
+  requestAnimationFrame(() => attachAllToggles(container));
 }
 
 window.addEventListener('DOMContentLoaded', loadBlogFeed);
