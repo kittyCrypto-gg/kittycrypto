@@ -1,3 +1,7 @@
+import { Clusteriser } from './clusterise.js';
+
+let blogClusteriser = null;
+
 // Utility: Parse the XML and extract items
 function parseRSS(xml) {
   const parser = new DOMParser();
@@ -91,7 +95,14 @@ async function loadBlogFeed() {
   const response = await fetch('https://kittycrypto.ddns.net:6819/rss/kittycrypto');
   const xmlText = await response.text();
   const posts = parseRSS(xmlText);
-  posts.forEach(post => container.appendChild(renderPost(post)));
+  const rows = posts.map(post => renderPost(post).outerHTML);
+
+  if (!blogClusteriser) {
+    blogClusteriser = new Clusteriser(container);
+    await blogClusteriser.init();
+  }
+  blogClusteriser.update(rows);
+
 }
 
 window.addEventListener('DOMContentLoaded', loadBlogFeed);
