@@ -2337,8 +2337,10 @@ body.dark-mode .tategaki-container svg text {
 }
 
 .rss-post-block:hover,
-.rss-post-block:focus {
-  background: var(--menu-button-hover-bg-colour);
+.rss-post-block:focus,
+.dark-mode .rss-post-block:hover,
+.dark-mode .rss-post-block:focus {
+  background-color: var(--menu-button-hover-bg-colour) !important;
   color: var(--banner-blue);
   text-decoration: underline;
   cursor: pointer;
