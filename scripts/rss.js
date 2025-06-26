@@ -4,6 +4,13 @@ let blogClusteriser = null;
 
 // Ensure .blog-container is inside .rss-scroll-2, creating/wrapping as needed
 function ensureBlogScrollWrapper() {
+  if (location.pathname.includes("blog.html")) {
+    return {
+      scrollBox: null,
+      blogContainer: document.querySelector('.blog-container')
+    };
+  }
+  
   const wrapper = document.querySelector('.blog-wrapper');
   if (!wrapper) return null;
 
