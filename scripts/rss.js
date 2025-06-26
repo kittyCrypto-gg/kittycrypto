@@ -40,21 +40,30 @@ function adjustBlogScrollHeight() {
   const { scrollBox } = ensureBlogScrollWrapper() || {};
   if (!scrollBox) return;
 
-  const posts       = scrollBox.querySelectorAll('.rss-post-block');
-  const visible     = Math.min(2, posts.length);
-  let   totalHeight = 0;
+  const posts = scrollBox.querySelectorAll('.rss-post-block');
+  if (posts.length === 0) return;
 
-  for (let i = 0; i < visible; i++) totalHeight += posts[i].offsetHeight;
-  scrollBox.style.maxHeight = `${totalHeight}px`;
+  const y     = scrollBox.scrollTop;
+  let   first = 0
+
+  // find the first post whose bottom edge is below the top of the viewport
+  for (let i = 0; i < posts.length; i++) {
+    if (posts[i].offsetTop + posts[i].offsetHeight > y) { first = i; break; }
+  }
+
+  const firstHeight  = posts[first].offsetHeight;
+  const secondHeight = (first + 1 < posts.length) ? posts[first + 1].offsetHeight : 0;
+
+  scrollBox.style.maxHeight = `${firstHeight + secondHeight}px`;
 }
 
 function setupDynamicScrollBox() {
   const { scrollBox } = ensureBlogScrollWrapper() || {};
   if (!scrollBox) return;
 
-  /* Re-measure when a post finishes its expand/collapse transition */
   scrollBox.addEventListener('transitionend', adjustBlogScrollHeight, true);
-  window.addEventListener('resize',          adjustBlogScrollHeight);
+  scrollBox.addEventListener('scroll',        adjustBlogScrollHeight, { passive: true });
+  window.addEventListener('resize',           adjustBlogScrollHeight);
 }
 
 function triggerAdjustOnToggles() {
