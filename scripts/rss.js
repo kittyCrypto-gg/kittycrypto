@@ -2,6 +2,41 @@ import { Clusteriser } from './clusterise.js';
 
 let blogClusteriser = null;
 
+// Ensure .blog-container is inside .rss-scroll-2, creating/wrapping as needed
+function ensureBlogScrollWrapper() {
+  const wrapper = document.querySelector('.blog-wrapper');
+  if (!wrapper) return null;
+
+  let scrollBox = wrapper.querySelector('.rss-scroll-2');
+  let blogContainer = wrapper.querySelector('.blog-container');
+
+  if (!blogContainer) {
+    blogContainer = document.createElement('div');
+    blogContainer.className = 'blog-container';
+  }
+
+  if (!scrollBox) {
+    scrollBox = document.createElement('div');
+    scrollBox.className = 'rss-scroll-2';
+    scrollBox.appendChild(blogContainer);
+    // Remove any existing blog-container direct children to avoid duplication
+    Array.from(wrapper.children).forEach(child => {
+      if (child.classList?.contains('blog-container')) wrapper.removeChild(child);
+    });
+    // Insert after header, before other stuff (if any)
+    let afterHeader = wrapper.querySelector('.comments-header');
+    if (afterHeader && afterHeader.nextSibling) {
+      wrapper.insertBefore(scrollBox, afterHeader.nextSibling);
+    } else {
+      wrapper.appendChild(scrollBox);
+    }
+  } else if (!scrollBox.contains(blogContainer)) {
+    scrollBox.appendChild(blogContainer);
+  }
+
+  return { scrollBox, blogContainer };
+}
+
 // Utility: Parse the XML and extract items
 function parseRSS(xml) {
   const parser = new DOMParser();
@@ -91,14 +126,9 @@ function attachAllToggles(container) {
 
 // Fetch and render the feed
 async function loadBlogFeed() {
-  const wrapper = document.querySelector('.blog-wrapper');
-  if (!wrapper) return;
-  let container = document.querySelector('.blog-container');
-  if (!container) {
-    container = document.createElement('div');
-    container.className = 'blog-container';
-    wrapper.appendChild(container);
-  }
+  const result = ensureBlogScrollWrapper();
+  if (!result) return;
+  const { scrollBox, blogContainer: container } = result;
   container.innerHTML = '';
 
   const response = await fetch('https://kittycrypto.ddns.net:6819/rss/kittycrypto');
@@ -112,8 +142,12 @@ async function loadBlogFeed() {
   }
   blogClusteriser.update(rows);
 
-  // Wait for DOM update (Clusteriser may be async), then attach toggles.
-  requestAnimationFrame(() => attachAllToggles(container));
+  // Wait for DOM update (Clusteriser may be async), then attach toggles and height adjustment logic.
+  requestAnimationFrame(() => {
+    attachAllToggles(container);
+    triggerAdjustOnToggles();
+    setTimeout(adjustBlogScrollHeight, 100);
+  });
 }
 
 window.addEventListener('DOMContentLoaded', loadBlogFeed);
