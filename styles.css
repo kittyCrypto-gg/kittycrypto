@@ -2215,14 +2215,6 @@ body.dark-mode .tategaki-container svg text {
   gap: 8px;
 }
 
-.rss-post-block:hover,
-.rss-post-block:focus {
-  background: var(--menu-button-hover-bg-colour);
-  color: var(--banner-blue);
-  text-decoration: underline;
-  cursor: pointer;
-}
-
 .rss-posts-wrapper {
   margin: 40px auto;
   width: 100%;
@@ -2342,6 +2334,14 @@ body.dark-mode .tategaki-container svg text {
 
 .rss-post-link:hover {
   color: var(--banner-blue);
+}
+
+.rss-post-block:hover,
+.rss-post-block:focus {
+  background: var(--menu-button-hover-bg-colour);
+  color: var(--banner-blue);
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 /* =========================================
