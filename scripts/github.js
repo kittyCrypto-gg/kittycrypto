@@ -1,4 +1,8 @@
 import { drawTriangularIdenticon } from './commitIdenticon.js';
+import { Clusteriser } from './clusterise.js';
+
+let frontendClusteriser = null;
+let backendClusteriser = null;
 
 async function fetchCommits(owner, repo, branch = 'main') {
   const url = `https://api.github.com/repos/${owner}/${repo}/commits?sha=${branch}`;
@@ -23,7 +27,7 @@ async function fetchCommits(owner, repo, branch = 'main') {
   }));
 }
 
-async function renderCommits(commits, containerId) {
+async function renderCommits(commits, containerId, clusteriserInstanceName) {
   const container = document.getElementById(containerId);
   container.innerHTML = ''; // Clear previous content
 
@@ -53,20 +57,28 @@ async function renderCommits(commits, containerId) {
     div.appendChild(contentWrapper);
     container.appendChild(div);
   }
+
+  const rows = Array.from(container.children).map(el => el.outerHTML);
+
+  if (!window[clusteriserInstanceName]) {
+    window[clusteriserInstanceName] = new Clusteriser(container);
+    await window[clusteriserInstanceName].init();
+  }
+  window[clusteriserInstanceName].update(rows);
 }
 
 // Run on load:
 (async () => {
   try {
     const frontendCommits = await fetchCommits('kittyCrypto-gg', 'kittycrypto');
-    await renderCommits(frontendCommits, 'github-commits-frontend');
+    await renderCommits(frontendCommits, 'github-commits-frontend', 'frontendClusteriser');
   } catch (err) {
     document.getElementById('github-commits').textContent = 'Error: ' + err.message;
   }
 
   try {
     const backendCommits = await fetchCommits('kittyCrypto-gg', 'kittyServer');
-    await renderCommits(backendCommits, 'github-commits-backend');
+    await renderCommits(backendCommits, 'github-commits-backend', 'backendClusteriser');
   } catch (err) {
     document.getElementById('github-commits').textContent = 'Error: ' + err.message;
   }

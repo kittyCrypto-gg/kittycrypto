@@ -1,58 +1,84 @@
-export function loadClusterizeJS(callback) {
-    if (window.Clusterize) return callback();
-    const script = document.createElement('script');
-    script.src = "https://cdn.jsdelivr.net/gh/NeXTs/Clusterize.js@master/clusterize.js";
-    script.onload = callback;
-    document.head.appendChild(script);
-}
+export class Clusteriser {
+    #target;
+    #baseId;
+    #scrollId;
+    #contentId;
+    #instance;
+    #options;
 
-function getElement(target) {
-    if (target instanceof Element) return target;
-    if (typeof target === 'string' && target[0] === '#') return document.getElementById(target.slice(1));
-    if (typeof target === 'string' && target[0] === '.') return document.querySelector(target);
-    if (typeof target === 'string') return document.getElementById(target) || document.querySelector('.' + target);
-    return null;
-}
+    constructor(target, options = {}) {
+        this.#target = this.#getElement(target);
+        if (!this.#target) throw new Error("Target container not found");
+        this.#baseId = this.#target.id || 'clusterise';
+        this.#scrollId = `${this.#baseId}-scroll-area`;
+        this.#contentId = `${this.#baseId}-content-area`;
+        this.#options = options;
+        this.#instance = null;
+    }
 
-export function prepareClusteriseDOM(target) {
-    const container = getElement(target);
-    if (!container) return;
-    if (container.querySelector('.clusterise-scroll')) return;
+    async init() {
+        this.#prepareDOM();
+        await this.#loadClusterizeJS();
+        this.#instance = new window.Clusterize({
+            scrollId: this.#scrollId,
+            contentId: this.#contentId,
+            rows: this.#options.rows || [],
+            ...this.#options
+        });
+        return this;
+    }
 
-    const baseId = container.id || 'clusterise';
-    const scrollArea = document.createElement('div');
-    scrollArea.className = 'clusterise-scroll';
-    scrollArea.id = `${baseId}-scroll-area`;
+    update(rows) {
+        if (!this.#instance) throw new Error("Clusteriser not initialised yet");
+        this.#instance.update(rows);
+    }
 
-    const contentArea = document.createElement('div');
-    contentArea.className = 'clusterise-content';
-    contentArea.id = `${baseId}-content-area`;
+    destroy() {
+        if (this.#instance) {
+            this.#instance.destroy(true);
+            this.#instance = null;
+        }
+    }
 
-    while (container.firstChild) contentArea.appendChild(container.firstChild);
-    scrollArea.appendChild(contentArea);
-    container.appendChild(scrollArea);
-    container.classList.add('clusterise');
-}
+    get instance() {
+        return this.#instance;
+    }
 
-export function initClusterise(target) {
-    if (!window.Clusterize) throw new Error("Clusterize.js not loaded");
-    const container = getElement(target);
-    if (!container) throw new Error("Target container not found");
+    // --- Private methods ---
 
-    const baseId = container.id || 'clusterise';
-    const scrollId = `${baseId}-scroll-area`;
-    const contentId = `${baseId}-content-area`;
+    #getElement(target) {
+        if (target instanceof Element) return target;
+        if (typeof target === 'string' && target[0] === '#') return document.getElementById(target.slice(1));
+        if (typeof target === 'string' && target[0] === '.') return document.querySelector(target);
+        if (typeof target === 'string') return document.getElementById(target) || document.querySelector('.' + target);
+        return null;
+    }
 
-    return new Clusterize({
-        scrollId,
-        contentId,
-        rows: []
-    });
-}
+    #prepareDOM() {
+        if (this.#target.querySelector('.clusterise-scroll')) return;
 
-export function updtClusterised(target, clusteriseInstance, messageSelector = '.chat-message') {
-    const container = getElement(target);
-    if (!clusteriseInstance || !container) return;
-    const rows = Array.from(container.querySelectorAll(messageSelector)).map(el => el.outerHTML);
-    clusteriseInstance.update(rows);
+        const scrollArea = document.createElement('div');
+        scrollArea.className = 'clusterise-scroll';
+        scrollArea.id = this.#scrollId;
+
+        const contentArea = document.createElement('div');
+        contentArea.className = 'clusterise-content';
+        contentArea.id = this.#contentId;
+
+        while (this.#target.firstChild) contentArea.appendChild(this.#target.firstChild);
+        scrollArea.appendChild(contentArea);
+        this.#target.appendChild(scrollArea);
+        this.#target.classList.add('clusterise');
+    }
+
+    #loadClusterizeJS() {
+        return new Promise((resolve, reject) => {
+            if (window.Clusterize) return resolve();
+            const script = document.createElement('script');
+            script.src = "https://cdn.jsdelivr.net/gh/NeXTs/Clusterize.js@master/clusterize.js";
+            script.onload = () => resolve();
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
 }  
