@@ -187,6 +187,7 @@ async function loadBlogFeed() {
   requestAnimationFrame(() => {
     attachAllToggles(container);
     triggerAdjustOnToggles();
+    setupDynamicScrollBox();
     setTimeout(adjustBlogScrollHeight, 100);
   });
 }
