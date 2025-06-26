@@ -2139,6 +2139,19 @@ body.dark-mode .tategaki-container svg text {
   gap: 0px;
 }
 
+.rss-scroll-2 {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  max-height: none;
+  scroll-behavior: smooth;
+}
+.rss-scroll-2 > .blog-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+
 .rss-post-title {
   font-size: 1.4rem;
   font-weight: bold;
