@@ -43,18 +43,28 @@ function adjustBlogScrollHeight() {
   const posts = scrollBox.querySelectorAll('.rss-post-block');
   if (posts.length === 0) return;
 
-  const y     = scrollBox.scrollTop;
-  let   first = 0
+  const scrollTop = scrollBox.scrollTop;
+  let firstIndex = 0;
 
-  // find the first post whose bottom edge is below the top of the viewport
+  // Find the post whose top is closest to (but not greater than) scrollTop
   for (let i = 0; i < posts.length; i++) {
-    if (posts[i].offsetTop + posts[i].offsetHeight > y) { first = i; break; }
+    if (posts[i].offsetTop <= scrollTop) {
+      firstIndex = i;
+    } else {
+      break;
+    }
   }
 
-  const firstHeight  = posts[first].offsetHeight;
-  const secondHeight = (first + 1 < posts.length) ? posts[first + 1].offsetHeight : 0;
+  // The next post after the topmost one in view
+  const secondIndex = (firstIndex + 1 < posts.length) ? firstIndex + 1 : firstIndex;
 
-  scrollBox.style.maxHeight = `${firstHeight + secondHeight}px`;
+  const firstHeight = posts[firstIndex].offsetHeight;
+  const secondHeight = posts[secondIndex].offsetHeight;
+
+  // If only one post left, don't double-count
+  scrollBox.style.maxHeight = (firstIndex === secondIndex)
+    ? `${firstHeight}px`
+    : `${firstHeight + secondHeight}px`;
 }
 
 function setupDynamicScrollBox() {
