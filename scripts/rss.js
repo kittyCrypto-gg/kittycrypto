@@ -75,6 +75,12 @@ function attachToggleLogic(postDiv) {
       togglePost();
     }
   });
+
+  contentDiv.addEventListener('click', function () {
+    if (contentDiv.classList.contains('content-expanded')) {
+      togglePost();
+    }
+  });
 }
 
 function attachAllToggles(container) {
