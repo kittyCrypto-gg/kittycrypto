@@ -669,6 +669,24 @@ footer {
   flex-direction: column;
 }
 
+.frame-chat .clusterise-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 100vh;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.frame-chat .clusterise-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 .frame-chat > .frame-content {
   display: flex;
   flex-direction: column;
@@ -676,7 +694,6 @@ footer {
   min-height: 0;
 }
 
-/* Each section (banner, nav, header, footer) can grow as needed */
 .frame-chat #banner-wrapper,
 .frame-chat #main-menu,
 .frame-chat #main-header,
@@ -686,7 +703,6 @@ footer {
   min-height: 0;
 }
 
-/* #main-content fills available space between header/footer */
 .frame-chat #main-content {
   flex: 1 1 auto;
   display: flex;
@@ -694,7 +710,6 @@ footer {
   min-height: 0;
 }
 
-/* The chatroom never grows the frame! It just scrolls. */
 .frame-chat #chatroom {
   flex: 1 1 auto;
   min-height: 0;
