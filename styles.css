@@ -673,6 +673,12 @@ footer {
   height: 100%;
 }
 
+.frame-chat #main-content{
+  display:flex;
+  flex-direction:column;
+  flex:1 1 auto;
+  height:100%;
+
 #chatroom {
   width: 100%;
   flex: 1 1 auto;
