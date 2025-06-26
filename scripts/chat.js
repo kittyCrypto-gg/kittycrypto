@@ -1,3 +1,10 @@
+import {
+  loadClusterizeJS,
+  prepareClusteriseDOM,
+  initClusterise,
+  updtClusterised
+} from "./clusterise.js";
+
 const CHAT_SERVER = "https://kittycrypto.ddns.net:7619/chat";
 const CHAT_STREAM_URL = "https://kittycrypto.ddns.net:7619/chat/stream";
 const SESSION_TOKEN_URL = "https://kittycrypto.ddns.net:7619/session-token";
@@ -195,7 +202,7 @@ async function sendMessage() {
 async function displayChat(messages, isLocalUpdate = false) {
   if (!isLocalUpdate) {
     document.querySelectorAll('.chat-message.pending').forEach(el => el.remove());
-    chatroom.innerHTML = '';
+    //chatroom.innerHTML = '';
   }
 
   messages.forEach(msgObj => {
@@ -254,9 +261,10 @@ async function displayChat(messages, isLocalUpdate = false) {
   requestAnimationFrame(() => {
     chatroom.scrollTop = chatroom.scrollHeight;
   });
-  
+
   document.dispatchEvent(new Event('chatUpdated'));
   console.log(`Chat updated with ${messages.length} new messages.`);
+  updtClusterised(chatroom, chatClusterise, '.chat-message');
 }
 
 // Remove pending message on failure
@@ -272,5 +280,20 @@ messageInput.addEventListener("keypress", (e) => {
 });
 
 // Load nickname on startup
+let chatClusterise = null;
+
+loadClusterizeJS(() => {
+  prepareClusteriseDOM(chatroom);
+  chatClusterise = initClusterise(chatroom);
+  updtClusterised(chatroom, chatClusterise, '.chat-message');
+
+  const clusteriseScrollArea = document.getElementById(chatroom.id + "-scroll-area");
+  if (clusteriseScrollArea) {
+    clusteriseScrollArea.addEventListener('scroll', () => {
+      updtClusterised(chatroom, chatClusterise, '.chat-message');
+    });
+  }
+});
+
 loadNickname();
 fetchSessionToken();
