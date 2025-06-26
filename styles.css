@@ -661,28 +661,51 @@ footer {
 
 /* Chatroom styles */
 .frame-chat {
-  max-height: 100vh !important;
-  min-height: 0 !important;
-  height: 100vh !important;
-  overflow: hidden !important;
+  height: 100vh;
+  max-height: 100vh;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-.frame-chat .frame-content {
+.frame-chat > .frame-content {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
 }
 
-.frame-chat #main-content{
-  display:flex;
-  flex-direction:column;
-  flex:1 1 auto;
-  height:100%;
+/* Each section (banner, nav, header, footer) can grow as needed */
+.frame-chat #banner-wrapper,
+.frame-chat #main-menu,
+.frame-chat #main-header,
+.frame-chat #main-footer,
+.frame-chat .chat-inputs {
+  flex: 0 0 auto;
+  min-height: 0;
+}
+
+/* #main-content fills available space between header/footer */
+.frame-chat #main-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* The chatroom never grows the frame! It just scrolls. */
+.frame-chat #chatroom {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
 
 #chatroom {
   width: 100%;
-  flex: 1 1 auto;
-  overflow-y: auto;
   padding: 10px;
   border: 1px solid var(--chatroom-border-colour);
   background: var(--chatroom-bg-colour);
@@ -691,7 +714,6 @@ footer {
   white-space: pre-wrap;
   word-wrap: break-word;
   text-align: left;
-  display: flex;
   flex-direction: column;
   justify-content: flex-start;
   color: var(--chatroom-text-colour);
