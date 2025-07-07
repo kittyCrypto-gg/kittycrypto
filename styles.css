@@ -1057,6 +1057,7 @@ body.no-scroll {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  left: 50%;
 }
 
 /* =========================================
