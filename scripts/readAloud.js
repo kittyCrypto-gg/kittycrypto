@@ -65,8 +65,14 @@ function showReadAloudMenu() {
     window.readAloudState.pressed = true;
 
     const menu = document.getElementById('read-aloud-menu');
-    if (menu) return;
+    if (menu){
+        console.error('Read Aloud menu already exists');
+        return;
+    }
 
+    // show menu
+    menu.style.display = 'flex';
+    
     const navMenu = document.getElementById('main-menu');
     navMenu.insertAdjacentHTML('afterend', readAloudMenuHTML);
     const insertedMenu = document.getElementById('read-aloud-menu');
