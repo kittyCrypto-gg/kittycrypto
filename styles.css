@@ -2613,6 +2613,22 @@ body.dark .reader-bookmark.read-aloud-fadeout,
   opacity: 0 !important;
 }
 
+#read-aloud-menu a {
+  color: var(--menu-button-text-colour);
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+#read-aloud-menu a:hover,
+#read-aloud-menu a:focus {
+  color: var(--banner-blue);
+  text-decoration: underline;
+}
+
+.dark-mode #read-aloud-menu a {
+  color: var(--menu-button-text-colour);
+}
+
 /* =========================================
   Debug Console
   ========================================= */
