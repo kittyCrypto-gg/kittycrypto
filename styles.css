@@ -2509,15 +2509,15 @@ body.reader-mode {
   gap: 8px;
   flex-wrap: nowrap;
   width: 100%;
-  overflow: hidden;
+  overflow: auto;
 }
 
 #read-aloud-menu input[type="text"],
 #read-aloud-menu select {
   flex: 1 1 0;
-  min-width: 36px;
-  /*max-width: 130px;*/
-  width: auto;
+  /*min-width: 22px;
+  max-width: 130px;*/
+  width: 32px;
   background: var(--chat-input-bg-colour);
   color: var(--chat-input-text-colour);
   border: 1px solid var(--chat-input-border-colour);
