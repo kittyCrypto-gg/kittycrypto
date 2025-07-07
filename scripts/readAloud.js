@@ -2,8 +2,11 @@ const buttons = {
     play: { icon: "▶️", action: "Start Read Aloud" },
     pause: { icon: "⏸️", action: "Pause Read Aloud" },
     stop: { icon: "⏹️", action: "Stop Read Aloud" },
+    next: { icon: "⏩", action: "Next Paragraph" },
+    prev: { icon: "⏪", action: "Previous Paragraph" },
+    restart: { icon: "⏮️", action: "Restart" },   // <-- NEW
     info: { icon: "ℹ️", action: "Show Info" },
-    help: { icon: "❇️", action: "Help" }
+    help: { icon: "🟦", action: "Help" }
 };
 
 const ENGLISH_VOICES = [
@@ -36,13 +39,16 @@ const readAloudMenuHTML = `
     <div class="read-aloud-controls">
         <input id="read-aloud-apikey" type="password" placeholder="Azure Speech API Key" style="width: 170px; margin-right: 4px;" />
         <select id="read-aloud-region" style="margin-right: 4px;">
-        ${AZURE_REGIONS.map(region => `<option value="${region}">${region}</option>`).join('')}
+            ${AZURE_REGIONS.map(region => `<option value="${region}">${region}</option>`).join('')}
         </select>
         <select id="read-aloud-voice" style="margin-right: 4px;">
-        ${ENGLISH_VOICES.map(v => `<option value="${v.name}">${v.description}</option>`).join('')}
+            ${ENGLISH_VOICES.map(v => `<option value="${v.name}">${v.description}</option>`).join('')}
         </select>
-        <button id="read-aloud-toggle-playpause">${buttons.play.icon}</button>
+                <button id="read-aloud-toggle-playpause">${buttons.play.icon}</button>
         <button id="read-aloud-stop">${buttons.stop.icon}</button>
+        <button id="read-aloud-prev">${buttons.prev.icon}</button>
+        <button id="read-aloud-restart">${buttons.restart.icon}</button>
+        <button id="read-aloud-next">${buttons.next.icon}</button>
         <button id="read-aloud-info" title="Info">${buttons.info.icon}</button>
         <button id="read-aloud-help" title="Help">${buttons.help.icon}</button>
     </div>
@@ -124,10 +130,13 @@ export function showReadAloudMenu() {
     const voiceDropdown = document.getElementById('read-aloud-voice');
     const playPauseBtn = document.getElementById('read-aloud-toggle-playpause');
     const stopBtn = document.getElementById('read-aloud-stop');
+    const prevBtn = document.getElementById('read-aloud-prev');
+    const nextBtn = document.getElementById('read-aloud-next');
+    const restartBtn = document.getElementById('read-aloud-restart');
     const infoBtn = document.getElementById('read-aloud-info');
     const helpBtn = document.getElementById('read-aloud-help');
 
-    if (!playPauseBtn || !stopBtn || !apikeyInput || !regionDropdown || !voiceDropdown || !infoBtn || !helpBtn) {
+    if (!playPauseBtn || !stopBtn || !prevBtn || !nextBtn || !restartBtn || !apikeyInput || !regionDropdown || !voiceDropdown || !infoBtn || !helpBtn) {
         console.error('Read Aloud menu elements not found');
         return;
     }
@@ -178,11 +187,42 @@ export function showReadAloudMenu() {
         openCustomModal(helpModal, "readaloud-help-modal");
     });
 
+    prevBtn.addEventListener('click', async () => {
+        await prevParagraph();
+    });
+
+    nextBtn.addEventListener('click', async () => {
+        await nextParagraph();
+    });
+
+    restartBtn.addEventListener('click', async () => {
+        await restartReadAloudFromBeginning();
+    });
+
     initReadAloudMenuDrag();
     if (typeof menu._resetMenuPosition === 'function') {
         menu._resetMenuPosition();
     }
 }
+
+async function restartReadAloudFromBeginning() {
+    const state = window.readAloudState;
+    state.paused = true;
+    if (state.currentAudio) {
+        state.currentAudio.pause();
+        state.currentAudio.currentTime = 0;
+        state.currentAudio = null;
+    }
+    await stopSpeakingAsync();
+
+    if (!state.paragraphs.length) return; // extra guard
+
+    state.currentParagraphIndex = 0;
+    state.currentParagraphId = state.paragraphs[0] ? state.paragraphs[0].id : null;
+    state.paused = false;
+    await speakParagraph(0);
+}
+
 
 async function closeReadAloudMenu() {
     const menu = document.getElementById('read-aloud-menu');
@@ -202,7 +242,6 @@ async function closeReadAloudMenu() {
     window.readAloudState.pressed = false;
     await clearReadAloud()
 }
-
 
 // Initialise the Speech SDK
 async function readAloud(speechKey, serviceRegion, voiceName = ENGLISH_VOICES[0].name, tag = 'article', id = 'reader', className = 'reader-container', startFromId = null) {
@@ -244,7 +283,12 @@ async function speakParagraph(idx) {
     const state = window.readAloudState;
     if (state.paused || idx >= state.paragraphs.length) return;
 
+    if (state.currentParagraphIndex !== undefined && state.paragraphs[state.currentParagraphIndex]) {
+        fadeOutHighlight(state.paragraphs[state.currentParagraphIndex]);
+    }
+
     const paragraph = state.paragraphs[idx];
+    highlightParagraph(paragraph);
     const plainText = paragraph.innerText.replace(/\s+/g, ' ').trim();
     if (!plainText) {
         await speakParagraph(idx + 1);
@@ -310,16 +354,21 @@ async function speakParagraph(idx) {
     }
 }
 
-function playAudioBlob(audioData) {
+async function playAudioBlob(audioData) {
     return new Promise((resolve, reject) => {
         const audioBlob = new Blob([audioData], { type: 'audio/mp3' });
         const audioUrl = URL.createObjectURL(audioBlob);
         const audio = new Audio(audioUrl);
 
+        // Save the audio reference to state
+        window.readAloudState.currentAudio = audio;
+
         audio.onended = () => {
+            window.readAloudState.currentAudio = null;
             resolve();
         };
         audio.onerror = e => {
+            window.readAloudState.currentAudio = null;
             reject(e);
         };
         audio.play();
@@ -329,6 +378,9 @@ function playAudioBlob(audioData) {
 async function pauseReadAloud() {
     const state = window.readAloudState;
     state.paused = true;
+    if (state.currentAudio) state.currentAudio.pause();
+    fadeOutHighlight(state.paragraphs[state.currentParagraphIndex]);
+
     await stopSpeakingAsync();
     localStorage.setItem('readAloudAudioPosition', JSON.stringify({
         paragraphId: state.currentParagraphId,
@@ -345,13 +397,18 @@ async function resumeReadAloud() {
 
 async function clearReadAloud() {
     const state = window.readAloudState;
+    fadeOutHighlight(state.paragraphs[state.currentParagraphIndex]);
     state.currentParagraphIndex = 0;
     state.currentParagraphId = state.paragraphs[0] ? state.paragraphs[0].id : null;
     state.paused = true;
+    if (state.currentAudio) {
+        state.currentAudio.pause();
+        state.currentAudio.currentTime = 0;
+        state.currentAudio = null;
+    }
     await stopSpeakingAsync();
     localStorage.removeItem('readAloudAudioPosition');
 }
-
 
 async function stopSpeakingAsync() {
     const state = window.readAloudState;
@@ -369,6 +426,88 @@ async function stopSpeakingAsync() {
     }
     return Promise.resolve();
 }
+
+function highlightParagraph(paragraph) {
+    // Remove from all
+    window.readAloudState.paragraphs.forEach(p => {
+        p.classList.remove('read-aloud-active', 'read-aloud-fadeout');
+    });
+    // Add to current
+    if (paragraph) {
+        paragraph.classList.add('read-aloud-active');
+        paragraph.classList.remove('read-aloud-fadeout');
+    }
+}
+
+function fadeOutHighlight(paragraph) {
+    if (paragraph) {
+        paragraph.classList.add('read-aloud-fadeout');
+        setTimeout(() => {
+            paragraph.classList.remove('read-aloud-active', 'read-aloud-fadeout');
+        }, 600);
+    }
+}
+
+async function nextParagraph() {
+    const state = window.readAloudState;
+    if (!state.paragraphs.length) return;
+
+    // Fade out old paragraph (if any)
+    fadeOutHighlight(state.paragraphs[state.currentParagraphIndex]);
+
+    if (state.currentAudio) {
+        state.currentAudio.pause();
+        state.currentAudio.currentTime = 0;
+        state.currentAudio = null;
+    }
+    await stopSpeakingAsync();
+    state.paused = true;
+
+    let idx = state.currentParagraphIndex;
+    if (idx < state.paragraphs.length - 1) idx++;
+    else idx = 0;
+
+    state.currentParagraphIndex = idx;
+    state.currentParagraphId = state.paragraphs[idx].id;
+
+    highlightParagraph(state.paragraphs[idx]);
+
+    state.paused = false;
+    await speakParagraph(idx);
+}
+
+async function prevParagraph() {
+    const state = window.readAloudState;
+    if (!state.paragraphs.length) return;
+
+    // Fade out old paragraph (if any)
+    fadeOutHighlight(state.paragraphs[state.currentParagraphIndex]);
+
+    // Stop audio and synthesiser
+    if (state.currentAudio) {
+        state.currentAudio.pause();
+        state.currentAudio.currentTime = 0;
+        state.currentAudio = null;
+    }
+    await stopSpeakingAsync();
+    state.paused = true;
+
+    // Move to previous index (wrap to end if at zero)
+    let idx = state.currentParagraphIndex;
+    if (idx > 0) idx--;
+    else idx = state.paragraphs.length - 1;
+
+    // Update state
+    state.currentParagraphIndex = idx;
+    state.currentParagraphId = state.paragraphs[idx].id;
+
+    // Highlight the new paragraph immediately (while old is fading out)
+    highlightParagraph(state.paragraphs[idx]);
+
+    state.paused = false;
+    await speakParagraph(idx);
+}
+
 
 function savePreferredVoice(voiceName) {
     localStorage.setItem('readAloudPreferredVoice', voiceName);

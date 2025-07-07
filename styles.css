@@ -1026,10 +1026,11 @@ body.no-scroll {
 ==========================================*/
 #modal-overlay {
   position: fixed;
-  top: 0; left: 0;
+  top: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
-  background: var(--modal-overlay-bg-colour, rgba(0,0,0,0.3));
+  background: var(--modal-overlay-bg-colour, rgba(0, 0, 0, 0.3));
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -1041,7 +1042,7 @@ body.no-scroll {
   background: var(--edit-modal-bg-colour, #fff);
   color: var(--edit-modal-text-colour, #004d40);
   border-radius: 12px;
-  box-shadow: var(--frame-box-shadow, 0 4px 10px rgba(0,0,0,0.2));
+  box-shadow: var(--frame-box-shadow, 0 4px 10px rgba(0, 0, 0, 0.2));
   padding: 22px 28px;
   min-width: 320px;
   max-width: 95vw;
@@ -2472,19 +2473,14 @@ body.reader-mode {
   box-sizing: border-box;
   user-select: none;
   cursor: grab;
-  transition:
-    box-shadow 0.25s,
-    background 0.25s,
-    color 0.25s,
-    opacity 0.2s,
-    left 0.2s,
-    top 0.2s;
+  transition: box-shadow 0.25s, background 0.25s, color 0.25s, opacity 0.2s,
+    left 0.2s, top 0.2s;
 }
 
-#read-aloud-menu.dragging { 
+#read-aloud-menu.dragging {
   opacity: 0.92;
   cursor: grabbing;
-  box-shadow: 0 6px 22px rgba(0,0,0,0.25), var(--frame-box-shadow);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.25), var(--frame-box-shadow);
 }
 
 #read-aloud-menu .read-aloud-header {
@@ -2530,7 +2526,7 @@ body.reader-mode {
 #read-aloud-menu .read-aloud-controls button {
   flex: 0 0 auto;
   width: auto;
-  min-width: 28px;        /* ensures emoji stay compact */
+  min-width: 28px; /* ensures emoji stay compact */
   max-width: 48px;
   box-sizing: border-box;
   padding: 0 4px;
@@ -2570,7 +2566,7 @@ body.reader-mode {
   cursor: pointer;
   transition: background 0.2s, transform 0.18s;
   outline: none;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
   user-select: none;
 }
 
@@ -2592,6 +2588,29 @@ body.reader-mode {
   align-items: center;
   gap: 7px;
   margin-top: 6px;
+}
+
+/* highlighted text */
+.reader-bookmark.read-aloud-active {
+  background: #b388ff !important; /* A soft violet for light mode */
+  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s;
+  opacity: 1 !important;
+}
+.reader-bookmark.read-aloud-fadeout {
+  opacity: 0 !important;
+  transition: opacity 0.6s;
+}
+
+/* Dark mode */
+body.dark .reader-bookmark.read-aloud-active,
+.dark .reader-bookmark.read-aloud-active {
+  background: #e1bfff !important; /* Lighter/saturated violet for dark mode */
+}
+
+body.dark .reader-bookmark.read-aloud-fadeout,
+.dark .reader-bookmark.read-aloud-fadeout {
+  /* No change needed, but kept for completeness */
+  opacity: 0 !important;
 }
 
 /* =========================================
