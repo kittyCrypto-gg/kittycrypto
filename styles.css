@@ -10,6 +10,9 @@
 
   /* Frame */
   --frame-bg-colour: #ffffff;
+  --frame-bg-colour-rgb: 255, 255, 255;
+  
+
   --frame-width: 95%;
   --frame-border-light: transparent;
   --frame-padding: 20px;
@@ -115,6 +118,7 @@
 
   /* Frame */
   --frame-bg-colour: #1e1e1e;
+  --frame-bg-colour-rgb: 30, 30, 30;
   --frame-border-light: #294149;
   --frame-box-shadow: 0 4px 24px 4px rgba(0, 255, 255, 0.1);
 
@@ -2464,7 +2468,7 @@ body.reader-mode {
   display: none;
   flex-direction: column;
   align-items: stretch;
-  background: rgba(var(--frame-bg-colour), 0.2);
+  background: rgba(var(--frame-bg-colour-rgb), 0.8);
   color: var(--body-text-colour);
   border-radius: 15px;
   box-shadow: var(--frame-box-shadow);
