@@ -3,7 +3,6 @@ const buttons = {
     pause: { icon: "⏸️", action: "Pause Read Aloud" },
     stop: { icon: "⏹️", action: "Stop Read Aloud" },
     info: { icon: "ℹ️", action: "Show Info" },
-    close: { icon: "❎", action: "Close Read Aloud Menu" },
     help: { icon: "❇️", action: "Help" }
 };
 
@@ -35,7 +34,7 @@ const readAloudMenuHTML = `
         Read Aloud
     </div>
     <div class="read-aloud-controls">
-        <input id="read-aloud-apikey" type="text" placeholder="Azure Speech API Key" style="width: 170px; margin-right: 4px;" />
+        <input id="read-aloud-apikey" type="password" placeholder="Azure Speech API Key" style="width: 170px; margin-right: 4px;" />
         <select id="read-aloud-region" style="margin-right: 4px;">
         ${AZURE_REGIONS.map(region => `<option value="${region}">${region}</option>`).join('')}
         </select>
@@ -46,7 +45,6 @@ const readAloudMenuHTML = `
         <button id="read-aloud-stop">${buttons.stop.icon}</button>
         <button id="read-aloud-info" title="Info">${buttons.info.icon}</button>
         <button id="read-aloud-help" title="Help">${buttons.help.icon}</button>
-        <button id="read-aloud-hide" title="Hide Menu">${buttons.close.icon}</button>
     </div>
 `;
 
@@ -96,6 +94,15 @@ export function showReadAloudMenu() {
     //console.log('[DEBUG] Read Aloud menu button pressed');
     window.readAloudState.pressed = true;
 
+    //change icon to data-disable (<button id="read-aloud-toggle" class="theme-toggle-button" data-enable="🔊" data-disable="🔇" title="Read Aloud" style="bottom: 140px;">🔊</button>)
+    const toggleBtn = document.getElementById('read-aloud-toggle');
+    if (toggleBtn) {
+        toggleBtn.textContent = toggleBtn.getAttribute('data-disable');
+        toggleBtn.classList.add('active');
+        toggleBtn.removeEventListener('click', showReadAloudMenu);
+        toggleBtn.addEventListener('click', closeReadAloudMenu);
+    }
+
     const menu = document.getElementById('read-aloud-menu');
     if (!menu) {
         console.error('Read Aloud menu element not found in DOM');
@@ -119,14 +126,13 @@ export function showReadAloudMenu() {
     const stopBtn = document.getElementById('read-aloud-stop');
     const infoBtn = document.getElementById('read-aloud-info');
     const helpBtn = document.getElementById('read-aloud-help');
-    const hideBtn = document.getElementById('read-aloud-hide');
 
-    if (!playPauseBtn || !stopBtn || !hideBtn || !apikeyInput || !regionDropdown || !voiceDropdown || !infoBtn || !helpBtn) {
+    if (!playPauseBtn || !stopBtn || !apikeyInput || !regionDropdown || !voiceDropdown || !infoBtn || !helpBtn) {
         console.error('Read Aloud menu elements not found');
         return;
     }
     //console.log('[DEBUG] Read Aloud menu elements found:', {
-    //    playPauseBtn, stopBtn, hideBtn, apikeyInput, regionDropdown, voiceDropdown, infoBtn, helpBtn
+    //    playPauseBtn, stopBtn, apikeyInput, regionDropdown, voiceDropdown, infoBtn, helpBtn
     //});
 
     // Restore from localStorage etc.
@@ -161,13 +167,6 @@ export function showReadAloudMenu() {
         clearReadAloud();
     });
 
-    hideBtn.addEventListener('click', () => {
-        clearReadAloud();
-        menu.style.display = 'none';
-        playPauseBtn.textContent = buttons.play.icon;
-        window.readAloudState.pressed = false;
-    });
-
     infoBtn.addEventListener('click', () => {
         const info = Object.entries(buttons)
             .map(([key, val]) => `${val.icon} — ${val.action}`)
@@ -185,9 +184,30 @@ export function showReadAloudMenu() {
     }
 }
 
+function closeReadAloudMenu() {
+    const menu = document.getElementById('read-aloud-menu');
+    if (!menu) return;
+    //change icon to data-disable (<button id="read-aloud-toggle" class="theme-toggle-button" data-enable="🔊" data-disable="🔇" title="Read Aloud" style="bottom: 140px;">🔊</button>)
+    const toggleBtn = document.getElementById('read-aloud-toggle');
+    if (toggleBtn) {
+        toggleBtn.textContent = toggleBtn.getAttribute('data-enable');
+        toggleBtn.classList.remove('active');
+        toggleBtn.removeEventListener('click', closeReadAloudMenu);
+        toggleBtn.addEventListener('click', showReadAloudMenu);
+    }
+
+    menu.style.display = 'none';
+    const playPauseBtn = document.getElementById('read-aloud-toggle-playpause');
+    if (playPauseBtn) playPauseBtn.textContent = buttons.play.icon;
+    window.readAloudState.pressed = false;
+    clearReadAloud();
+}
+
 
 // Initialise the Speech SDK
 function readAloud(speechKey, serviceRegion, voiceName = ENGLISH_VOICES[0].name, tag = 'article', id = 'reader', className = 'reader-container', startFromId = null) {
+    console.log('readAloud called');
+    console.trace();
     let selector = tag;
     if (id) selector += `#${id}`;
     if (className) selector += `.${className}`;
@@ -221,6 +241,7 @@ function readAloud(speechKey, serviceRegion, voiceName = ENGLISH_VOICES[0].name,
 }
 
 function speakParagraph(idx) {
+    console.log('speakParagraph called for idx:', idx);
     const state = window.readAloudState;
     if (state.paused || idx >= state.paragraphs.length) return;
 
