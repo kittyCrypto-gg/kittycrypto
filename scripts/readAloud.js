@@ -85,6 +85,7 @@ window.readAloudState = {
 };
 
 function showReadAloudMenu() {
+    console.log('[DEBUG] Read Aloud menu button pressed');
     window.readAloudState.pressed = true;
 
     const menu = document.getElementById('read-aloud-menu');
@@ -92,13 +93,16 @@ function showReadAloudMenu() {
         console.error('Read Aloud menu element not found in DOM');
         return;
     }
+    console.log('[DEBUG] Read Aloud menu found:', menu);
 
     // If already visible, do nothing
     if (menu.style.display === 'flex') return;
+    console.log('[DEBUG] Showing Read Aloud menu');
 
     // Populate the menu
     menu.innerHTML = readAloudMenuHTML;
     menu.style.display = 'flex';
+    console.log('[DEBUG] Read Aloud menu populated');
 
     const apikeyInput = document.getElementById('read-aloud-apikey');
     const regionDropdown = document.getElementById('read-aloud-region');
@@ -114,6 +118,9 @@ function showReadAloudMenu() {
         console.error('Read Aloud menu elements not found');
         return;
     }
+    console.log('[DEBUG] Read Aloud menu elements found:', {
+        playPauseBtn, stopBtn, statusSpan, hideBtn, apikeyInput, regionDropdown, voiceDropdown, infoBtn, helpBtn
+    });
 
     // Restore from localStorage etc.
     apikeyInput.value = localStorage.getItem('readAloudSpeechApiKey') || '';
