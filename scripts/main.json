@@ -21,6 +21,7 @@
     "disable": "🔇"
   },
   "headScripts": [
-    "./scripts/debug.js"
+    "./scripts/debug.js",
+    "./scripts/readAloud.js"
   ]
 }
