@@ -55,7 +55,6 @@ const readAloudMenuHTML = `
 const helpModal = `
     <div class="modal-header">
         <h2>Azure Speech Service Read Aloud Help</h2>
-        <button class="modal-close" onclick="closeCustomModal('readaloud-help-modal')">❌</button>
         </div>
         <div class="modal-content">
         <ul>
@@ -73,6 +72,10 @@ const helpModal = `
             <b>Note:</b> KittyCrypto.gg will <u>NOT</u> store your API key or region server-side. It is saved only in your browser's local storage.<br>
             See the full implementation on 
             <a href="https://github.com/kittyCrypto-gg/kittycrypto/blob/main/scripts/readAloud.js" target="_blank" rel="noopener">GitHub</a>.
+        </p>
+        <p class="modal-note">
+            <b>Note:</b> Click anywhere outside this modal to close it.<br>
+            You can also press <kbd>Esc</kbd> to close it.
         </p>
         </div>
 `;
@@ -234,6 +237,11 @@ function speakParagraph(idx) {
         return;
     }
 
+    if (!state.speechKey || !state.serviceRegion) {
+        window.alert('Please enter your Azure Speech API key and region in the Read Aloud menu.');
+        return;
+    }
+
     const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(state.speechKey, state.serviceRegion);
     speechConfig.speechSynthesisVoiceName = state.voiceName;
     const synthesizer = new SpeechSDK.SpeechSynthesizer(speechConfig);
@@ -313,21 +321,12 @@ function initReadAloudMenuDrag() {
     let offsetX = 0;
     let offsetY = 0;
 
-    function getMainMenuBottom() {
+    const getMainMenuBottom = () => {
         const nav = document.getElementById('main-menu');
         if (!nav) return 0;
         const rect = nav.getBoundingClientRect();
         return rect.bottom + window.scrollY;
-    }
-
-    function clampMenuPosition(left, top) {
-        const minTop = getMainMenuBottom();
-        const maxLeft = window.innerWidth - menu.offsetWidth;
-        const clampedLeft = Math.max(0, Math.min(left, maxLeft));
-        const maxTop = window.innerHeight - menu.offsetHeight;
-        const clampedTop = Math.max(minTop, Math.min(top, maxTop));
-        return { left: clampedLeft, top: clampedTop };
-    }
+    };
 
     const dragHandle = menu.querySelector('.read-aloud-header') || menu;
 
@@ -339,41 +338,35 @@ function initReadAloudMenuDrag() {
         e.preventDefault();
     });
 
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-
-    function onMouseMove(e) {
+    const onMouseMove = (e) => {
         if (!isDragging) return;
         let newLeft = e.clientX - offsetX;
         let newTop = e.clientY - offsetY;
+        menu.style.left = `${newLeft}px`;
+        menu.style.top = `${newTop}px`;
+    };
 
-        const { left, top } = clampMenuPosition(newLeft, newTop);
-
-        menu.style.left = `${left}px`;
-        menu.style.top = `${top}px`;
-    }
-
-    function onMouseUp() {
+    const onMouseUp = () => {
         if (isDragging) {
             menu.classList.remove('dragging');
             isDragging = false;
         }
-    }
+    };
 
     // Snap menu just below nav when shown or on resize
-    function resetMenuPosition() {
+    const resetMenuPosition = () => {
         const minTop = getMainMenuBottom();
         menu.style.left = '0px';
         menu.style.top = `${minTop}px`;
-    }
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
 
     window.addEventListener('resize', () => {
         if (menu.style.display !== 'none') {
-            const left = parseInt(menu.style.left, 10) || 0;
-            const top = parseInt(menu.style.top, 10) || getMainMenuBottom();
-            const { left: newLeft, top: newTop } = clampMenuPosition(left, top);
-            menu.style.left = `${newLeft}px`;
-            menu.style.top = `${newTop}px`;
+            // Reset to (0, minTop) on resize for simplicity
+            resetMenuPosition();
         }
     });
 
