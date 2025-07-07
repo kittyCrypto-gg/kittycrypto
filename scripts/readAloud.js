@@ -603,6 +603,10 @@ function initReadAloudMenuDrag() {
   };
 
   const startDrag = e => {
+    // Do NOT start dragging if starting on an interactive element
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (['button', 'input', 'select', 'textarea', 'option', 'label'].includes(tag)) return;
+    if (e.target.closest('button, input, select, textarea, option, label')) return;
     const pos = getClientPos(e);
     isDragging = true;
     menu.classList.add('dragging');
