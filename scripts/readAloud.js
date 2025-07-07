@@ -303,6 +303,7 @@ async function speakParagraph(idx) {
 
     const paragraph = state.paragraphs[idx];
     highlightParagraph(paragraph);
+    scrollParagraphIntoView(paragraph);
     const plainText = paragraph.innerText.replace(/\s+/g, ' ').trim();
     if (!plainText) {
         await speakParagraph(idx + 1);
@@ -464,6 +465,14 @@ function fadeOutHighlight(paragraph) {
     }
 }
 
+function scrollParagraphIntoView(paragraph) {
+    if (!paragraph) return;
+    paragraph.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+    });
+}
+
 async function nextParagraph() {
     const state = window.readAloudState;
     if (!state.paragraphs.length) return;
@@ -487,6 +496,7 @@ async function nextParagraph() {
     state.currentParagraphId = state.paragraphs[idx].id;
 
     highlightParagraph(state.paragraphs[idx]);
+    scrollParagraphIntoView(paragraph);
 
     state.paused = false;
     await speakParagraph(idx);
@@ -519,6 +529,7 @@ async function prevParagraph() {
 
     // Highlight the new paragraph immediately (while old is fading out)
     highlightParagraph(state.paragraphs[idx]);
+    scrollParagraphIntoView(paragraph);
 
     state.paused = false;
     await speakParagraph(idx);
