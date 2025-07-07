@@ -101,17 +101,27 @@ window.readAloudState = {
 };
 
 function buildSSML(text, voiceName, rate) {
-    const percent = Math.round(rate * 100);
+    // Map UI rates to Azure SSML prosody rates
+    const rateMap = {
+        0.5: '60%',
+        0.75: '80%',
+        1: '95%',
+        1.25: '115%',
+        1.5: '130%',
+        1.75: '150%',
+        2: '175%',
+    };
+    const prosodyRate = rateMap[rate] || '95%';
     return `
-    <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis"
-        xmlns:mstts="http://www.w3.org/2001/mstts"
-        xml:lang="en-US">
-    <voice name="${voiceName}">
-        <prosody rate="${percent}%">
-        ${escapeXml(text)}
-        </prosody>
-    </voice>
-    </speak>
+        <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis"
+            xmlns:mstts="http://www.w3.org/2001/mstts"
+            xml:lang="en-US">
+            <voice name="${voiceName}">
+                <prosody rate="${prosodyRate}">
+                ${escapeXml(text)}
+                </prosody>
+            </voice>
+        </speak>
     `;
 }
 
@@ -517,7 +527,7 @@ async function nextParagraph() {
     state.currentParagraphId = state.paragraphs[idx].id;
 
     highlightParagraph(state.paragraphs[idx]);
-    scrollParagraphIntoView(paragraph);
+    scrollParagraphIntoView(state.paragraphs[idx]);
 
     state.paused = false;
     await speakParagraph(idx);
@@ -550,7 +560,7 @@ async function prevParagraph() {
 
     // Highlight the new paragraph immediately (while old is fading out)
     highlightParagraph(state.paragraphs[idx]);
-    scrollParagraphIntoView(paragraph);
+    scrollParagraphIntoView(state.paragraphs[idx]);
 
     state.paused = false;
     await speakParagraph(idx);
