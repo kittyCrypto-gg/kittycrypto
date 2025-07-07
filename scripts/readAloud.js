@@ -100,6 +100,28 @@ window.readAloudState = {
     speechRate: 1.0
 };
 
+function buildSSML(text, voiceName, rate) {
+    const percent = Math.round(rate * 100);
+    return `
+    <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis"
+        xmlns:mstts="http://www.w3.org/2001/mstts"
+        xml:lang="en-US">
+    <voice name="${voiceName}">
+        <prosody rate="${percent}%">
+        ${escapeXml(text)}
+        </prosody>
+    </voice>
+    </speak>
+    `;
+}
+
+function escapeXml(unsafe) {
+    return unsafe.replace(/[<>&'"]/g, c => ({
+        '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;'
+    }[c]));
+}
+
+
 export function showReadAloudMenu() {
     //console.log('[DEBUG] Read Aloud menu button pressed');
     window.readAloudState.pressed = true;
