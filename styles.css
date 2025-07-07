@@ -2517,7 +2517,7 @@ body.reader-mode {
   flex: 1 1 0;
   /*min-width: 22px;
   max-width: 130px;*/
-  width: 32px;
+  width: 22px;
   background: var(--chat-input-bg-colour);
   color: var(--chat-input-text-colour);
   border: 1px solid var(--chat-input-border-colour);
