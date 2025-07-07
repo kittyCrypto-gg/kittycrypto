@@ -2464,7 +2464,7 @@ body.reader-mode {
   display: none;
   flex-direction: column;
   align-items: stretch;
-  background: var(--frame-bg-colour);
+  background: rgba(var(--frame-bg-colour), 0.5);
   color: var(--body-text-colour);
   border-radius: 15px;
   box-shadow: var(--frame-box-shadow);
