@@ -48,7 +48,6 @@ const readAloudMenuHTML = `
         <button id="read-aloud-help" title="Help">${buttons.help.icon}</button>
         <button id="read-aloud-hide" title="Hide Menu">${buttons.close.icon}</button>
     </div>
-    <span id="read-aloud-status"></span>
 `;
 
 
@@ -120,15 +119,14 @@ export function showReadAloudMenu() {
     const stopBtn = document.getElementById('read-aloud-stop');
     const infoBtn = document.getElementById('read-aloud-info');
     const helpBtn = document.getElementById('read-aloud-help');
-    const statusSpan = document.getElementById('read-aloud-status');
     const hideBtn = document.getElementById('read-aloud-hide');
 
-    if (!playPauseBtn || !stopBtn || !statusSpan || !hideBtn || !apikeyInput || !regionDropdown || !voiceDropdown || !infoBtn || !helpBtn) {
+    if (!playPauseBtn || !stopBtn || !hideBtn || !apikeyInput || !regionDropdown || !voiceDropdown || !infoBtn || !helpBtn) {
         console.error('Read Aloud menu elements not found');
         return;
     }
     //console.log('[DEBUG] Read Aloud menu elements found:', {
-    //    playPauseBtn, stopBtn, statusSpan, hideBtn, apikeyInput, regionDropdown, voiceDropdown, infoBtn, helpBtn
+    //    playPauseBtn, stopBtn, hideBtn, apikeyInput, regionDropdown, voiceDropdown, infoBtn, helpBtn
     //});
 
     // Restore from localStorage etc.
@@ -144,12 +142,10 @@ export function showReadAloudMenu() {
         const state = window.readAloudState;
         if (!state.paused) {
             playPauseBtn.textContent = buttons.play.icon;
-            statusSpan.textContent = 'Paused';
             pauseReadAloud();
             return;
         }
         playPauseBtn.textContent = buttons.pause.icon;
-        statusSpan.textContent = 'Reading...';
         state.speechKey = apikeyInput.value.trim();
         state.serviceRegion = regionDropdown.value;
         state.voiceName = voiceDropdown.value;
@@ -162,7 +158,6 @@ export function showReadAloudMenu() {
 
     stopBtn.addEventListener('click', () => {
         playPauseBtn.textContent = buttons.play.icon;
-        statusSpan.textContent = '';
         clearReadAloud();
     });
 
@@ -170,7 +165,6 @@ export function showReadAloudMenu() {
         clearReadAloud();
         menu.style.display = 'none';
         playPauseBtn.textContent = buttons.play.icon;
-        statusSpan.textContent = '';
         window.readAloudState.pressed = false;
     });
 
