@@ -103,13 +103,13 @@ window.readAloudState = {
 function buildSSML(text, voiceName, rate) {
     // Map UI rates to Azure SSML prosody rates
     const rateMap = {
-        0.5: '60%',
-        0.75: '80%',
-        1: '95%',
-        1.25: '115%',
-        1.5: '130%',
-        1.75: '150%',
-        2: '175%',
+        0.5: '-50%',
+        0.75: '-25%',
+        1: '0%',
+        1.25: '25%',
+        1.5: '50%',
+        1.75: '75%',
+        2: '100%',
     };
     const prosodyRate = rateMap[rate] || '95%';
     return `
