@@ -144,11 +144,11 @@ export function showReadAloudMenu() {
     regionDropdown.addEventListener('change', e => saveRegion(e.target.value));
     voiceDropdown.addEventListener('change', e => savePreferredVoice(e.target.value));
 
-    playPauseBtn.addEventListener('click', () => {
+    playPauseBtn.addEventListener('click', async () => {
         const state = window.readAloudState;
         if (!state.paused) {
             playPauseBtn.textContent = buttons.play.icon;
-            pauseReadAloud();
+            await pauseReadAloud()
             return;
         }
         playPauseBtn.textContent = buttons.pause.icon;
@@ -162,9 +162,9 @@ export function showReadAloudMenu() {
         resumeReadAloud();
     });
 
-    stopBtn.addEventListener('click', () => {
+    stopBtn.addEventListener('click', async () => {
         playPauseBtn.textContent = buttons.play.icon;
-        clearReadAloud();
+        await clearReadAloud();
     });
 
     infoBtn.addEventListener('click', () => {
@@ -200,7 +200,10 @@ function closeReadAloudMenu() {
     const playPauseBtn = document.getElementById('read-aloud-toggle-playpause');
     if (playPauseBtn) playPauseBtn.textContent = buttons.play.icon;
     window.readAloudState.pressed = false;
-    clearReadAloud();
+    clearReadAloud().then(() => {
+        //console.log('[DEBUG] Read Aloud menu closed and cleared');
+    });
+    //console.log('[DEBUG] Read Aloud menu closed');
 }
 
 
@@ -241,7 +244,8 @@ function readAloud(speechKey, serviceRegion, voiceName = ENGLISH_VOICES[0].name,
 }
 
 function speakParagraph(idx) {
-    console.log('speakParagraph called for idx:', idx);
+    const now = new Date();
+    console.log('speakParagraph called for idx:', idx, ' at ', now.toLocaleTimeString());
     const state = window.readAloudState;
     if (state.paused || idx >= state.paragraphs.length) return;
 
@@ -254,6 +258,12 @@ function speakParagraph(idx) {
 
     if (!state.speechKey || !state.serviceRegion) {
         window.alert('Please enter your Azure Speech API key and region in the Read Aloud menu.');
+        return;
+    }
+
+    // Defensive: Check SpeechSDK global
+    if (typeof SpeechSDK === 'undefined') {
+        window.alert('Speech SDK is not loaded. Please check your connection or script includes.');
         return;
     }
 
@@ -282,15 +292,10 @@ function speakParagraph(idx) {
     );
 }
 
-function pauseReadAloud() {
+async function pauseReadAloud() {
     const state = window.readAloudState;
     state.paused = true;
-    if (state.synthesizer) {
-        state.synthesizer.stopSpeakingAsync(() => {
-            state.synthesizer.close();
-            state.synthesizer = null;
-        });
-    }
+    await stopSpeakingAsync();
     localStorage.setItem('readAloudAudioPosition', JSON.stringify({
         paragraphId: state.currentParagraphId,
         paragraphIndex: state.currentParagraphIndex
@@ -304,18 +309,31 @@ function resumeReadAloud() {
     speakParagraph(idx);
 }
 
-function clearReadAloud() {
+async function clearReadAloud() {
     const state = window.readAloudState;
     state.currentParagraphIndex = 0;
     state.currentParagraphId = state.paragraphs[0] ? state.paragraphs[0].id : null;
     state.paused = true;
-    if (state.synthesizer) {
-        state.synthesizer.stopSpeakingAsync(() => {
-            state.synthesizer.close();
-            state.synthesizer = null;
-        });
-    }
+    await stopSpeakingAsync();
     localStorage.removeItem('readAloudAudioPosition');
+}
+
+
+async function stopSpeakingAsync() {
+    const state = window.readAloudState;
+    if (state.synthesizer && typeof state.synthesizer.stopSpeakingAsync === "function") {
+        return new Promise(resolve => {
+            state.synthesizer.stopSpeakingAsync(() => {
+                state.synthesizer.close();
+                state.synthesizer = null;
+                resolve();
+            });
+        });
+    } else if (state.synthesizer && typeof state.synthesizer.close === "function") {
+        state.synthesizer.close();
+        state.synthesizer = null;
+    }
+    return Promise.resolve();
 }
 
 function savePreferredVoice(voiceName) {
@@ -330,7 +348,7 @@ function saveRegion(region) {
 
 function initReadAloudMenuDrag() {
     const menu = document.getElementById('read-aloud-menu');
-    if (!menu) return;
+    if (!menu || menu._dragListenersAdded) return;
 
     let isDragging = false;
     let offsetX = 0;
@@ -386,6 +404,7 @@ function initReadAloudMenuDrag() {
     });
 
     menu._resetMenuPosition = resetMenuPosition;
+    menu._dragListenersAdded = true;
 }
 
 function openCustomModal(html, modalId = "readaloud-help-modal") {
