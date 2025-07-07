@@ -31,20 +31,26 @@ const AZURE_REGIONS = [
 ];
 
 const readAloudMenuHTML = `
-    <input id="read-aloud-apikey" type="text" placeholder="Azure Speech API Key" style="width: 170px; margin-right: 4px;" />
-    <select id="read-aloud-region" style="margin-right: 4px;">
+    <div class="read-aloud-header">
+        Read Aloud
+    </div>
+    <div class="read-aloud-controls">
+        <input id="read-aloud-apikey" type="text" placeholder="Azure Speech API Key" style="width: 170px; margin-right: 4px;" />
+        <select id="read-aloud-region" style="margin-right: 4px;">
         ${AZURE_REGIONS.map(region => `<option value="${region}">${region}</option>`).join('')}
-    </select>
-    <select id="read-aloud-voice" style="margin-right: 4px;">
+        </select>
+        <select id="read-aloud-voice" style="margin-right: 4px;">
         ${ENGLISH_VOICES.map(v => `<option value="${v.name}">${v.description}</option>`).join('')}
-    </select>
-    <button id="read-aloud-toggle-playpause">${buttons.play.icon}</button>
-    <button id="read-aloud-stop">${buttons.stop.icon}</button>
-    <button id="read-aloud-info" title="Info">${buttons.info.icon}</button>
-    <button id="read-aloud-help" title="Help">${buttons.help.icon}</button>
+        </select>
+        <button id="read-aloud-toggle-playpause">${buttons.play.icon}</button>
+        <button id="read-aloud-stop">${buttons.stop.icon}</button>
+        <button id="read-aloud-info" title="Info">${buttons.info.icon}</button>
+        <button id="read-aloud-help" title="Help">${buttons.help.icon}</button>
+        <button id="read-aloud-hide" title="Hide Menu">${buttons.close.icon}</button>
+    </div>
     <span id="read-aloud-status"></span>
-    <button id="read-aloud-hide" title="Hide Menu">${buttons.close.icon}</button>
 `;
+
 
 const helpModal = `
     <div class="modal-header">
@@ -85,7 +91,7 @@ window.readAloudState = {
 };
 
 export function showReadAloudMenu() {
-    console.log('[DEBUG] Read Aloud menu button pressed');
+    //console.log('[DEBUG] Read Aloud menu button pressed');
     window.readAloudState.pressed = true;
 
     const menu = document.getElementById('read-aloud-menu');
@@ -93,16 +99,16 @@ export function showReadAloudMenu() {
         console.error('Read Aloud menu element not found in DOM');
         return;
     }
-    console.log('[DEBUG] Read Aloud menu found:', menu);
+    //console.log('[DEBUG] Read Aloud menu found:', menu);
 
     // If already visible, do nothing
     if (menu.style.display === 'flex') return;
-    console.log('[DEBUG] Showing Read Aloud menu');
+    //console.log('[DEBUG] Showing Read Aloud menu');
 
     // Populate the menu
     menu.innerHTML = readAloudMenuHTML;
     menu.style.display = 'flex';
-    console.log('[DEBUG] Read Aloud menu populated');
+    //console.log('[DEBUG] Read Aloud menu populated');
 
     const apikeyInput = document.getElementById('read-aloud-apikey');
     const regionDropdown = document.getElementById('read-aloud-region');
@@ -118,7 +124,7 @@ export function showReadAloudMenu() {
         console.error('Read Aloud menu elements not found');
         return;
     }
-    console.log('[DEBUG] Read Aloud menu elements found:', {
+    //console.log('[DEBUG] Read Aloud menu elements found:', {
         playPauseBtn, stopBtn, statusSpan, hideBtn, apikeyInput, regionDropdown, voiceDropdown, infoBtn, helpBtn
     });
 
@@ -399,6 +405,7 @@ function openCustomModal(html, modalId = "readaloud-help-modal") {
     // Close modal when clicking outside
     overlay.addEventListener("click", (event) => {
         if (event.target === overlay) closeCustomModal(modalId);
+        window.closeCustomModal = closeCustomModal;
     });
 
     // Close modal on Escape key

@@ -1021,16 +1021,37 @@ body.no-scroll {
   overflow: hidden;
 }
 
-.modal-header {
+/*==========================================
+  General Modal
+==========================================*/
+#modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: var(--modal-overlay-bg-colour, rgba(0,0,0,0.3));
+  z-index: 9999;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: center;
 }
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 1.3em;
-  cursor: pointer;
+
+/* General Modal Box */
+.modal {
+  background: var(--edit-modal-bg-colour, #fff);
+  color: var(--edit-modal-text-colour, #004d40);
+  border-radius: 12px;
+  box-shadow: var(--frame-box-shadow, 0 4px 10px rgba(0,0,0,0.2));
+  padding: 22px 28px;
+  min-width: 320px;
+  max-width: 95vw;
+  width: fit-content;
+  max-height: 80vh;
+  overflow-y: auto;
+  font-size: 1.05em;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 /* =========================================
@@ -2542,7 +2563,6 @@ body.reader-mode {
   gap: 7px;
   margin-top: 6px;
 }
-
 
 /* =========================================
   Debug Console
