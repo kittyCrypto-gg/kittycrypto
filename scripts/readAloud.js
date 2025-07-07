@@ -44,7 +44,10 @@ const readAloudMenuHTML = `
         <select id="read-aloud-voice" style="margin-right: 4px;">
             ${ENGLISH_VOICES.map(v => `<option value="${v.name}">${v.description}</option>`).join('')}
         </select>
-                <button id="read-aloud-toggle-playpause">${buttons.play.icon}</button>
+        <select id="read-aloud-rate" style="margin-right: 4px;">
+            ${[0.5, 0.75, 1, 1.25, 1.5, 1.75, 2].map(rate => `<option value="${rate}">${rate}x</option>`).join('')}
+        </select>
+        <button id="read-aloud-toggle-playpause">${buttons.play.icon}</button>
         <button id="read-aloud-stop">${buttons.stop.icon}</button>
         <button id="read-aloud-prev">${buttons.prev.icon}</button>
         <button id="read-aloud-restart">${buttons.restart.icon}</button>
@@ -93,7 +96,8 @@ window.readAloudState = {
     lastSpokenText: '',
     voiceName: ENGLISH_VOICES[0].name,
     speechKey: '',
-    serviceRegion: ''
+    serviceRegion: '',
+    speechRate: 1.0
 };
 
 export function showReadAloudMenu() {
@@ -128,6 +132,7 @@ export function showReadAloudMenu() {
     const apikeyInput = document.getElementById('read-aloud-apikey');
     const regionDropdown = document.getElementById('read-aloud-region');
     const voiceDropdown = document.getElementById('read-aloud-voice');
+    const rateDropdown = document.getElementById('read-aloud-rate');
     const playPauseBtn = document.getElementById('read-aloud-toggle-playpause');
     const stopBtn = document.getElementById('read-aloud-stop');
     const prevBtn = document.getElementById('read-aloud-prev');
@@ -136,7 +141,7 @@ export function showReadAloudMenu() {
     const infoBtn = document.getElementById('read-aloud-info');
     const helpBtn = document.getElementById('read-aloud-help');
 
-    if (!playPauseBtn || !stopBtn || !prevBtn || !nextBtn || !restartBtn || !apikeyInput || !regionDropdown || !voiceDropdown || !infoBtn || !helpBtn) {
+    if (!playPauseBtn || !stopBtn || !prevBtn || !nextBtn || !restartBtn || !apikeyInput || !regionDropdown || !voiceDropdown || !rateDropdown || !infoBtn || !helpBtn) {
         console.error('Read Aloud menu elements not found');
         return;
     }
@@ -148,6 +153,7 @@ export function showReadAloudMenu() {
     apikeyInput.value = localStorage.getItem('readAloudSpeechApiKey') || '';
     regionDropdown.value = localStorage.getItem('readAloudSpeechRegion') || AZURE_REGIONS[0];
     voiceDropdown.value = localStorage.getItem('readAloudPreferredVoice') || ENGLISH_VOICES[0].name;
+    rateDropdown.value = getSpeechRate().toString();
 
     apikeyInput.addEventListener('input', e => saveApiKey(e.target.value.trim()));
     regionDropdown.addEventListener('change', e => saveRegion(e.target.value));
@@ -198,6 +204,14 @@ export function showReadAloudMenu() {
     restartBtn.addEventListener('click', async () => {
         await restartReadAloudFromBeginning();
     });
+
+    rateDropdown.addEventListener('change', e => {
+        const rate = parseFloat(e.target.value);
+        window.readAloudState.speechRate = rate;
+        saveSpeechRate(rate);
+    });
+
+    window.readAloudState.speechRate = getSpeechRate();
 
     initReadAloudMenuDrag();
     if (typeof menu._resetMenuPosition === 'function') {
@@ -311,6 +325,8 @@ async function speakParagraph(idx) {
         SpeechSDK.PropertyId.SpeechSynthesisOutputFormat,
         SpeechSDK.SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3
     );
+
+    speechConfig.setProperty(SpeechSDK.PropertyId.SpeechSynthesisSpeakingRate, state.speechRate.toString());
 
     const synthesizer = new SpeechSDK.SpeechSynthesizer(speechConfig, null);
 
@@ -517,6 +533,13 @@ function saveApiKey(apiKey) {
 }
 function saveRegion(region) {
     localStorage.setItem('readAloudSpeechRegion', region);
+}
+
+function saveSpeechRate(rate) {
+    localStorage.setItem('readAloudSpeechRate', rate);
+}
+function getSpeechRate() {
+    return parseFloat(localStorage.getItem('readAloudSpeechRate')) || 1.0;
 }
 
 function initReadAloudMenuDrag() {
