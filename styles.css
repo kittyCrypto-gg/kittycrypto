@@ -2515,8 +2515,8 @@ body.reader-mode {
 #read-aloud-menu input[type="text"],
 #read-aloud-menu select {
   flex: 1 1 0;
-  /*min-width: 22px;
-  max-width: 130px;*/
+  min-width: 6px;
+  max-width: 32px;
   width: auto;
   background: var(--chat-input-bg-colour);
   color: var(--chat-input-text-colour);
