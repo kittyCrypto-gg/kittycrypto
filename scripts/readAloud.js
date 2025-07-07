@@ -155,15 +155,30 @@ function showReadAloudMenu() {
     });
 
     helpBtn.addEventListener('click', () => {
-        window.alert(
-            "Azure Speech Service Read Aloud Help\n\n" +
-            "• To use this feature, you need an Azure Speech API key and region.\n" +
-            "• Get your API key here:\nhttps://portal.azure.com/\n\n" +
-            "1. Paste your API key in the field.\n" +
-            "2. Select your region and preferred voice.\n" +
-            "3. Use the play button to start.\n\n" +
-            "For further help, see the official docs:\nhttps://learn.microsoft.com/en-gb/azure/ai-services/speech-service/"
-        );
+        openCustomModal(`
+            <div class="modal-header">
+            <h2>Azure Speech Service Read Aloud Help</h2>
+            <button class="modal-close" onclick="closeCustomModal('readaloud-help-modal')">❌</button>
+            </div>
+            <div class="modal-content">
+            <ul>
+                <li>To use this feature, you need an Azure Speech API key and region.</li>
+                <li>Get your API key <a href="https://portal.azure.com/" target="_blank" rel="noopener">here</a>.</li>
+                <li>Paste your API key in the field.</li>
+                <li>Select your region and preferred voice.</li>
+                <li>Use the play button to start.</li>
+            </ul>
+            <p>
+                For further help, see the 
+                <a href="https://learn.microsoft.com/en-gb/azure/ai-services/speech-service/" target="_blank" rel="noopener">official docs</a>.
+            </p>
+            <p class="modal-note">
+                <b>Note:</b> KittyCrypto.gg will <u>NOT</u> store your API key or region server-side. It is saved only in your browser's local storage.<br>
+                See the full implementation on 
+                <a href="https://github.com/kittyCrypto-gg/kittycrypto/blob/main/scripts/readAloud.js" target="_blank" rel="noopener">GitHub</a>.
+            </p>
+            </div>
+        `, "readaloud-help-modal");
     });
 
     // Init draggable floating menu logic (scoped, no globals)
@@ -365,6 +380,49 @@ function initReadAloudMenuDrag() {
 
     menu._resetMenuPosition = resetMenuPosition;
 }
+
+function openCustomModal(html, modalId = "readaloud-help-modal") {
+    // Only one modal at a time
+    if (document.getElementById(modalId)) return;
+
+    // Create overlay
+    const overlay = document.createElement("div");
+    overlay.id = "modal-overlay";
+
+    // Create modal container
+    const modal = document.createElement("div");
+    modal.id = modalId;
+    modal.className = "modal";
+
+    // Disable scrolling while modal is open
+    document.body.classList.add("no-scroll");
+
+    modal.innerHTML = html;
+
+    // Append modal and overlay
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    // Close modal when clicking outside
+    overlay.addEventListener("click", (event) => {
+        if (event.target === overlay) closeCustomModal(modalId);
+    });
+
+    // Close modal on Escape key
+    document.addEventListener("keydown", function handleEscape(event) {
+        if (event.key === "Escape") {
+            closeCustomModal(modalId);
+            document.removeEventListener("keydown", handleEscape);
+        }
+    });
+}
+
+function closeCustomModal(modalId = "readaloud-help-modal") {
+    const overlay = document.getElementById("modal-overlay");
+    if (overlay) overlay.remove();
+    document.body.classList.remove("no-scroll");
+}
+
 
 document.addEventListener("DOMContentLoaded", () => {
     const readAloudToggle = document.getElementById('read-aloud-toggle');

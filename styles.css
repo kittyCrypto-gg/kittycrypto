@@ -1021,6 +1021,18 @@ body.no-scroll {
   overflow: hidden;
 }
 
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.3em;
+  cursor: pointer;
+}
+
 /* =========================================
   Chapter Navigation Buttons
 ========================================= */
