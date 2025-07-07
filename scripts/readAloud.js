@@ -585,64 +585,60 @@ function getSpeechRate() {
 }
 
 function initReadAloudMenuDrag() {
-    const menu = document.getElementById('read-aloud-menu');
-    if (!menu || menu._dragListenersAdded) return;
+  const menu = document.getElementById('read-aloud-menu');
+  if (!menu || menu._dragListenersAdded) return;
 
-    let isDragging = false;
-    let offsetX = 0;
-    let offsetY = 0;
+  let isDragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
 
-    const getMainMenuBottom = () => {
-        const nav = document.getElementById('main-menu');
-        if (!nav) return 0;
-        const rect = nav.getBoundingClientRect();
-        return rect.bottom + window.scrollY;
-    };
+  const dragHandle = menu.querySelector('.read-aloud-header') || menu;
 
-    const dragHandle = menu.querySelector('.read-aloud-header') || menu;
+  const getClientPos = e => {
+    if (e.touches && e.touches.length) {
+      return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    } else {
+      return { x: e.clientX, y: e.clientY };
+    }
+  };
 
-    dragHandle.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        menu.classList.add('dragging');
-        offsetX = e.clientX - menu.offsetLeft;
-        offsetY = e.clientY - menu.offsetTop;
-        e.preventDefault();
-    });
+  const startDrag = e => {
+    const pos = getClientPos(e);
+    isDragging = true;
+    menu.classList.add('dragging');
+    offsetX = pos.x - menu.offsetLeft;
+    offsetY = pos.y - menu.offsetTop;
+    e.preventDefault();
+  };
 
-    const onMouseMove = (e) => {
-        if (!isDragging) return;
-        let newLeft = e.clientX - offsetX;
-        let newTop = e.clientY - offsetY;
-        menu.style.left = `${newLeft}px`;
-        menu.style.top = `${newTop}px`;
-    };
+  const moveDrag = e => {
+    if (!isDragging) return;
+    const pos = getClientPos(e);
+    menu.style.left = `${pos.x - offsetX}px`;
+    menu.style.top = `${pos.y - offsetY}px`;
+    menu.style.transform = 'none';
+    e.preventDefault();
+  };
 
-    const onMouseUp = () => {
-        if (isDragging) {
-            menu.classList.remove('dragging');
-            isDragging = false;
-        }
-    };
+  const endDrag = e => {
+    if (isDragging) {
+      menu.classList.remove('dragging');
+      isDragging = false;
+    }
+    if (e && e.preventDefault) e.preventDefault();
+  };
 
-    // Snap menu just below nav when shown or on resize
-    const resetMenuPosition = () => {
-        const minTop = getMainMenuBottom();
-        menu.style.left = '0px';
-        menu.style.top = `${minTop}px`;
-    };
+  // Mouse events
+  dragHandle.addEventListener('mousedown', startDrag);
+  document.addEventListener('mousemove', moveDrag);
+  document.addEventListener('mouseup', endDrag);
 
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
+  // Touch events
+  dragHandle.addEventListener('touchstart', startDrag, { passive: false });
+  document.addEventListener('touchmove', moveDrag, { passive: false });
+  document.addEventListener('touchend', endDrag, { passive: false });
 
-    window.addEventListener('resize', () => {
-        if (menu.style.display !== 'none') {
-            // Reset to (0, minTop) on resize for simplicity
-            resetMenuPosition();
-        }
-    });
-
-    menu._resetMenuPosition = resetMenuPosition;
-    menu._dragListenersAdded = true;
+  menu._dragListenersAdded = true;
 }
 
 function openCustomModal(html, modalId = "readaloud-help-modal") {
