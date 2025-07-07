@@ -1,5 +1,6 @@
 import { loadBanner, setupTerminalWindow, scaleBannerToFit } from "./banner.js";
 import { setupReaderToggle } from "./readerMode.js";
+import { showReadAloudMenu } from "./readAloud.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   document.body.style.visibility = "visible";
@@ -147,6 +148,8 @@ async function initialiseUI() {
     readAloudToggle.title = data.readAloudToggle.title || "Read Aloud";
     document.body.appendChild(readAloudToggle);
 
+    if (readAloudToggle) readAloudToggle.addEventListener('click', showReadAloudMenu);
+
   } catch (error) {
     console.error('Error loading JSON or updating DOM:', error);
   }
@@ -155,3 +158,4 @@ async function initialiseUI() {
 document.addEventListener("DOMContentLoaded", () => {
   initialiseUI();
 });
+

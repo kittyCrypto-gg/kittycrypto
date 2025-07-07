@@ -84,7 +84,7 @@ window.readAloudState = {
     serviceRegion: ''
 };
 
-function showReadAloudMenu() {
+export function showReadAloudMenu() {
     console.log('[DEBUG] Read Aloud menu button pressed');
     window.readAloudState.pressed = true;
 
@@ -415,9 +415,3 @@ function closeCustomModal(modalId = "readaloud-help-modal") {
     if (overlay) overlay.remove();
     document.body.classList.remove("no-scroll");
 }
-
-
-document.addEventListener("DOMContentLoaded", () => {
-    const readAloudToggle = document.getElementById('read-aloud-toggle');
-    if (readAloudToggle) readAloudToggle.addEventListener('click', showReadAloudMenu);
-});
