@@ -4,9 +4,9 @@ const buttons = {
     stop: { icon: "⏹️", action: "Stop Read Aloud" },
     next: { icon: "⏩", action: "Next Paragraph" },
     prev: { icon: "⏪", action: "Previous Paragraph" },
-    restart: { icon: "⏮️", action: "Restart" },   // <-- NEW
+    restart: { icon: "⏮️", action: "Restart" },
     info: { icon: "ℹ️", action: "Show Info" },
-    help: { icon: "🟦", action: "Help" }
+    help: { icon: "❓", action: "Help" }
 };
 
 const ENGLISH_VOICES = [
@@ -348,9 +348,6 @@ async function speakParagraph(idx) {
         SpeechSDK.PropertyId.SpeechSynthesisOutputFormat,
         SpeechSDK.SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3
     );
-
-    speechConfig.setProperty(SpeechSDK.PropertyId.SpeechSynthesisSpeakingRate, state.speechRate.toString());
-
     const synthesizer = new SpeechSDK.SpeechSynthesizer(speechConfig, null);
 
     state.synthesizer = synthesizer;
@@ -360,8 +357,10 @@ async function speakParagraph(idx) {
 
     try {
         const audioData = await new Promise((resolve, reject) => {
-            synthesizer.speakTextAsync(
-                plainText,
+
+            const ssml = buildSSML(plainText, state.voiceName, state.speechRate);
+            synthesizer.speakSsmlAsync(
+                ssml,
                 result => {
                     if (result.reason === SpeechSDK.ResultReason.SynthesizingAudioCompleted) {
                         resolve(result.audioData);
