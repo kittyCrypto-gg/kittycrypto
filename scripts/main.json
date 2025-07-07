@@ -17,8 +17,8 @@
     "disable": "📕"
   },
   "readAloudToggle": {
-    "enable": "▶️",
-    "disable": "⏸️"
+    "enable": "🔊",
+    "disable": "🔇"
   },
   "headScripts": [
     "./scripts/debug.js"
