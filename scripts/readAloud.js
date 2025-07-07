@@ -50,8 +50,8 @@ const readAloudMenuHTML = `
         <button id="read-aloud-toggle-playpause">${buttons.play.icon}</button>
         <button id="read-aloud-stop">${buttons.stop.icon}</button>
         <button id="read-aloud-prev">${buttons.prev.icon}</button>
-        <button id="read-aloud-restart">${buttons.restart.icon}</button>
         <button id="read-aloud-next">${buttons.next.icon}</button>
+        <button id="read-aloud-restart">${buttons.restart.icon}</button>
         <button id="read-aloud-info" title="Info">${buttons.info.icon}</button>
         <button id="read-aloud-help" title="Help">${buttons.help.icon}</button>
     </div>
