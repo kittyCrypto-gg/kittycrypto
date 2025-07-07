@@ -2634,6 +2634,21 @@ body.dark .reader-bookmark.read-aloud-fadeout,
 }
 
 /* =========================================
+  Modal Styles
+========================================= */
+.modal-content a {
+  color: var(--menu-button-text-colour);
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.modal-content a:hover,
+.modal-content a:focus {
+  color: var(--banner-blue);
+}
+
+
+/* =========================================
   Debug Console
   ========================================= */
 
