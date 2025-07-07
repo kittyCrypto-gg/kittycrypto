@@ -126,7 +126,7 @@ export function showReadAloudMenu() {
     }
     //console.log('[DEBUG] Read Aloud menu elements found:', {
         playPauseBtn, stopBtn, statusSpan, hideBtn, apikeyInput, regionDropdown, voiceDropdown, infoBtn, helpBtn
-    });
+    };
 
     // Restore from localStorage etc.
     apikeyInput.value = localStorage.getItem('readAloudSpeechApiKey') || '';
