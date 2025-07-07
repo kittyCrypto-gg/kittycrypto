@@ -325,7 +325,7 @@ async function readAloud(speechKey, serviceRegion, voiceName = ENGLISH_VOICES[0]
 
 async function speakParagraph(idx) {
     const now = new Date();
-    console.log('speakParagraph called for idx:', idx, ' at ', now.toLocaleTimeString());
+    //console.log('speakParagraph called for idx:', idx, ' at ', now.toLocaleTimeString());
     const state = window.readAloudState;
     if (state.paused || idx >= state.paragraphs.length) return;
 
