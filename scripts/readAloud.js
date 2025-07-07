@@ -31,21 +31,44 @@ const AZURE_REGIONS = [
 ];
 
 const readAloudMenuHTML = `
-    <div id="read-aloud-menu" style="display:none;">
-        <input id="read-aloud-apikey" type="text" placeholder="Azure Speech API Key" style="width: 170px; margin-right: 4px;" />
-        <select id="read-aloud-region" style="margin-right: 4px;">
-            ${AZURE_REGIONS.map(region => `<option value="${region}">${region}</option>`).join('')}
-        </select>
-        <select id="read-aloud-voice" style="margin-right: 4px;">
-            ${ENGLISH_VOICES.map(v => `<option value="${v.name}">${v.description}</option>`).join('')}
-        </select>
-        <button id="read-aloud-toggle-playpause">${buttons.play.icon}</button>
-        <button id="read-aloud-stop">${buttons.stop.icon}</button>
-        <button id="read-aloud-info" title="Info">${buttons.info.icon}</button>
-        <button id="read-aloud-help" title="Help">${buttons.help.icon}</button>
-        <span id="read-aloud-status"></span>
-        <button id="read-aloud-hide" title="Hide Menu">${buttons.close.icon}</button>
-    </div>
+    <input id="read-aloud-apikey" type="text" placeholder="Azure Speech API Key" style="width: 170px; margin-right: 4px;" />
+    <select id="read-aloud-region" style="margin-right: 4px;">
+        ${AZURE_REGIONS.map(region => `<option value="${region}">${region}</option>`).join('')}
+    </select>
+    <select id="read-aloud-voice" style="margin-right: 4px;">
+        ${ENGLISH_VOICES.map(v => `<option value="${v.name}">${v.description}</option>`).join('')}
+    </select>
+    <button id="read-aloud-toggle-playpause">${buttons.play.icon}</button>
+    <button id="read-aloud-stop">${buttons.stop.icon}</button>
+    <button id="read-aloud-info" title="Info">${buttons.info.icon}</button>
+    <button id="read-aloud-help" title="Help">${buttons.help.icon}</button>
+    <span id="read-aloud-status"></span>
+    <button id="read-aloud-hide" title="Hide Menu">${buttons.close.icon}</button>
+`;
+
+const helpModal = `
+    <div class="modal-header">
+        <h2>Azure Speech Service Read Aloud Help</h2>
+        <button class="modal-close" onclick="closeCustomModal('readaloud-help-modal')">❌</button>
+        </div>
+        <div class="modal-content">
+        <ul>
+            <li>To use this feature, you need an Azure Speech API key and region.</li>
+            <li>Get your API key <a href="https://portal.azure.com/" target="_blank" rel="noopener">here</a>.</li>
+            <li>Paste your API key in the field.</li>
+            <li>Select your region and preferred voice.</li>
+            <li>Use the play button to start.</li>
+        </ul>
+        <p>
+            For further help, see the 
+            <a href="https://learn.microsoft.com/en-gb/azure/ai-services/speech-service/" target="_blank" rel="noopener">official docs</a>.
+        </p>
+        <p class="modal-note">
+            <b>Note:</b> KittyCrypto.gg will <u>NOT</u> store your API key or region server-side. It is saved only in your browser's local storage.<br>
+            See the full implementation on 
+            <a href="https://github.com/kittyCrypto-gg/kittycrypto/blob/main/scripts/readAloud.js" target="_blank" rel="noopener">GitHub</a>.
+        </p>
+        </div>
 `;
 
 window.readAloudState = {
@@ -65,23 +88,17 @@ function showReadAloudMenu() {
     window.readAloudState.pressed = true;
 
     const menu = document.getElementById('read-aloud-menu');
-    if (menu){
-        console.error('Read Aloud menu already exists');
+    if (!menu) {
+        console.error('Read Aloud menu element not found in DOM');
         return;
     }
 
-    // show menu
+    // If already visible, do nothing
+    if (menu.style.display === 'flex') return;
+
+    // Populate the menu
+    menu.innerHTML = readAloudMenuHTML;
     menu.style.display = 'flex';
-    
-    const navMenu = document.getElementById('main-menu');
-    navMenu.insertAdjacentHTML('afterend', readAloudMenuHTML);
-    const insertedMenu = document.getElementById('read-aloud-menu');
-    insertedMenu.style.display = 'flex';
-
-    if (!navMenu || !insertedMenu) {
-        console.error('Pre-menu elements not found');
-        return;
-    }
 
     const apikeyInput = document.getElementById('read-aloud-apikey');
     const regionDropdown = document.getElementById('read-aloud-region');
@@ -98,40 +115,28 @@ function showReadAloudMenu() {
         return;
     }
 
-    // Restore from localStorage
+    // Restore from localStorage etc.
     apikeyInput.value = localStorage.getItem('readAloudSpeechApiKey') || '';
     regionDropdown.value = localStorage.getItem('readAloudSpeechRegion') || AZURE_REGIONS[0];
     voiceDropdown.value = localStorage.getItem('readAloudPreferredVoice') || ENGLISH_VOICES[0].name;
 
-    // Save on change/input
-    apikeyInput.addEventListener('input', e => {
-        saveApiKey(e.target.value.trim());
-    });
-    regionDropdown.addEventListener('change', e => {
-        saveRegion(e.target.value);
-    });
-    voiceDropdown.addEventListener('change', e => {
-        savePreferredVoice(e.target.value);
-    });
+    apikeyInput.addEventListener('input', e => saveApiKey(e.target.value.trim()));
+    regionDropdown.addEventListener('change', e => saveRegion(e.target.value));
+    voiceDropdown.addEventListener('change', e => savePreferredVoice(e.target.value));
 
     playPauseBtn.addEventListener('click', () => {
         const state = window.readAloudState;
-
         if (!state.paused) {
             playPauseBtn.textContent = buttons.play.icon;
             statusSpan.textContent = 'Paused';
             pauseReadAloud();
             return;
         }
-
         playPauseBtn.textContent = buttons.pause.icon;
         statusSpan.textContent = 'Reading...';
-
-        // Use latest settings
         state.speechKey = apikeyInput.value.trim();
         state.serviceRegion = regionDropdown.value;
         state.voiceName = voiceDropdown.value;
-
         if (!state.paragraphs.length) {
             readAloud(state.speechKey, state.serviceRegion, state.voiceName);
             return;
@@ -147,7 +152,7 @@ function showReadAloudMenu() {
 
     hideBtn.addEventListener('click', () => {
         clearReadAloud();
-        insertedMenu.style.display = 'none';
+        menu.style.display = 'none';
         playPauseBtn.textContent = buttons.play.icon;
         statusSpan.textContent = '';
         window.readAloudState.pressed = false;
@@ -161,40 +166,15 @@ function showReadAloudMenu() {
     });
 
     helpBtn.addEventListener('click', () => {
-        openCustomModal(`
-            <div class="modal-header">
-            <h2>Azure Speech Service Read Aloud Help</h2>
-            <button class="modal-close" onclick="closeCustomModal('readaloud-help-modal')">❌</button>
-            </div>
-            <div class="modal-content">
-            <ul>
-                <li>To use this feature, you need an Azure Speech API key and region.</li>
-                <li>Get your API key <a href="https://portal.azure.com/" target="_blank" rel="noopener">here</a>.</li>
-                <li>Paste your API key in the field.</li>
-                <li>Select your region and preferred voice.</li>
-                <li>Use the play button to start.</li>
-            </ul>
-            <p>
-                For further help, see the 
-                <a href="https://learn.microsoft.com/en-gb/azure/ai-services/speech-service/" target="_blank" rel="noopener">official docs</a>.
-            </p>
-            <p class="modal-note">
-                <b>Note:</b> KittyCrypto.gg will <u>NOT</u> store your API key or region server-side. It is saved only in your browser's local storage.<br>
-                See the full implementation on 
-                <a href="https://github.com/kittyCrypto-gg/kittycrypto/blob/main/scripts/readAloud.js" target="_blank" rel="noopener">GitHub</a>.
-            </p>
-            </div>
-        `, "readaloud-help-modal");
+        openCustomModal(helpModal, "readaloud-help-modal");
     });
 
-    // Init draggable floating menu logic (scoped, no globals)
     initReadAloudMenuDrag();
-
-    // Position the menu just below <nav id="main-menu">
-    if (typeof insertedMenu._resetMenuPosition === 'function') {
-        insertedMenu._resetMenuPosition();
+    if (typeof menu._resetMenuPosition === 'function') {
+        menu._resetMenuPosition();
     }
 }
+
 
 // Initialise the Speech SDK
 function readAloud(speechKey, serviceRegion, voiceName = ENGLISH_VOICES[0].name, tag = 'article', id = 'reader', className = 'reader-container', startFromId = null) {
