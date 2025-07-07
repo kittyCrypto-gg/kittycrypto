@@ -156,10 +156,10 @@ export function showReadAloudMenu() {
         state.serviceRegion = regionDropdown.value;
         state.voiceName = voiceDropdown.value;
         if (!state.paragraphs.length) {
-            readAloud(state.speechKey, state.serviceRegion, state.voiceName);
+            await readAloud(state.speechKey, state.serviceRegion, state.voiceName);
             return;
         }
-        resumeReadAloud();
+        await resumeReadAloud();
     });
 
     stopBtn.addEventListener('click', async () => {
@@ -184,7 +184,7 @@ export function showReadAloudMenu() {
     }
 }
 
-function closeReadAloudMenu() {
+async function closeReadAloudMenu() {
     const menu = document.getElementById('read-aloud-menu');
     if (!menu) return;
     //change icon to data-disable (<button id="read-aloud-toggle" class="theme-toggle-button" data-enable="🔊" data-disable="🔇" title="Read Aloud" style="bottom: 140px;">🔊</button>)
@@ -200,17 +200,12 @@ function closeReadAloudMenu() {
     const playPauseBtn = document.getElementById('read-aloud-toggle-playpause');
     if (playPauseBtn) playPauseBtn.textContent = buttons.play.icon;
     window.readAloudState.pressed = false;
-    clearReadAloud().then(() => {
-        //console.log('[DEBUG] Read Aloud menu closed and cleared');
-    });
-    //console.log('[DEBUG] Read Aloud menu closed');
+    await clearReadAloud()
 }
 
 
 // Initialise the Speech SDK
-function readAloud(speechKey, serviceRegion, voiceName = ENGLISH_VOICES[0].name, tag = 'article', id = 'reader', className = 'reader-container', startFromId = null) {
-    console.log('readAloud called');
-    console.trace();
+async function readAloud(speechKey, serviceRegion, voiceName = ENGLISH_VOICES[0].name, tag = 'article', id = 'reader', className = 'reader-container', startFromId = null) {
     let selector = tag;
     if (id) selector += `#${id}`;
     if (className) selector += `.${className}`;
@@ -240,10 +235,10 @@ function readAloud(speechKey, serviceRegion, voiceName = ENGLISH_VOICES[0].name,
     window.readAloudState.speechKey = speechKey;
     window.readAloudState.serviceRegion = serviceRegion;
 
-    speakParagraph(startIdx);
+    await speakParagraph(startIdx);
 }
 
-function speakParagraph(idx) {
+async function speakParagraph(idx) {
     const now = new Date();
     console.log('speakParagraph called for idx:', idx, ' at ', now.toLocaleTimeString());
     const state = window.readAloudState;
@@ -252,7 +247,7 @@ function speakParagraph(idx) {
     const paragraph = state.paragraphs[idx];
     const plainText = paragraph.innerText.replace(/\s+/g, ' ').trim();
     if (!plainText) {
-        speakParagraph(idx + 1);
+        await speakParagraph(idx + 1);
         return;
     }
 
@@ -261,7 +256,6 @@ function speakParagraph(idx) {
         return;
     }
 
-    // Defensive: Check SpeechSDK global
     if (typeof SpeechSDK === 'undefined') {
         window.alert('Speech SDK is not loaded. Please check your connection or script includes.');
         return;
@@ -269,27 +263,67 @@ function speakParagraph(idx) {
 
     const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(state.speechKey, state.serviceRegion);
     speechConfig.speechSynthesisVoiceName = state.voiceName;
-    const synthesizer = new SpeechSDK.SpeechSynthesizer(speechConfig);
+    speechConfig.setProperty(
+        SpeechSDK.PropertyId.SpeechSynthesisOutputFormat,
+        SpeechSDK.SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3
+    );
+
+    const synthesizer = new SpeechSDK.SpeechSynthesizer(speechConfig, null);
 
     state.synthesizer = synthesizer;
     state.currentParagraphIndex = idx;
     state.currentParagraphId = paragraph.id;
     state.lastSpokenText = plainText;
 
-    synthesizer.speakTextAsync(
-        plainText,
-        result => {
-            synthesizer.close();
-            state.synthesizer = null;
-            if (!state.paused) speakParagraph(idx + 1);
-        },
-        error => {
-            synthesizer.close();
-            state.synthesizer = null;
-            console.error(error);
-            if (!state.paused) speakParagraph(idx + 1);
+    try {
+        const audioData = await new Promise((resolve, reject) => {
+            synthesizer.speakTextAsync(
+                plainText,
+                result => {
+                    if (result.reason === SpeechSDK.ResultReason.SynthesizingAudioCompleted) {
+                        resolve(result.audioData);
+                    } else {
+                        reject(new Error(result.errorDetails || "Speech synthesis failed"));
+                    }
+                },
+                error => {
+                    reject(error);
+                }
+            );
+        });
+
+        // Play audio and await its completion
+        await playAudioBlob(audioData);
+
+        synthesizer.close();
+        state.synthesizer = null;
+        if (!state.paused) {
+            await speakParagraph(idx + 1);
         }
-    );
+    } catch (error) {
+        synthesizer.close();
+        state.synthesizer = null;
+        console.error(error);
+        if (!state.paused) {
+            await speakParagraph(idx + 1);
+        }
+    }
+}
+
+function playAudioBlob(audioData) {
+    return new Promise((resolve, reject) => {
+        const audioBlob = new Blob([audioData], { type: 'audio/mp3' });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+
+        audio.onended = () => {
+            resolve();
+        };
+        audio.onerror = e => {
+            reject(e);
+        };
+        audio.play();
+    });
 }
 
 async function pauseReadAloud() {
@@ -302,11 +336,11 @@ async function pauseReadAloud() {
     }));
 }
 
-function resumeReadAloud() {
+async function resumeReadAloud() {
     const state = window.readAloudState;
     state.paused = false;
     const idx = state.currentParagraphIndex || 0;
-    speakParagraph(idx);
+    await speakParagraph(idx);
 }
 
 async function clearReadAloud() {
