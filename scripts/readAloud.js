@@ -588,36 +588,57 @@ function initReadAloudMenuDrag() {
   const menu = document.getElementById('read-aloud-menu');
   if (!menu || menu._dragListenersAdded) return;
 
+  const dragHandle = menu.querySelector('.read-aloud-header');
+  if (!dragHandle) return;
+
   let isDragging = false;
+  let dragStarted = false;
   let offsetX = 0;
   let offsetY = 0;
+  let startX = 0;
+  let startY = 0;
 
-  const dragHandle = menu.querySelector('.read-aloud-header') || menu;
+  const DRAG_THRESHOLD = 5;
 
   const getClientPos = e => {
     if (e.touches && e.touches.length) {
       return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    } else {
-      return { x: e.clientX, y: e.clientY };
     }
+    return { x: e.clientX, y: e.clientY };
   };
 
   const startDrag = e => {
-    // Do NOT start dragging if starting on an interactive element
+    if (
+      e.target !== dragHandle &&
+      !dragHandle.contains(e.target)
+    ) return;
+
     const tag = (e.target.tagName || '').toLowerCase();
-    if (['button', 'input', 'select', 'textarea', 'option', 'label'].includes(tag)) return;
-    if (e.target.closest('button, input, select, textarea, option, label')) return;
+    if (
+      ['button', 'input', 'select', 'textarea', 'option', 'label'].includes(tag)
+    ) return;
+
     const pos = getClientPos(e);
     isDragging = true;
-    menu.classList.add('dragging');
+    dragStarted = false;
+    startX = pos.x;
+    startY = pos.y;
     offsetX = pos.x - menu.offsetLeft;
     offsetY = pos.y - menu.offsetTop;
-    e.preventDefault();
   };
 
   const moveDrag = e => {
     if (!isDragging) return;
     const pos = getClientPos(e);
+
+    if (!dragStarted) {
+      const dx = Math.abs(pos.x - startX);
+      const dy = Math.abs(pos.y - startY);
+      if (dx < DRAG_THRESHOLD && dy < DRAG_THRESHOLD) return;
+      dragStarted = true;
+      menu.classList.add('dragging');
+    }
+
     menu.style.left = `${pos.x - offsetX}px`;
     menu.style.top = `${pos.y - offsetY}px`;
     menu.style.transform = 'none';
@@ -625,22 +646,22 @@ function initReadAloudMenuDrag() {
   };
 
   const endDrag = e => {
-    if (isDragging) {
-      menu.classList.remove('dragging');
-      isDragging = false;
-    }
-    if (e && e.preventDefault) e.preventDefault();
+    if (!isDragging) return;
+    if (dragStarted) menu.classList.remove('dragging');
+    isDragging = false;
+    dragStarted = false;
+    if (dragStarted && e && e.preventDefault) e.preventDefault();
   };
 
   // Mouse events
   dragHandle.addEventListener('mousedown', startDrag);
-  document.addEventListener('mousemove', moveDrag);
-  document.addEventListener('mouseup', endDrag);
+  window.addEventListener('mousemove', moveDrag);
+  window.addEventListener('mouseup', endDrag);
 
   // Touch events
   dragHandle.addEventListener('touchstart', startDrag, { passive: false });
-  document.addEventListener('touchmove', moveDrag, { passive: false });
-  document.addEventListener('touchend', endDrag, { passive: false });
+  window.addEventListener('touchmove', moveDrag, { passive: false });
+  window.addEventListener('touchend', endDrag, { passive: false });
 
   menu._dragListenersAdded = true;
 }
