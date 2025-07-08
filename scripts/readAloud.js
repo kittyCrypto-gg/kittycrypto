@@ -135,7 +135,6 @@ function escapeXml(unsafe) {
 
 
 export function showReadAloudMenu() {
-    //console.log('[DEBUG] Read Aloud menu button pressed');
     window.readAloudState.pressed = true;
 
     const toggleBtn = document.getElementById('read-aloud-toggle');
@@ -151,17 +150,15 @@ export function showReadAloudMenu() {
         console.error('Read Aloud menu element not found in DOM');
         return;
     }
-    //console.log('[DEBUG] Read Aloud menu found:', menu);
 
     // If already visible, do nothing
     if (menu.style.display === 'flex') return;
-    //console.log('[DEBUG] Showing Read Aloud menu');
 
     // Populate the menu
     menu.innerHTML = readAloudMenuHTML;
     menu.style.display = 'flex';
-    //console.log('[DEBUG] Read Aloud menu populated');
 
+    // Initialize the input fields and buttons
     const apikeyInput = document.getElementById('read-aloud-apikey');
     const regionDropdown = document.getElementById('read-aloud-region');
     const voiceDropdown = document.getElementById('read-aloud-voice');
@@ -178,9 +175,6 @@ export function showReadAloudMenu() {
         console.error('Read Aloud menu elements not found');
         return;
     }
-    //console.log('[DEBUG] Read Aloud menu elements found:', {
-    //    playPauseBtn, stopBtn, apikeyInput, regionDropdown, voiceDropdown, infoBtn, helpBtn
-    //});
 
     // Restore from localStorage etc.
     apikeyInput.value = localStorage.getItem('readAloudSpeechApiKey') || '';
@@ -254,8 +248,20 @@ export function showReadAloudMenu() {
     initialiseMenuDrag().catch(err => {
         console.error('Error initializing Read Aloud menu drag:', err);
     }).then(() => {
-        if (typeof menu._resetMenuPosition === 'function') {
-            menu._resetMenuPosition();
+        // Ensure that the menu position is set correctly after drag initialization
+        const savedPosition = JSON.parse(localStorage.getItem('readAloudMenuPosition'));
+        if (savedPosition) {
+            menu.style.left = `${savedPosition.left}px`;
+            menu.style.top = `${savedPosition.top}px`;
+        } else {
+            menu.style.left = '50%'; // Default position
+            menu.style.top = '0';
+            menu.style.transform = 'translateX(-50%)';
+        }
+
+        // Rebind the drag events to make sure drag works after restoring the position
+        if (!menu._dragListenersAdded) {
+            initReadAloudMenuDrag();
         }
     });
 
