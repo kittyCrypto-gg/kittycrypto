@@ -2526,6 +2526,7 @@ body.reader-mode {
   flex-wrap: wrap;
   width: 100%;
   align-items: center;
+  justify-content: center;
 }
 #read-aloud-menu .read-aloud-fields { margin-bottom: 10px; }
 #read-aloud-menu input,
