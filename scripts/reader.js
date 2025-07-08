@@ -783,13 +783,23 @@ export async function setupReader(root = document) {
 }
 
 export async function readerIsFullyLoaded() {
-  // returns a true promise when the reader (not just the DOM but also all of this JS)
+  const requestAnimationFramePromise = async (callback) => {
+    const done = await new Promise(resolve => {
+      requestAnimationFrame(() => {
+        callback(resolve);
+      });
+    });
+    return done;
+  };
+
   return new Promise(resolve => {
-    if (document.readyState === "complete") {
-      resolve(true);
-    } else {
-      document.addEventListener("DOMContentLoaded", () => resolve(true));
-    }
+    const checkReady = async () => {
+      if (document.readyState === "complete" && document.querySelectorAll(".reader-bookmark").length > 0)
+        resolve(true); // Resolve the outer promise when ready
+      await requestAnimationFramePromise(checkReady);
+    };
+
+    checkReady(resolve); // Start the initial check with resolve as the callback
   });
 }
 
