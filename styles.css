@@ -2519,36 +2519,48 @@ body.reader-mode {
   user-select: none;
 }
 
+/* --- New: controls stack, fields and buttons --- */
 #read-aloud-menu .read-aloud-controls {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0;
+  align-items: stretch;
+  width: auto;
+}
+
+#read-aloud-menu .read-aloud-fields,
+#read-aloud-menu .read-aloud-buttons {
   display: flex;
-  align-items: center;
   gap: 8px;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   width: 100%;
-  overflow: auto;
+}
+
+#read-aloud-menu .read-aloud-fields {
+  margin-bottom: 10px;
 }
 
 #read-aloud-menu input,
 #read-aloud-menu select {
   flex: 1 1 0;
-  max-width: 120px;
-  width: auto;
+  width: 0;
   background: var(--chat-input-bg-colour);
   color: var(--chat-input-text-colour);
   border: 1px solid var(--chat-input-border-colour);
   border-radius: 6px;
   padding: 8px 12px;
   font-size: 1em;
-  margin-right: 5px;
+  margin-right: 0;
   outline: none;
   box-sizing: border-box;
   transition: border-color 0.2s;
 }
 
-#read-aloud-menu .read-aloud-controls button {
+#read-aloud-menu .read-aloud-controls button,
+#read-aloud-menu .read-aloud-buttons button {
   flex: 0 0 auto;
   width: auto;
-  min-width: 28px; /* ensures emoji stay compact */
+  min-width: 28px;
   max-width: 48px;
   box-sizing: border-box;
   padding: 0 4px;
@@ -2565,7 +2577,9 @@ body.reader-mode {
 }
 
 #read-aloud-menu .read-aloud-controls button:active,
-#read-aloud-menu .read-aloud-controls button:focus {
+#read-aloud-menu .read-aloud-controls button:focus,
+#read-aloud-menu .read-aloud-buttons button:active,
+#read-aloud-menu .read-aloud-buttons button:focus {
   background: none !important;
   border: none !important;
   outline: none !important;
@@ -2631,7 +2645,6 @@ body.dark .reader-bookmark.read-aloud-active,
 
 body.dark .reader-bookmark.read-aloud-fadeout,
 .dark .reader-bookmark.read-aloud-fadeout {
-  /* No change needed, but kept for completeness */
   opacity: 0 !important;
 }
 

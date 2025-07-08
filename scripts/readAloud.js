@@ -36,6 +36,7 @@ const readAloudMenuHTML = `
     <span id="read-aloud-close" class="read-aloud-close-button" title="Close menu">❌</span>
     <div class="read-aloud-header"> Read Aloud </div>
     <div class="read-aloud-controls">
+        <div class="read-aloud-fields">
         <input id="read-aloud-apikey" type="password" placeholder="Azure Speech API Key" class="read-aloud-control" />
         <select id="read-aloud-region" class="read-aloud-control">
             ${AZURE_REGIONS.map(region => `<option value="${region}">${region}</option>`).join('')}
@@ -46,6 +47,8 @@ const readAloudMenuHTML = `
         <select id="read-aloud-rate" class="read-aloud-control">
             ${[0.5, 0.75, 1, 1.25, 1.5, 1.75, 2].map(rate => `<option value="${rate}">${rate}x</option>`).join('')}
         </select>
+        </div>
+        <div class="read-aloud-buttons">
         <button id="read-aloud-toggle-playpause">${buttons.play.icon}</button>
         <button id="read-aloud-stop">${buttons.stop.icon}</button>
         <button id="read-aloud-prev">${buttons.prev.icon}</button>
@@ -53,9 +56,9 @@ const readAloudMenuHTML = `
         <button id="read-aloud-restart">${buttons.restart.icon}</button>
         <button id="read-aloud-info" title="Info">${buttons.info.icon}</button>
         <button id="read-aloud-help" title="Help">${buttons.help.icon}</button>
+        </div>
     </div>
 `;
-
 
 const helpModal = `
     <div class="modal-header">
