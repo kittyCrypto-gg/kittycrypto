@@ -119,7 +119,7 @@ class ReaderToggle {
 			articleElem.innerHTML = parsed.content;
 			this.restoreChapterImages(imgArray, articleElem);
 
-			await reloadReadAloud();
+			//await reloadReadAloud();
 
 			document.body.classList.add("reader-mode");
 			this.readerToggle.textContent = this.disableText;
@@ -144,7 +144,7 @@ class ReaderToggle {
 		this.readerToggle.classList.remove("active");
 		this.readerActive = false;
 
-		await reloadReadAloud();
+		//await reloadReadAloud();
 	}
 
 	async handleToggleClick() {
