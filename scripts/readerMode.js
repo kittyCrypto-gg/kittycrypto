@@ -121,27 +121,43 @@ class ReaderToggle {
 		const reader = new window.Readability(docClone);
 		const parsed = reader.parse();
 
-		if (parsed && parsed.content) {
-			articleElem.innerHTML = parsed.content;
-			this.restoreChapterImages(imgArray, articleElem);
+		if (!(parsed && parsed.content)) return;
 
-			const articleObj = document.getElementById("reader");
-			if (articleObj) articleObj.classList.add("reader-container");
+		// Insert the parsed content but preserve the reader-bookmark div structure
+		const parser = new DOMParser();
+		const parsedDoc = parser.parseFromString(parsed.content, "text/html");
 
-			// Update the URL to include ?reader=true (or &reader=true if there are other query parameters)
-			const url = new URL(window.location);
-			if (!url.searchParams.has("reader")) {
-				url.searchParams.set("reader", "true");
+		// Find all divs with reader-bookmark class and keep their ids
+		parsedDoc.querySelectorAll('.reader-bookmark').forEach((div, index) => {
+			const originalDiv = document.querySelector(`#${div.id}`);
+			if (originalDiv) {
+				div.id = originalDiv.id;  // Preserve the original ID
+				div.classList.add("reader-bookmark"); // Ensure class is preserved
+			} else {
+				// Generate a new ID for new elements that don't have an ID yet
+				div.id = `bm-${Date.now()}-${index + 1}`;
 			}
-			window.history.pushState({}, "", url);
+		});
 
-			document.body.classList.add("reader-mode");
-			this.readerToggle.textContent = this.disableText;
-			this.readerToggle.classList.add("active");
-			this.readerActive = true;
-		} else {
-			alert("Could not extract readable content.");
+		// Replace the original content with the parsed content while keeping the bookmark div structure intact
+		articleElem.innerHTML = parsedDoc.body.innerHTML;
+		this.restoreChapterImages(imgArray, articleElem);
+
+		// Ensure the reader-container class stays present
+		const articleObj = document.getElementById("reader");
+		if (articleObj) articleObj.classList.add("reader-container");
+
+		// Update the URL to include ?reader=true (or &reader=true if there are other query parameters)
+		const url = new URL(window.location);
+		if (!url.searchParams.has("reader")) {
+			url.searchParams.set("reader", "true");
+			window.history.pushState({}, "", url);
 		}
+
+		document.body.classList.add("reader-mode");
+		this.readerToggle.textContent = this.disableText;
+		this.readerToggle.classList.add("active");
+		this.readerActive = true;
 	}
 
 	async disableReaderMode() {
