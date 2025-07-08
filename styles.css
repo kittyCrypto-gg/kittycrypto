@@ -667,7 +667,6 @@ footer {
 .frame-chat {
   height: auto;
   min-height: 0;
-  max-height: 500px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -676,6 +675,7 @@ footer {
 .frame-chat .clusterise-scroll {
   flex: 1 1 auto;
   min-height: 0;
+  max-height: 100hv;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
