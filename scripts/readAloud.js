@@ -316,8 +316,6 @@ async function closeReadAloudMenu() {
         window.removeEventListener('touchmove', moveDrag);
         window.removeEventListener('touchend', endDrag);
     }
-
-    menu._dragListenersAdded = false;
     await clearReadAloud();
 }
 
@@ -645,7 +643,7 @@ function getSpeechRate() {
 
 async function initReadAloudMenuDrag() {
     const menu = document.getElementById('read-aloud-menu');
-    if (!menu || menu._dragListenersAdded) return;
+    if (!menu) return;
 
     const dragHandle = menu.querySelector('.read-aloud-header');
     if (!dragHandle) return;
@@ -746,8 +744,6 @@ async function initReadAloudMenuDrag() {
     dragHandle.addEventListener('touchstart', startDrag, { passive: false });
     window.addEventListener('touchmove', moveDrag, { passive: false });
     window.addEventListener('touchend', endDrag, { passive: false });
-
-    menu._dragListenersAdded = true;
 }
 
 function openCustomModal(html, modalId = "readaloud-help-modal") {
