@@ -207,7 +207,6 @@ export function showReadAloudMenu() {
     stopBtn.addEventListener('click', async () => {
         playPauseBtn.textContent = buttons.play.icon;
         await clearReadAloud();
-        localStorage.removeItem('readAloudAudioPosition');
     });
 
     infoBtn.addEventListener('click', () => {
@@ -309,7 +308,7 @@ async function closeReadAloudMenu() {
     // Remove event listeners for dragging
     const dragHandle = menu.querySelector('.read-aloud-header');
 
-    await clearReadAloud();
+    //await clearReadAloud();
 }
 
 // Initialise the Speech SDK
