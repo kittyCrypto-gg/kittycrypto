@@ -711,3 +711,24 @@ function closeCustomModal(modalId = "readaloud-help-modal") {
     if (overlay) overlay.remove();
     document.body.classList.remove("no-scroll");
 }
+
+export async function reloadReadAloud() {
+
+    return new Promise((resolve) => {
+        const container = document.querySelector("article#reader, main, article");
+        if (!container) {
+            resolve();
+            return;
+        }
+
+        const paragraphs = Array.from(container.querySelectorAll('.reader-bookmark'));
+
+        if (paragraphs.length === 0) return;
+        
+        window.readAloudState.paragraphs = paragraphs;
+        window.readAloudState.currentParagraphIndex = 0;
+        window.readAloudState.currentParagraphId = paragraphs[0]?.id || null;
+
+        resolve();
+    });
+}

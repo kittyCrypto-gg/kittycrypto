@@ -1,4 +1,5 @@
 import { setupReader, activateImageNavigation } from "./reader.js";
+import { reloadReadAloud } from "./readAloud.js";
 
 class ReaderToggle {
 	readerActive = false;
@@ -41,7 +42,7 @@ class ReaderToggle {
 		instance.syncButtonState();
 
 		if (!readerToggle.__readerListener) {
-			readerToggle.addEventListener("click", instance.handleToggleClick);
+			readerToggle.addEventListener("click", await instance.handleToggleClick);
 			readerToggle.__readerListener = true;
 		}
 
@@ -118,6 +119,8 @@ class ReaderToggle {
 			articleElem.innerHTML = parsed.content;
 			this.restoreChapterImages(imgArray, articleElem);
 
+			await reloadReadAloud();
+
 			document.body.classList.add("reader-mode");
 			this.readerToggle.textContent = this.disableText;
 			this.readerToggle.classList.add("active");
@@ -127,7 +130,7 @@ class ReaderToggle {
 		}
 	}
 
-	disableReaderMode() {
+	async disableReaderMode() {
 		const articleElem = document.querySelector("article#reader, main, article");
 		if (articleElem && this.originalNodeClone) {
 			const restored = this.originalNodeClone.cloneNode(true);
@@ -140,14 +143,13 @@ class ReaderToggle {
 		this.readerToggle.textContent = this.enableText;
 		this.readerToggle.classList.remove("active");
 		this.readerActive = false;
+
+		await reloadReadAloud();
 	}
 
-	handleToggleClick() {
-		if (this.readerActive) {
-			this.disableReaderMode();
-		} else {
-			this.enableReaderMode();
-		}
+	async handleToggleClick() {
+		this.readerActive ? await this.disableReaderMode() : await this.enableReaderMode();
+		return;
 	}
 }
 
