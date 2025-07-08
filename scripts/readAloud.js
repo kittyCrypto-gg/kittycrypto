@@ -692,21 +692,27 @@ function initReadAloudMenuDrag() {
         dragStarted = false;
         if (dragStarted && e && e.preventDefault) e.preventDefault();
 
-        // Save position to localStorage
+        // Save position to localStorage as a percentage of viewport width and height
         const menuRect = menu.getBoundingClientRect();
+        const menuWidth = window.innerWidth;
+        const menuHeight = window.innerHeight;
         localStorage.setItem('readAloudMenuPosition', JSON.stringify({
-            left: menuRect.left,
-            top: menuRect.top
+            left: (menuRect.left / menuWidth) * 100,  // Save as a percentage of viewport width
+            top: (menuRect.top / menuHeight) * 100   // Save as a percentage of viewport height
         }));
     };
 
     // Load position from localStorage
     const savedPosition = JSON.parse(localStorage.getItem('readAloudMenuPosition'));
     if (savedPosition) {
-        menu.style.left = `${savedPosition.left}px`;
-        menu.style.top = `${savedPosition.top}px`;
+        // Apply position as a percentage of the current window size
+        const menuWidth = window.innerWidth;
+        const menuHeight = window.innerHeight;
+        menu.style.left = `${savedPosition.left}%`;
+        menu.style.top = `${savedPosition.top}%`;
     } else {
-        menu.style.left = '50%'; // Default position
+        // Default position
+        menu.style.left = '50%';
         menu.style.top = '0';
         menu.style.transform = 'translateX(-50%)';
     }
