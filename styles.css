@@ -2558,7 +2558,8 @@ body.reader-mode {
   box-sizing: border-box;
   padding: 0 4px;
   margin: 0 2px;
-  background: var(--menu-button-bg-colour);
+  /*invisivle */
+  background: none !important;
   color: var(--menu-button-text-colour);
   border: none !important;
   border-radius: 7px;
