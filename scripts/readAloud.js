@@ -138,7 +138,6 @@ export function showReadAloudMenu() {
     //console.log('[DEBUG] Read Aloud menu button pressed');
     window.readAloudState.pressed = true;
 
-    //change icon to data-disable (<button id="read-aloud-toggle" class="theme-toggle-button" data-enable="🔊" data-disable="🔇" title="Read Aloud" style="bottom: 140px;">🔊</button>)
     const toggleBtn = document.getElementById('read-aloud-toggle');
     if (toggleBtn) {
         toggleBtn.textContent = toggleBtn.getAttribute('data-disable');
@@ -248,10 +247,17 @@ export function showReadAloudMenu() {
 
     window.readAloudState.speechRate = getSpeechRate();
 
-    initReadAloudMenuDrag();
-    if (typeof menu._resetMenuPosition === 'function') {
-        menu._resetMenuPosition();
+    const initialiseMenuDrag = async () => {
+        await initReadAloudMenuDrag();
     }
+
+    initialiseMenuDrag().catch(err => {
+        console.error('Error initializing Read Aloud menu drag:', err);
+    }).then(() => {
+        if (typeof menu._resetMenuPosition === 'function') {
+            menu._resetMenuPosition();
+        }
+    });
 
     document.getElementById('read-aloud-close')?.addEventListener('click', () => {
         closeReadAloudMenu();
@@ -622,7 +628,8 @@ function saveSpeechRate(rate) {
 function getSpeechRate() {
     return parseFloat(localStorage.getItem('readAloudSpeechRate')) || 1.0;
 }
-function initReadAloudMenuDrag() {
+
+async function initReadAloudMenuDrag() {
     const menu = document.getElementById('read-aloud-menu');
     if (!menu || menu._dragListenersAdded) return;
 
@@ -698,21 +705,23 @@ function initReadAloudMenuDrag() {
         }));
     };
 
-    // Wait for the window to load completely before restoring position
-    window.addEventListener('load', () => {
-        // Load position from localStorage
-        const savedPosition = JSON.parse(localStorage.getItem('readAloudMenuPosition'));
-        if (savedPosition) {
-            // Apply the saved pixel position from localStorage
-            menu.style.left = `${savedPosition.left}px`;
-            menu.style.top = `${savedPosition.top}px`;
+    // Load position from localStorage
+    await new Promise(resolve => {
+        if (document.readyState === "complete" || document.readyState === "interactive") {
+            resolve();
         } else {
-            // Default position: Centered horizontally and top aligned
-            menu.style.left = '50%';
-            menu.style.top = '0';
-            menu.style.transform = 'translateX(-50%)';
+            document.addEventListener("DOMContentLoaded", resolve, { once: true });
         }
     });
+    const savedPosition = JSON.parse(localStorage.getItem('readAloudMenuPosition'));
+    if (savedPosition) {
+        menu.style.left = `${savedPosition.left}px`;
+        menu.style.top = `${savedPosition.top}px`;
+    } else {
+        menu.style.left = '50%'; // Default position
+        menu.style.top = '0';
+        menu.style.transform = 'translateX(-50%)';
+    }
 
     // Mouse events
     dragHandle.addEventListener('mousedown', startDrag);
