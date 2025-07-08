@@ -352,7 +352,7 @@ function readAloudStartIndex(paragraphs, startFromId) {
 
     if (idxSaved >= 0) return idxSaved;
 
-    if ( typeof savedObj.paragraphIndex === 'number' && savedObj.paragraphIndex >= 0 && savedObj.paragraphIndex < paragraphs.length )
+    if (typeof savedObj.paragraphIndex === 'number' && savedObj.paragraphIndex >= 0 && savedObj.paragraphIndex < paragraphs.length)
         return savedObj.paragraphIndex;
 
     return 0;
@@ -691,7 +691,25 @@ function initReadAloudMenuDrag() {
         isDragging = false;
         dragStarted = false;
         if (dragStarted && e && e.preventDefault) e.preventDefault();
+
+        // Save position to localStorage
+        const menuRect = menu.getBoundingClientRect();
+        localStorage.setItem('readAloudMenuPosition', JSON.stringify({
+            left: menuRect.left,
+            top: menuRect.top
+        }));
     };
+
+    // Load position from localStorage
+    const savedPosition = JSON.parse(localStorage.getItem('readAloudMenuPosition'));
+    if (savedPosition) {
+        menu.style.left = `${savedPosition.left}px`;
+        menu.style.top = `${savedPosition.top}px`;
+    } else {
+        menu.style.left = '50%'; // Default position
+        menu.style.top = '0';
+        menu.style.transform = 'translateX(-50%)';
+    }
 
     // Mouse events
     dragHandle.addEventListener('mousedown', startDrag);
