@@ -287,6 +287,10 @@ let chatClusteriser = null;
   updateClusterisedChat(); // Optionally, call after init to set initial rows
 })();
 
+document.addEventListener("DOMContentLoaded", function() {
+  window.scrollTo(0, document.body.scrollHeight);
+});
+
 loadNickname();
 fetchSessionToken();
 
