@@ -373,7 +373,6 @@ async function speakParagraph(idx) {
     const state = window.readAloudState;
     if (state.paused || idx >= state.paragraphs.length) return;
 
-    // If we're currently reading a paragraph, fade it out
     if (state.currentParagraphIndex !== undefined && state.paragraphs[state.currentParagraphIndex]) {
         fadeOutHighlight(state.paragraphs[state.currentParagraphIndex]);
     }
@@ -397,15 +396,12 @@ async function speakParagraph(idx) {
         return;
     }
 
-    // Create the Speech Config
     const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(state.speechKey, state.serviceRegion);
     speechConfig.speechSynthesisVoiceName = state.voiceName;
     speechConfig.setProperty(
         SpeechSDK.PropertyId.SpeechSynthesisOutputFormat,
         SpeechSDK.SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3
     );
-
-    // Create the synthesizer and prepare for speaking
     const synthesizer = new SpeechSDK.SpeechSynthesizer(speechConfig, null);
     state.synthesizer = synthesizer;
 
@@ -424,6 +420,8 @@ async function speakParagraph(idx) {
         const nextSSML = buildSSML(nextPlainText, state.voiceName, state.speechRate);
         const nextAudioData = await synthesizeSpeech(nextSSML, synthesizer);
         state.nextAudio = new Blob([nextAudioData], { type: 'audio/mp3' });
+    } else {
+        state.nextAudio = null;  // If there's no valid next paragraph, reset buffer
     }
 
     // Play current paragraph audio
@@ -431,7 +429,7 @@ async function speakParagraph(idx) {
     const audioData = await synthesizeSpeech(ssml, synthesizer);
     await playAudioBlob(audioData);
 
-    // After current paragraph finishes, play the pre-buffered next paragraph
+    // After current paragraph finishes, play the pre-buffered next paragraph if available
     if (state.nextAudio) {
         await playAudioBlob(state.nextAudio);
         state.nextAudio = null; // Reset after playing
@@ -441,8 +439,8 @@ async function speakParagraph(idx) {
     synthesizer.close();
     state.synthesizer = null;
 
-    // If not paused, proceed to the next paragraph
-    if (!state.paused) {
+    // Only proceed to the next paragraph if not paused
+    if (!state.paused && idx + 1 < state.paragraphs.length) {
         await speakParagraph(idx + 1);
     }
 }
