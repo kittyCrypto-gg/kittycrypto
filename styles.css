@@ -736,6 +736,7 @@ footer {
   flex-direction: column;
   justify-content: flex-start;
   color: var(--chatroom-text-colour);
+  min-height: 1100px;
 }
 
 .chat-message:nth-child(even) {
