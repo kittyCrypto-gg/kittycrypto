@@ -702,20 +702,23 @@ function initReadAloudMenuDrag() {
         }));
     };
 
-    // Load position from localStorage
-    const savedPosition = JSON.parse(localStorage.getItem('readAloudMenuPosition'));
-    if (savedPosition) {
-        // Apply position as a percentage of the current window size
-        const menuWidth = window.innerWidth;
-        const menuHeight = window.innerHeight;
-        menu.style.left = `${savedPosition.left}%`;
-        menu.style.top = `${savedPosition.top}%`;
-    } else {
-        // Default position
-        menu.style.left = '50%';
-        menu.style.top = '0';
-        menu.style.transform = 'translateX(-50%)';
-    }
+    // Wait until the page is loaded before applying the saved position
+    window.addEventListener('load', () => {
+        // Load position from localStorage
+        const savedPosition = JSON.parse(localStorage.getItem('readAloudMenuPosition'));
+        if (savedPosition) {
+            // Apply position as a percentage of the current window size
+            const menuWidth = window.innerWidth;
+            const menuHeight = window.innerHeight;
+            menu.style.left = `${savedPosition.left}%`;
+            menu.style.top = `${savedPosition.top}%`;
+        } else {
+            // Default position
+            menu.style.left = '50%';
+            menu.style.top = '0';
+            menu.style.transform = 'translateX(-50%)';
+        }
+    });
 
     // Mouse events
     dragHandle.addEventListener('mousedown', startDrag);
