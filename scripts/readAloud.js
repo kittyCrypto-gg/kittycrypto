@@ -248,7 +248,6 @@ export function showReadAloudMenu() {
     initialiseMenuDrag().catch(err => {
         console.error('Error initializing Read Aloud menu drag:', err);
     }).then(() => {
-        // Ensure that the menu position is set correctly after drag initialization
         const savedPosition = JSON.parse(localStorage.getItem('readAloudMenuPosition'));
         if (savedPosition) {
             menu.style.left = `${savedPosition.left}px`;
@@ -257,11 +256,6 @@ export function showReadAloudMenu() {
             menu.style.left = '50%'; // Default position
             menu.style.top = '0';
             menu.style.transform = 'translateX(-50%)';
-        }
-
-        // Rebind the drag events to make sure drag works after restoring the position
-        if (!menu._dragListenersAdded) {
-            initReadAloudMenuDrag();
         }
     });
 
@@ -292,7 +286,8 @@ async function restartReadAloudFromBeginning() {
 async function closeReadAloudMenu() {
     const menu = document.getElementById('read-aloud-menu');
     if (!menu) return;
-    //change icon to data-disable (<button id="read-aloud-toggle" class="theme-toggle-button" data-enable="🔊" data-disable="🔇" title="Read Aloud" style="bottom: 140px;">🔊</button>)
+
+    // Change icon to data-disable
     const toggleBtn = document.getElementById('read-aloud-toggle');
     if (toggleBtn) {
         toggleBtn.textContent = toggleBtn.getAttribute('data-enable');
@@ -306,11 +301,23 @@ async function closeReadAloudMenu() {
     if (playPauseBtn) playPauseBtn.textContent = buttons.play.icon;
     window.readAloudState.pressed = false;
 
+    // Reset the position to default
     menu.style.left = '50%';
     menu.style.top = '0';
     menu.style.transform = 'translateX(-50%)';
 
-    await clearReadAloud()
+    // Remove event listeners for dragging
+    const dragHandle = menu.querySelector('.read-aloud-header');
+    if (dragHandle) {
+        dragHandle.removeEventListener('mousedown', startDrag);
+        window.removeEventListener('mousemove', moveDrag);
+        window.removeEventListener('mouseup', endDrag);
+        dragHandle.removeEventListener('touchstart', startDrag);
+        window.removeEventListener('touchmove', moveDrag);
+        window.removeEventListener('touchend', endDrag);
+    }
+
+    await clearReadAloud();
 }
 
 // Initialise the Speech SDK
