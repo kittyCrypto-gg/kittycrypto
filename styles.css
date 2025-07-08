@@ -676,8 +676,6 @@ footer {
 .frame-chat .clusterise-scroll {
   flex: 1 1 auto;
   min-height: 0;
-  /*max-height: 100vh;
-  height: 100%;*/
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -717,7 +715,7 @@ footer {
 .frame-chat #chatroom {
   flex: 1 1 auto;
   min-height: 0;
-  max-height: 100vh;
+  max-height: 1100px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -736,7 +734,9 @@ footer {
   flex-direction: column;
   justify-content: flex-start;
   color: var(--chatroom-text-colour);
-  min-height: 1100px;
+  min-height: auto !important;
+  flex-grow: 1;
+  overflow-y: auto;
 }
 
 .chat-message:nth-child(even) {
