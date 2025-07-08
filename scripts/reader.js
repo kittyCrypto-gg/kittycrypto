@@ -643,7 +643,7 @@ function makeStoryKey(storyPath) {
   return encodeURIComponent(storyPath).replace(/\W/g, '_');
 }
 
-function injectBookmarksIntoHTML(htmlContent, storyPath, chapter) {
+export function injectBookmarksIntoHTML(htmlContent, storyPath, chapter) {
   const storyKey = makeStoryKey(storyPath);
   const bookmarkId = localStorage.getItem(`bookmark_${storyKey}_ch${chapter}`);
   let counter = 0;
