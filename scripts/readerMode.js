@@ -46,6 +46,11 @@ class ReaderToggle {
 			readerToggle.__readerListener = true;
 		}
 
+		// Automatically enable reader mode if URL contains reader=true
+		if (window.location.search.includes("reader=true")) {
+			await instance.enableReaderMode();
+		}
+
 		return true;
 	}
 
@@ -119,7 +124,12 @@ class ReaderToggle {
 			articleElem.innerHTML = parsed.content;
 			this.restoreChapterImages(imgArray, articleElem);
 
-			//await reloadReadAloud();
+			// Update the URL to include ?reader=true (or &reader=true if there are other query parameters)
+			const url = new URL(window.location);
+			if (!url.searchParams.has("reader")) {
+				url.searchParams.set("reader", "true");
+			}
+			window.history.pushState({}, "", url);
 
 			document.body.classList.add("reader-mode");
 			this.readerToggle.textContent = this.disableText;
@@ -144,7 +154,10 @@ class ReaderToggle {
 		this.readerToggle.classList.remove("active");
 		this.readerActive = false;
 
-		//await reloadReadAloud();
+		// Remove ?reader=true from the URL when disabling reader mode
+		const url = new URL(window.location);
+		url.searchParams.delete("reader");
+		window.history.pushState({}, "", url);
 	}
 
 	async handleToggleClick() {
