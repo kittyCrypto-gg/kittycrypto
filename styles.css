@@ -2556,6 +2556,7 @@ body.reader-mode {
   transition: border-color 0.2s;
 }
 
+/* HERE is the trick: clamp the font size so the emoji can shrink as needed! */
 #read-aloud-menu .read-aloud-controls button,
 #read-aloud-menu .read-aloud-buttons button {
   flex: 0 0 auto;
@@ -2569,7 +2570,8 @@ body.reader-mode {
   border: none !important;
   box-shadow: none !important;
   outline: none !important;
-  font-size: 1.5em;
+  /* Shrinks emoji on small screens but never grows above 1.5em */
+  font-size: clamp(1em, 4vw, 1.5em);
   line-height: 1;
   cursor: pointer;
   color: inherit;
