@@ -2487,7 +2487,7 @@ body.reader-mode {
 .read-aloud-close-button {
   position: absolute;
   top: 12px;
-  right: 35px;
+  right: 30px;
   align-self: flex-end;
   font-size: 1.1em;
   cursor: pointer;
