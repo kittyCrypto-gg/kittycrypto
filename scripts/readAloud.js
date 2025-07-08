@@ -307,6 +307,7 @@ async function closeReadAloudMenu() {
 
     // Remove event listeners for dragging
     const dragHandle = menu.querySelector('.read-aloud-header');
+    await pauseReadAloud();
 
     //await clearReadAloud();
 }
