@@ -37,14 +37,14 @@ const readAloudMenuHTML = `
         Read Aloud
     </div>
     <div class="read-aloud-controls">
-        <input id="read-aloud-apikey" type="password" placeholder="Azure Speech API Key" style="width: 170px; margin-right: 4px;" />
-        <select id="read-aloud-region" style="margin-right: 4px;">
+        <input id="read-aloud-apikey" type="password" placeholder="Azure Speech API Key" class="read-aloud-control" />
+        <select id="read-aloud-region" class="read-aloud-control">
             ${AZURE_REGIONS.map(region => `<option value="${region}">${region}</option>`).join('')}
         </select>
-        <select id="read-aloud-voice" style="margin-right: 4px;">
+        <select id="read-aloud-voice" class="read-aloud-control">
             ${ENGLISH_VOICES.map(v => `<option value="${v.name}">${v.description}</option>`).join('')}
         </select>
-        <select id="read-aloud-rate" style="margin-right: 4px;">
+        <select id="read-aloud-rate" class="read-aloud-control">
             ${[0.5, 0.75, 1, 1.25, 1.5, 1.75, 2].map(rate => `<option value="${rate}">${rate}x</option>`).join('')}
         </select>
         <button id="read-aloud-toggle-playpause">${buttons.play.icon}</button>
