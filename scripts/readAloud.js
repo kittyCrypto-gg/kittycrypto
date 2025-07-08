@@ -317,6 +317,7 @@ async function closeReadAloudMenu() {
         window.removeEventListener('touchend', endDrag);
     }
 
+    menu._dragListenersAdded = false;
     await clearReadAloud();
 }
 
