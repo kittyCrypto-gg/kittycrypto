@@ -2512,10 +2512,9 @@ body.reader-mode {
   overflow: auto;
 }
 
-#read-aloud-menu input[type="text"],
+#read-aloud-menu input,
 #read-aloud-menu select {
   flex: 1 1 0;
-  /*min-width: 6px;*/
   max-width: 32px;
   width: auto;
   background: var(--chat-input-bg-colour);
