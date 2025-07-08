@@ -738,7 +738,7 @@ async function ensureSpeechSDKReady() {
     window._speechSDKReadyPromise = new Promise((resolve, reject) => {
         if (window.SpeechSDK) return resolve(window.SpeechSDK);
 
-        let script = document.querySelector("script[src*='microsoft.cognitiveservices.speech.sdk']");
+        let script = document.querySelector("script[src*='msSpeechSDK.js']");
 
         const handleLoad = () =>
             window.SpeechSDK
@@ -753,7 +753,7 @@ async function ensureSpeechSDKReady() {
         // If no script tag, create it and set listeners
         if (!script) {
             script = document.createElement("script");
-            script.src = "https://aka.ms/csspeech/jsbrowserpackageraw";
+            script.src = "./scripts/msSpeechSDK.js";
             script.async = true;
             script.onload = handleLoad;
             script.onerror = handleError;
@@ -772,7 +772,6 @@ async function ensureSpeechSDKReady() {
             return;
         }
 
-        // Otherwise, wait for script to load
         script.addEventListener("load", handleLoad);
         script.addEventListener("error", handleError);
     });
