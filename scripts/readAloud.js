@@ -308,7 +308,7 @@ async function closeReadAloudMenu() {
 
     // Remove event listeners for dragging
     const dragHandle = menu.querySelector('.read-aloud-header');
-
+    
     await clearReadAloud();
 }
 
@@ -403,64 +403,53 @@ async function speakParagraph(idx) {
         SpeechSDK.SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3
     );
     const synthesizer = new SpeechSDK.SpeechSynthesizer(speechConfig, null);
-    state.synthesizer = synthesizer;
 
-    // Save the current paragraph index and ID
+    state.synthesizer = synthesizer;
     state.currentParagraphIndex = idx;
     state.currentParagraphId = paragraph.id;
     state.lastSpokenText = plainText;
 
-    // Pre-buffer the next paragraph if available
-    const nextIdx = idx + 1 < state.paragraphs.length ? idx + 1 : idx;
-    const nextParagraph = state.paragraphs[nextIdx];
-    const nextPlainText = nextParagraph ? nextParagraph.innerText.replace(/\s+/g, ' ').trim() : null;
+    // Save position on every paragraph spoken
+    localStorage.setItem('readAloudAudioPosition', JSON.stringify({
+        paragraphId: state.currentParagraphId,
+        paragraphIndex: state.currentParagraphIndex
+    }));
 
-    if (nextPlainText) {
-        // Pre-buffer next paragraph audio
-        const nextSSML = buildSSML(nextPlainText, state.voiceName, state.speechRate);
-        const nextAudioData = await synthesizeSpeech(nextSSML, synthesizer);
-        state.nextAudio = new Blob([nextAudioData], { type: 'audio/mp3' });
-    } else {
-        state.nextAudio = null;  // If there's no valid next paragraph, reset buffer
-    }
+    try {
+        const audioData = await new Promise((resolve, reject) => {
 
-    // Play current paragraph audio
-    const ssml = buildSSML(plainText, state.voiceName, state.speechRate);
-    const audioData = await synthesizeSpeech(ssml, synthesizer);
-    await playAudioBlob(audioData);
-
-    // After current paragraph finishes, play the pre-buffered next paragraph if available
-    if (state.nextAudio) {
-        await playAudioBlob(state.nextAudio);
-        state.nextAudio = null; // Reset after playing
-    }
-
-    // Clean up the synthesizer
-    synthesizer.close();
-    state.synthesizer = null;
-
-    // Only proceed to the next paragraph if not paused
-    if (!state.paused && idx + 1 < state.paragraphs.length) {
-        await speakParagraph(idx + 1);
-    }
-}
-
-async function synthesizeSpeech(ssml, synthesizer) {
-    return new Promise((resolve, reject) => {
-        synthesizer.speakSsmlAsync(
-            ssml,
-            result => {
-                if (result.reason === SpeechSDK.ResultReason.SynthesizingAudioCompleted) {
-                    resolve(result.audioData);
-                } else {
-                    reject(new Error(result.errorDetails || "Speech synthesis failed"));
+            const ssml = buildSSML(plainText, state.voiceName, state.speechRate);
+            synthesizer.speakSsmlAsync(
+                ssml,
+                result => {
+                    if (result.reason === SpeechSDK.ResultReason.SynthesizingAudioCompleted) {
+                        resolve(result.audioData);
+                    } else {
+                        reject(new Error(result.errorDetails || "Speech synthesis failed"));
+                    }
+                },
+                error => {
+                    reject(error);
                 }
-            },
-            error => {
-                reject(error);
-            }
-        );
-    });
+            );
+        });
+
+        // Play audio and await its completion
+        await playAudioBlob(audioData);
+
+        synthesizer.close();
+        state.synthesizer = null;
+        if (!state.paused) {
+            await speakParagraph(idx + 1);
+        }
+    } catch (error) {
+        synthesizer.close();
+        state.synthesizer = null;
+        console.error(error);
+        if (!state.paused) {
+            await speakParagraph(idx + 1);
+        }
+    }
 }
 
 async function playAudioBlob(audioData) {
@@ -483,32 +472,6 @@ async function playAudioBlob(audioData) {
         audio.play();
     });
 }
-
-function clearAudioBuffer() {
-    const state = window.readAloudState;
-
-    // Clear the pre-buffered audio (next and previous audio)
-    if (state.nextAudio) {
-        state.nextAudio = null;
-    }
-    if (state.prevAudio) {
-        state.prevAudio = null;
-    }
-
-    // Ensure the synthesizer is reset and cleared
-    if (state.synthesizer) {
-        state.synthesizer.close();
-        state.synthesizer = null;
-    }
-
-    // Reset the audio state
-    if (state.currentAudio) {
-        state.currentAudio.pause();
-        state.currentAudio.currentTime = 0;
-        state.currentAudio = null;
-    }
-}
-
 
 async function pauseReadAloud() {
     const state = window.readAloudState;
@@ -595,8 +558,6 @@ async function nextParagraph() {
     const state = window.readAloudState;
     if (!state.paragraphs.length) return;
 
-    clearAudioBuffer();
-
     // Fade out old paragraph (if any)
     fadeOutHighlight(state.paragraphs[state.currentParagraphIndex]);
 
@@ -625,8 +586,6 @@ async function nextParagraph() {
 async function prevParagraph() {
     const state = window.readAloudState;
     if (!state.paragraphs.length) return;
-
-    clearAudioBuffer();
 
     // Fade out old paragraph (if any)
     fadeOutHighlight(state.paragraphs[state.currentParagraphIndex]);
