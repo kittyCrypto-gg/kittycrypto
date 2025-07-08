@@ -308,14 +308,7 @@ async function closeReadAloudMenu() {
 
     // Remove event listeners for dragging
     const dragHandle = menu.querySelector('.read-aloud-header');
-    if (dragHandle) {
-        dragHandle.removeEventListener('mousedown', startDrag);
-        window.removeEventListener('mousemove', moveDrag);
-        window.removeEventListener('mouseup', endDrag);
-        dragHandle.removeEventListener('touchstart', startDrag);
-        window.removeEventListener('touchmove', moveDrag);
-        window.removeEventListener('touchend', endDrag);
-    }
+    
     await clearReadAloud();
 }
 
@@ -656,7 +649,7 @@ async function initReadAloudMenuDrag() {
     let startY = 0;
 
     const DRAG_THRESHOLD = 2;
-    
+
     const getClientPos = e => {
         if (e.touches && e.touches.length) {
             return { x: e.touches[0].clientX, y: e.touches[0].clientY };
