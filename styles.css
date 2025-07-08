@@ -2480,10 +2480,13 @@ body.reader-mode {
   box-sizing: border-box;
   user-select: none;
   cursor: grab;
-  transition: box-shadow 0.25s, background 0.25s, color 0.25s, opacity 0.2s,
-    left 0.2s, top 0.2s;
+  transition: box-shadow 0.25s, background 0.25s, color 0.25s, opacity 0.2s, left 0.2s, top 0.2s;
 }
-
+#read-aloud-menu.dragging {
+  opacity: 0.92;
+  cursor: grabbing;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.25), var(--frame-box-shadow);
+}
 .read-aloud-close-button {
   position: absolute;
   top: 12px;
@@ -2495,17 +2498,7 @@ body.reader-mode {
   transition: transform 0.2s ease;
   z-index: 3000;
 }
-
-.read-aloud-close-button:hover {
-  transform: scale(1.2);
-}
-
-#read-aloud-menu.dragging {
-  opacity: 0.92;
-  cursor: grabbing;
-  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.25), var(--frame-box-shadow);
-}
-
+.read-aloud-close-button:hover { transform: scale(1.2); }
 #read-aloud-menu .read-aloud-header {
   display: flex;
   align-items: center;
@@ -2518,28 +2511,23 @@ body.reader-mode {
   cursor: grab;
   user-select: none;
 }
-
-/* --- New: controls stack, fields and buttons --- */
+/* Controls group */
 #read-aloud-menu .read-aloud-controls {
   display: inline-flex;
   flex-direction: column;
-  gap: 0;
   align-items: stretch;
   width: auto;
+  gap: 0;
 }
-
 #read-aloud-menu .read-aloud-fields,
 #read-aloud-menu .read-aloud-buttons {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
   width: 100%;
+  align-items: center;
 }
-
-#read-aloud-menu .read-aloud-fields {
-  margin-bottom: 10px;
-}
-
+#read-aloud-menu .read-aloud-fields { margin-bottom: 10px; }
 #read-aloud-menu input,
 #read-aloud-menu select {
   flex: 1 1 0;
@@ -2550,69 +2538,52 @@ body.reader-mode {
   border-radius: 6px;
   padding: 8px 12px;
   font-size: 1em;
-  margin-right: 0;
   outline: none;
   box-sizing: border-box;
   transition: border-color 0.2s;
 }
-
-/* HERE is the trick: clamp the font size so the emoji can shrink as needed! */
+#read-aloud-menu input[type="text"]:focus,
+#read-aloud-menu select:focus {
+  border-color: var(--menu-button-hover-bg-colour);
+}
+/* Buttons shared rules */
 #read-aloud-menu .read-aloud-controls button,
-#read-aloud-menu .read-aloud-buttons button {
+#read-aloud-menu .read-aloud-buttons button,
+#read-aloud-menu button {
   flex: 0 0 auto;
   width: auto;
   min-width: 28px;
   max-width: 48px;
   box-sizing: border-box;
   padding: 0 4px;
-  margin: 0;
-  background: none !important;
+  margin: 0 2px;
+  background: var(--menu-button-bg-colour);
+  color: var(--menu-button-text-colour);
   border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-  /* Shrinks emoji on small screens but never grows above 1.5em */
+  border-radius: 7px;
   font-size: clamp(1em, 4vw, 1.5em);
+  font-weight: 500;
   line-height: 1;
   cursor: pointer;
-  color: inherit;
   user-select: none;
+  transition: background 0.2s, transform 0.18s;
+  outline: none !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
 }
-
 #read-aloud-menu .read-aloud-controls button:active,
 #read-aloud-menu .read-aloud-controls button:focus,
 #read-aloud-menu .read-aloud-buttons button:active,
-#read-aloud-menu .read-aloud-buttons button:focus {
+#read-aloud-menu .read-aloud-buttons button:focus,
+#read-aloud-menu button:active,
+#read-aloud-menu button:focus {
   background: none !important;
   border: none !important;
   outline: none !important;
 }
-
-#read-aloud-menu input[type="text"]:focus,
-#read-aloud-menu select:focus {
-  border-color: var(--menu-button-hover-bg-colour);
-}
-
-#read-aloud-menu button {
-  background: var(--menu-button-bg-colour);
-  color: var(--menu-button-text-colour);
-  border: none;
-  border-radius: 7px;
-  font-size: 1.15em;
-  font-weight: 500;
-  padding: 7px 15px;
-  margin: 0 2px;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.18s;
-  outline: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
-  user-select: none;
-}
-
 #read-aloud-menu button:hover {
   background: var(--menu-button-hover-bg-colour);
   transform: scale(1.08);
 }
-
 #read-aloud-menu #read-aloud-status {
   flex: 1;
   font-size: 0.98em;
@@ -2620,50 +2591,41 @@ body.reader-mode {
   color: var(--header-text-colour);
   min-width: 50px;
 }
-
 #read-aloud-menu .read-aloud-actions {
   display: flex;
   align-items: center;
   gap: 7px;
   margin-top: 6px;
 }
-
 /* highlighted text */
 .reader-bookmark.read-aloud-active {
-  background: #b388ff !important; /* A soft violet for light mode */
-  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s;
+  background: #b388ff !important;
+  transition: background 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.4s;
   opacity: 1 !important;
 }
 .reader-bookmark.read-aloud-fadeout {
   opacity: 0 !important;
   transition: opacity 0.6s;
 }
-
 /* Dark mode */
 body.dark .reader-bookmark.read-aloud-active,
 .dark .reader-bookmark.read-aloud-active {
-  background: #e1bfff !important; /* Lighter/saturated violet for dark mode */
+  background: #e1bfff !important;
 }
-
 body.dark .reader-bookmark.read-aloud-fadeout,
 .dark .reader-bookmark.read-aloud-fadeout {
   opacity: 0 !important;
 }
-
-#read-aloud-menu a {
+#read-aloud-menu a,
+.dark-mode #read-aloud-menu a {
   color: var(--menu-button-text-colour);
   text-decoration: underline;
   transition: color 0.2s;
 }
-
 #read-aloud-menu a:hover,
 #read-aloud-menu a:focus {
   color: var(--banner-blue);
   text-decoration: underline;
-}
-
-.dark-mode #read-aloud-menu a {
-  color: var(--menu-button-text-colour);
 }
 
 /* =========================================
