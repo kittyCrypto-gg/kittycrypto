@@ -782,4 +782,15 @@ export async function setupReader(root = document) {
   observeAndSaveBookmarkProgress(root);
 }
 
+export async function readerIsFullyLoaded() {
+  // returns a true promise when the reader (not just the DOM but also all of this JS)
+  return new Promise(resolve => {
+    if (document.readyState === "complete") {
+      resolve(true);
+    } else {
+      document.addEventListener("DOMContentLoaded", () => resolve(true));
+    }
+  });
+}
+
 if (window.location.pathname.endsWith("reader.html")) initiateReader();

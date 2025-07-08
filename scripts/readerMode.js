@@ -1,4 +1,4 @@
-import { setupReader, activateImageNavigation } from "./reader.js";
+import { setupReader, activateImageNavigation, readerIsFullyLoaded } from "./reader.js";
 import { reloadReadAloud } from "./readAloud.js";
 
 class ReaderToggle {
@@ -48,6 +48,7 @@ class ReaderToggle {
 
 		// Automatically enable reader mode if URL contains reader=true
 		if (window.location.search.includes("reader=true")) {
+			await readerIsFullyLoaded();
 			await instance.enableReaderMode();
 		}
 
