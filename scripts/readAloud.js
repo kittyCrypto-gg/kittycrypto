@@ -214,6 +214,7 @@ export function showReadAloudMenu() {
     stopBtn.addEventListener('click', async () => {
         playPauseBtn.textContent = buttons.play.icon;
         await clearReadAloud();
+        localStorage.removeItem('readAloudAudioPosition');
     });
 
     infoBtn.addEventListener('click', () => {
@@ -292,6 +293,11 @@ async function closeReadAloudMenu() {
     const playPauseBtn = document.getElementById('read-aloud-toggle-playpause');
     if (playPauseBtn) playPauseBtn.textContent = buttons.play.icon;
     window.readAloudState.pressed = false;
+
+    menu.style.left = '50%';
+    menu.style.top = '0';
+    menu.style.transform = 'translateX(-50%)';
+
     await clearReadAloud()
 }
 
@@ -313,11 +319,7 @@ async function readAloud(speechKey, serviceRegion, voiceName = ENGLISH_VOICES[0]
         return;
     }
 
-    let startIdx = 0;
-    if (startFromId) {
-        const idx = paragraphs.findIndex(p => p.id === startFromId);
-        if (idx >= 0) startIdx = idx;
-    }
+    let startIdx = readAloudStartIndex(paragraphs, startFromId);
 
     window.readAloudState.paused = false;
     window.readAloudState.currentParagraphIndex = startIdx;
@@ -328,6 +330,32 @@ async function readAloud(speechKey, serviceRegion, voiceName = ENGLISH_VOICES[0]
     window.readAloudState.serviceRegion = serviceRegion;
 
     await speakParagraph(startIdx);
+}
+
+function readAloudStartIndex(paragraphs, startFromId) {
+    const idx = paragraphs.findIndex(p => p.id === startFromId);
+    if (idx >= 0) return idx;
+
+    const saved = localStorage.getItem('readAloudAudioPosition');
+    if (!saved) return 0;
+
+    let savedObj;
+
+    try { savedObj = JSON.parse(saved); }
+    catch { return 0; }
+
+    if (!savedObj) return 0;
+
+    const idxSaved = savedObj.paragraphId
+        ? paragraphs.findIndex(p => p.id === savedObj.paragraphId)
+        : -1;
+
+    if (idxSaved >= 0) return idxSaved;
+
+    if ( typeof savedObj.paragraphIndex === 'number' && savedObj.paragraphIndex >= 0 && savedObj.paragraphIndex < paragraphs.length )
+        return savedObj.paragraphIndex;
+
+    return 0;
 }
 
 async function speakParagraph(idx) {
@@ -369,6 +397,12 @@ async function speakParagraph(idx) {
     state.currentParagraphIndex = idx;
     state.currentParagraphId = paragraph.id;
     state.lastSpokenText = plainText;
+
+    // Save position on every paragraph spoken
+    localStorage.setItem('readAloudAudioPosition', JSON.stringify({
+        paragraphId: state.currentParagraphId,
+        paragraphIndex: state.currentParagraphIndex
+    }));
 
     try {
         const audioData = await new Promise((resolve, reject) => {
@@ -624,12 +658,13 @@ function initReadAloudMenuDrag() {
         ) return;
 
         const pos = getClientPos(e);
+        const rect = menu.getBoundingClientRect();
         isDragging = true;
         dragStarted = false;
         startX = pos.x;
         startY = pos.y;
-        offsetX = pos.x - menu.offsetLeft;
-        offsetY = pos.y - menu.offsetTop;
+        offsetX = pos.x - rect.left;
+        offsetY = pos.y - rect.top;
     };
 
     const moveDrag = e => {
