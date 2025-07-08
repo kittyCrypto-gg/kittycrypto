@@ -250,7 +250,7 @@ export function showReadAloudMenu() {
     }
 
     document.getElementById('read-aloud-close')?.addEventListener('click', () => {
-        toggleReadAloud(); // Use your existing toggle logic
+        closeReadAloudMenu();
     });
 }
 

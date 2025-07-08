@@ -2487,11 +2487,13 @@ body.reader-mode {
 .read-aloud-close-button {
   position: absolute;
   top: 8px;
-  right: 8px;
+  right: 12px;
+  align-self: flex-end;
   font-size: 1.1em;
   cursor: pointer;
   user-select: none;
   transition: transform 0.2s ease;
+  z-index: 3000;
 }
 
 .read-aloud-close-button:hover {
@@ -2529,7 +2531,7 @@ body.reader-mode {
 #read-aloud-menu input,
 #read-aloud-menu select {
   flex: 1 1 0;
-  max-width: 32px;
+  max-width: 120px;
   width: auto;
   background: var(--chat-input-bg-colour);
   color: var(--chat-input-text-colour);
