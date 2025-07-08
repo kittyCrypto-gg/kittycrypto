@@ -665,8 +665,7 @@ footer {
 
 /* Chatroom styles */
 .frame-chat {
-  height: 100vh;
-  max-height: 100vh;
+  height: auto;
   min-height: 0;
   overflow: hidden;
   display: flex;
