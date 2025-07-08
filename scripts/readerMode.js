@@ -124,7 +124,9 @@ class ReaderToggle {
 		if (parsed && parsed.content) {
 			articleElem.innerHTML = parsed.content;
 			this.restoreChapterImages(imgArray, articleElem);
-			articleElem.classList.add("reader-container");
+
+			const articleObj = document.getElementById("reader");
+			if (articleObj) articleObj.classList.add("reader-container");
 
 			// Update the URL to include ?reader=true (or &reader=true if there are other query parameters)
 			const url = new URL(window.location);
