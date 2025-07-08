@@ -127,19 +127,16 @@ class ReaderToggle {
 		const parser = new DOMParser();
 		const parsedDoc = parser.parseFromString(parsed.content, "text/html");
 
-		// Find all divs with reader-bookmark class and keep their ids
-		parsedDoc.querySelectorAll('.reader-bookmark').forEach((div, index) => {
-			const originalDiv = document.querySelector(`#${div.id}`);
+		// Find all elements with the reader-bookmark class (from original content) and preserve their ids
+		parsedDoc.querySelectorAll('.reader-bookmark').forEach((div) => {
+			const originalDiv = document.getElementById(div.id);
 			if (originalDiv) {
 				div.id = originalDiv.id;  // Preserve the original ID
 				div.classList.add("reader-bookmark"); // Ensure class is preserved
-			} else {
-				// Generate a new ID for new elements that don't have an ID yet
-				div.id = `bm-${Date.now()}-${index + 1}`;
 			}
 		});
 
-		// Replace the original content with the parsed content while keeping the bookmark div structure intact
+		// Now, reinsert the content into the article, making sure to keep the bookmark divs
 		articleElem.innerHTML = parsedDoc.body.innerHTML;
 		this.restoreChapterImages(imgArray, articleElem);
 
