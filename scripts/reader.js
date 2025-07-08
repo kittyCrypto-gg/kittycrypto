@@ -1,19 +1,19 @@
 import { replaceTategaki } from './tategaki.js';
 
-const params = new URLSearchParams(window.location.search);
-const storyPath = params.get("story");
-let chapter = parseInt(params.get("chapter") || "1");
+window.params = new URLSearchParams(window.location.search);
+window.storyPath = window.params.get("story");;
+window.chapter = parseInt(window.params.get("chapter") || "1");
 
-const fallback = document.getElementById('js-content-fallback');
-if (fallback) fallback.style.display = 'none';
+window.fallback = document.getElementById('js-content-fallback');
+if (window.fallback) window.fallback.style.display = 'none';
 
-const chapterCacheKey = `chapterCache_${storyPath}`;
-let lastKnownChapter = parseInt(localStorage.getItem(chapterCacheKey) || "0");
+window.chapterCacheKey = `chapterCache_${window.storyPath}`;
+window.lastKnownChapter = parseInt(localStorage.getItem(window.chapterCacheKey) || "0");
 
-const readerRoot = document.getElementById("reader");
-const storyPickerRoot = document.getElementById("story-picker");
+window.readerRoot = document.getElementById("reader");
+window.storyPickerRoot = document.getElementById("story-picker");
 
-const buttons = {
+window.buttons = {
   clearBookmark: { icon: "↩️", action: "Clear bookmark for this chapter" },
   prevChapter: { icon: "⏪", action: "Previous chapter" },
   jumpToChapter: { icon: "🆗", action: "Jump to chapter" },
@@ -56,17 +56,17 @@ function prevBtnEn(chapter, chapters) {
 }
 
 function updatePrevButtonState(root = document) {
-  const chapters = JSON.parse(localStorage.getItem(chapterCacheKey) || "[]");
-  const enablePrev = prevBtnEn(chapter, chapters);
+  const chapters = JSON.parse(localStorage.getItem(window.chapterCacheKey) || "[]");
+  const enablePrev = prevBtnEn(window.chapter, chapters);
 
   root.querySelectorAll(".btn-prev").forEach(btn => {
     btn.disabled = !enablePrev;
   });
 }
 
-function clearBookmarkForCurrentChapter(root = document) {
-  const storyKey = makeStoryKey(storyPath);
-  const key = `bookmark_${storyKey}_ch${chapter}`;
+function clearBookmarkForCurrentChapter() {
+  const storyKey = makeStoryKey(window.storyPath);
+  const key = `bookmark_${storyKey}_ch${window.chapter}`;
   localStorage.removeItem(key);
   showTemporaryNotice("Bookmark cleared for this chapter.");
 }
@@ -96,20 +96,20 @@ function injectNav() {
   // if page is not "reader.html" return
   const navHTML = `
   <div class="chapter-navigation">
-    <button class="btn-clear-bookmark">${buttons.clearBookmark.icon}</button>
-    <button class="btn-prev">${buttons.prevChapter.icon}</button>
+    <button class="btn-clear-bookmark">${window.buttons.clearBookmark.icon}</button>
+    <button class="btn-prev">${window.buttons.prevChapter.icon}</button>
     <input class="chapter-display" type="text" value="1" readonly style="width: 2ch; text-align: center; border: none; background: transparent; font-weight: bold;" />
     <input class="chapter-input" type="number" min="0" style="width: 2ch; text-align: center;" />
-    <button class="btn-jump">${buttons.jumpToChapter.icon}</button>
+    <button class="btn-jump">${window.buttons.jumpToChapter.icon}</button>
     <button class="chapter-end" disabled style="width: 2ch; text-align: center; font-weight: bold;"></button>
-    <button class="btn-next">${buttons.nextChapter.icon}</button>
-    <button class="btn-scroll-down">${buttons.scrollDown.icon}</button>
-    <button class="btn-info">${buttons.showInfo.icon}</button>
+    <button class="btn-next">${window.buttons.nextChapter.icon}</button>
+    <button class="btn-scroll-down">${window.buttons.scrollDown.icon}</button>
+    <button class="btn-info">${window.buttons.showInfo.icon}</button>
   </div>
   <div class="font-controls">
-    <button class="font-decrease">${buttons.decreaseFont.icon}</button>
-    <button class="font-reset">${buttons.resetFont.icon}</button>
-    <button class="font-increase">${buttons.increaseFont.icon}</button>
+    <button class="font-decrease">${window.buttons.decreaseFont.icon}</button>
+    <button class="font-reset">${window.buttons.resetFont.icon}</button>
+    <button class="font-increase">${window.buttons.increaseFont.icon}</button>
   </div>
 `;
 
@@ -120,13 +120,13 @@ function injectNav() {
   // Replace ⏬ with ⏫ in the bottom nav
   const scrollDownBtn = navBottom.querySelector(".btn-scroll-down");
   if (scrollDownBtn) {
-    scrollDownBtn.textContent = buttons.scrollUp.icon;
+    scrollDownBtn.textContent = window.buttons.scrollUp.icon;
     scrollDownBtn.classList.remove("btn-scroll-down");
     scrollDownBtn.classList.add("btn-scroll-up");
   }
 
-  readerRoot.insertAdjacentElement("beforebegin", navTop);
-  readerRoot.insertAdjacentElement("afterend", navBottom);
+  window.readerRoot.insertAdjacentElement("beforebegin", navTop);
+  window.readerRoot.insertAdjacentElement("afterend", navBottom);
 }
 
 // Font size logic
@@ -134,38 +134,38 @@ function updateFontSize(delta = 0) {
   const current = parseFloat(getReaderCookie("fontSize")) || 1;
   const newSize = Math.max(0.7, Math.min(2.0, current + delta));
   setReaderCookie("fontSize", newSize.toFixed(2));
-  readerRoot.style.setProperty("font-size", `${newSize}em`);
+  window.readerRoot.style.setProperty("font-size", `${newSize}em`);
   refreshTategakiFont();
 }
 
 function showNavigationInfo() {
   alert(`Navigation Button Guide:
 
-  ${buttons.clearBookmark.icon}  – ${buttons.clearBookmark.action}
-  ${buttons.prevChapter.icon}  – ${buttons.prevChapter.action}
-  ${buttons.jumpToChapter.icon}  – ${buttons.jumpToChapter.action}
-  ${buttons.nextChapter.icon}  – ${buttons.nextChapter.action}
-  ${buttons.scrollDown.icon}  – ${buttons.scrollDown.action}
-  ${buttons.scrollUp.icon}  – ${buttons.scrollUp.action}
+  ${window.buttons.clearBookmark.icon}  – ${window.buttons.clearBookmark.action}
+  ${window.buttons.prevChapter.icon}  – ${window.buttons.prevChapter.action}
+  ${window.buttons.jumpToChapter.icon}  – ${window.buttons.jumpToChapter.action}
+  ${window.buttons.nextChapter.icon}  – ${window.buttons.nextChapter.action}
+  ${window.buttons.scrollDown.icon}  – ${window.buttons.scrollDown.action}
+  ${window.buttons.scrollUp.icon}  – ${window.buttons.scrollUp.action}
 
 Font Controls:
-  ${buttons.decreaseFont.icon}  – ${buttons.decreaseFont.action}
-  ${buttons.resetFont.icon}  – ${buttons.resetFont.action}
-  ${buttons.increaseFont.icon}  – ${buttons.increaseFont.action}`);
+  ${window.buttons.decreaseFont.icon}  – ${window.buttons.decreaseFont.action}
+  ${window.buttons.resetFont.icon}  – ${window.buttons.resetFont.action}
+  ${window.buttons.increaseFont.icon}  – ${window.buttons.increaseFont.action}`);
 }
 
 function bindNavigationEvents(root = document) {
-  const chapters = JSON.parse(localStorage.getItem(chapterCacheKey) || "[]");
+  const chapters = JSON.parse(localStorage.getItem(window.chapterCacheKey) || "[]");
   root.querySelectorAll(".btn-prev").forEach(btn => btn.onclick = () => {
-    if (!prevBtnEn(chapter, chapters)) {
+    if (!prevBtnEn(window.chapter, chapters)) {
       btn.disabled = true;
       return;
     }
-    jumpTo(chapter - 1);
+    jumpTo(window.chapter - 1);
   });
 
   root.querySelectorAll(".btn-next").forEach(btn => btn.onclick = () => {
-    if (chapter < lastKnownChapter) jumpTo(chapter + 1);
+    if (window.chapter < window.lastKnownChapter) jumpTo(window.chapter + 1);
   });
 
   // Jump to the chapter typed next to this button
@@ -175,25 +175,25 @@ function bindNavigationEvents(root = document) {
       if (!input) return;
 
       const val = parseInt(input.value, 10);
-      if (!isNaN(val) && val >= 0 && val <= lastKnownChapter) {
+      if (!isNaN(val) && val >= 0 && val <= window.lastKnownChapter) {
         jumpTo(val);
       }
     };
   });
 
   root.querySelectorAll(".chapter-input").forEach(input => {
-    input.value = chapter;
+    input.value = window.chapter;
     input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         const val = parseInt(e.target.value);
-        if (val >= 0 && val <= lastKnownChapter) jumpTo(val);
+        if (val >= 0 && val <= window.lastKnownChapter) jumpTo(val);
       }
     });
   });
 
   root.querySelectorAll(".btn-rescan").forEach(btn => btn.onclick = async () => {
-    localStorage.removeItem(chapterCacheKey);
-    lastKnownChapter = await discoverChapters();
+    localStorage.removeItem(window.chapterCacheKey);
+    window.lastKnownChapter = await discoverChapters();
     updateNav();
   });
 
@@ -208,7 +208,7 @@ function bindNavigationEvents(root = document) {
 }
 
 async function populateStoryPicker(root = document) {
-  if (!storyPickerRoot) return;
+  if (!window.storyPickerRoot) return;
   try {
     const res = await fetch("scripts/stories.json");
     if (!res.ok) throw new Error("No stories found");
@@ -221,7 +221,7 @@ async function populateStoryPicker(root = document) {
       const opt = root.createElement("option");
       opt.value = path;
       opt.textContent = name;
-      if (path === storyPath) opt.selected = true;
+      if (path === window.storyPath) opt.selected = true;
       select.appendChild(opt);
     });
 
@@ -231,7 +231,7 @@ async function populateStoryPicker(root = document) {
       }
     };
 
-    storyPickerRoot.appendChild(select);
+    window.storyPickerRoot.appendChild(select);
   } catch (err) {
     console.warn("No stories found or failed to load stories.json", err);
   }
@@ -239,7 +239,7 @@ async function populateStoryPicker(root = document) {
 
 async function loadChapter(n) {
   try {
-    const res = await fetch(`${storyPath}/chapt${n}.xml`);
+    const res = await fetch(`${window.storyPath}/chapt${n}.xml`);
     if (!res.ok) throw new Error("Chapter not found");
     const xmlText = await res.text();
     const parser = new DOMParser();
@@ -291,17 +291,17 @@ async function loadChapter(n) {
     // Process Tategaki and images
     htmlContent = replaceTategaki(htmlContent);
     htmlContent = replaceImageTags(htmlContent);
-    htmlContent = injectBookmarksIntoHTML(htmlContent, storyPath, chapter);
+    htmlContent = injectBookmarksIntoHTML(htmlContent, window.storyPath, window.chapter);
 
     // Render the HTML
-    readerRoot.innerHTML = htmlContent;
+    window.readerRoot.innerHTML = htmlContent;
 
     // Start tracking scroll progress
     observeAndSaveBookmarkProgress(document);
 
     // Scroll to the saved bookmark after DOM layout is ready
     requestAnimationFrame(() => {
-      restoreBookmark(storyPath, chapter);
+      restoreBookmark(window.storyPath, window.chapter);
     });
 
     // Activate features
@@ -309,11 +309,11 @@ async function loadChapter(n) {
     chapter = n;
     updateNav(document);
     bindNavigationEvents(document);
-    setReaderCookie(`bookmark_${encodeURIComponent(storyPath)}`, chapter);
+    setReaderCookie(`bookmark_${encodeURIComponent(window.storyPath)}`, window.chapter);
     window.scrollTo(0, 0);
 
   } catch (err) {
-    readerRoot.innerHTML = `
+    window.readerRoot.innerHTML = `
       <div class="chapter-404">
         <h2>📕 Chapter ${n} Not Found</h2>
         <p>Looks like this XML chapter doesn't exist yet.</p>
@@ -329,7 +329,7 @@ async function discoverChapters() {
 
   // Check for Chapter 0 existence first
   try {
-    const path = `${storyPath}/chapt0.xml`;
+    const path = `${window.storyPath}/chapt0.xml`;
     //console.log(`Checking for Chapter 0 at ${path}`);
     const res = await fetch(path, { method: "HEAD" });
     if (res.ok) {
@@ -342,7 +342,7 @@ async function discoverChapters() {
   // Discover remaining chapters
   while (true) {
     try {
-      const path = `${storyPath}/chapt${i}.xml`;
+      const path = `${window.storyPath}/chapt${i}.xml`;
       //console.log(`Reading Chapter ${i} in ${path}`);
       const res = await fetch(path, { method: "HEAD" });
       if (!res.ok) break;
@@ -355,15 +355,15 @@ async function discoverChapters() {
   }
 
   const last = i - 1;
-  lastKnownChapter = chapters.length > 0 ? Math.max(...chapters) : 0;
-  localStorage.setItem(chapterCacheKey, JSON.stringify(chapters));
-  lastKnownChapter = chapters.length > 0 ? Math.max(...chapters) : 0;
+  window.lastKnownChapter = chapters.length > 0 ? Math.max(...chapters) : 0;
+  localStorage.setItem(window.chapterCacheKey, JSON.stringify(chapters));
+  window.lastKnownChapter = chapters.length > 0 ? Math.max(...chapters) : 0;
   return chapters;
 }
 
 function jumpTo(n) {
   // Attempt to get story path from URL (decoded) or fallback to localStorage
-  let currentStoryPath = decodeURIComponent(storyPath) || localStorage.getItem('currentStoryPath');
+  let currentStoryPath = decodeURIComponent(window.storyPath) || localStorage.getItem('currentStoryPath');
 
   // If no story path is found, alert the user and prevent the jump
   if (!currentStoryPath) {
@@ -417,22 +417,22 @@ function replaceImageTags(htmlContent) {
 
 function refreshTategakiFont(root = document) {
   // current computed body font-size in px
-  const px = parseFloat(getComputedStyle(readerRoot).fontSize);
+  const px = parseFloat(getComputedStyle(window.readerRoot).fontSize);
   root
     .querySelectorAll(".tategaki-container svg text")
     .forEach(t => t.setAttribute("font-size", px));
 }
 
 function updateNav(root = document) {
-  root.querySelectorAll(".chapter-display").forEach(el => el.value = chapter);
-  root.querySelectorAll(".chapter-end").forEach(btn => btn.textContent = lastKnownChapter);
+  root.querySelectorAll(".chapter-display").forEach(el => el.value = window.chapter);
+  root.querySelectorAll(".chapter-end").forEach(btn => btn.textContent = window.lastKnownChapter);
 
   // If Chapter 0 is detected, allow the Previous button to activate when on Chapter 1
-  const chapters = JSON.parse(localStorage.getItem(chapterCacheKey) || "[]");
+  const chapters = JSON.parse(localStorage.getItem(window.chapterCacheKey) || "[]");
   const hasChapter0 = chapters.includes(0);
 
   root.querySelectorAll(".btn-next").forEach(btn => {
-    btn.disabled = chapter === lastKnownChapter;
+    btn.disabled = window.chapter === window.lastKnownChapter;
   });
 
   updatePrevButtonState(root);
@@ -440,25 +440,25 @@ function updateNav(root = document) {
 
 async function initReader() {
   await populateStoryPicker(document);
-  if (!storyPath) return;
+  if (!window.storyPath) return;
 
   injectNav();
 
   const chapters = await discoverChapters();
 
   if (!params.get("chapter")) {
-    const bookmark = parseInt(getReaderCookie(`bookmark_${encodeURIComponent(storyPath)}`));
+    const bookmark = parseInt(getReaderCookie(`bookmark_${encodeURIComponent(window.storyPath)}`));
     if (bookmark && chapters.includes(bookmark)) {
-      chapter = bookmark;
+      window.chapter = bookmark;
     } else {
-      chapter = 1;
+      window.chapter = 1;
     }
   }
 
-  await loadChapter(chapter);
+  await loadChapter(window.chapter);
 
   const initialFont = parseFloat(getReaderCookie("fontSize")) || 1;
-  readerRoot.style.setProperty("font-size", `${initialFont}em`);
+  window.readerRoot.style.setProperty("font-size", `${initialFont}em`);
 }
 
 export function activateImageNavigation(root = document) {
@@ -639,12 +639,12 @@ export function activateImageNavigation(root = document) {
   }
 }
 
-function makeStoryKey(storyPath) {
-  return encodeURIComponent(storyPath).replace(/\W/g, '_');
+function makeStoryKey() {
+  return encodeURIComponent(window.storyPath).replace(/\W/g, '_');
 }
 
-export function injectBookmarksIntoHTML(htmlContent, storyPath, chapter) {
-  const storyKey = makeStoryKey(storyPath);
+export function injectBookmarksIntoHTML(htmlContent, chapter) {
+  const storyKey = makeStoryKey(window.storyPath);
   const bookmarkId = localStorage.getItem(`bookmark_${storyKey}_ch${chapter}`);
   let counter = 0;
 
@@ -695,8 +695,8 @@ function observeAndSaveBookmarkProgress(root = document) {
   }, 1000);
 }
 
-function restoreBookmark(storyPath, chapter) {
-  const storyKey = makeStoryKey(storyPath);
+function restoreBookmark(chapter) {
+  const storyKey = makeStoryKey(window.storyPath);
   const key = `bookmark_${storyKey}_ch${chapter}`;
   const id = localStorage.getItem(key);
   if (!id) return;
@@ -723,9 +723,8 @@ function restoreBookmark(storyPath, chapter) {
 }
 
 function restoreLastStoryRead() {
-  const params = new URLSearchParams(window.location.search);
-  const story = params.get("story");
-  const chapter = params.get("chapter");
+  const story = window.params.get("story");
+  const chapter = window.chapter;
   const lastKey = "lastStoryRead";
 
   if (story && chapter !== null) {
@@ -801,6 +800,13 @@ export async function readerIsFullyLoaded() {
 
     checkReady(resolve); // Start the initial check with resolve as the callback
   });
+}
+
+export function getParams() {
+  return {
+    storyPath: window.storyPath,
+    chapter: window.chapter
+  };
 }
 
 if (window.location.pathname.endsWith("reader.html")) initiateReader();

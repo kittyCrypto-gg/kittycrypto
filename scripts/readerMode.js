@@ -1,4 +1,4 @@
-import { setupReader, activateImageNavigation, readerIsFullyLoaded, injectBookmarksIntoHTML } from "./reader.js";
+import * as Reader from "./reader.js";
 
 class ReaderToggle {
 	readerActive = false;
@@ -47,7 +47,7 @@ class ReaderToggle {
 
 		// Automatically enable reader mode if URL contains reader=true
 		if (window.location.search.includes("reader=true")) {
-			await readerIsFullyLoaded();
+			await Reader.readerIsFullyLoaded();
 			await instance.enableReaderMode();
 		}
 
@@ -99,11 +99,13 @@ class ReaderToggle {
 				wrapper.appendChild(img);
 			}
 		});
-		activateImageNavigation(root);
+		Reader.activateImageNavigation(root);
 	}
 
 	async enableReaderMode() {
 		const imgArray = this.storeChapterImages(document);
+
+		const { storyPath, chapter } = Reader.getParams();
 
 		await this.ensureReadabilityLoaded();
 
@@ -126,8 +128,7 @@ class ReaderToggle {
 		const parser = new DOMParser();
 		const parsedDoc = parser.parseFromString(parsed.content, "text/html");
 
-		// Use injectBookmarksIntoHTML to recreate bookmark divs with correct IDs
-		let htmlContent = injectBookmarksIntoHTML(parsedDoc.body.innerHTML, storyPath, chapter);
+		let htmlContent = Reader.injectBookmarksIntoHTML(parsedDoc.body.innerHTML, storyPath, chapter);
 
 		// Now, reinsert the content into the article, making sure to keep the bookmark divs
 		articleElem.innerHTML = htmlContent;
@@ -157,7 +158,7 @@ class ReaderToggle {
 			const restored = this.originalNodeClone.cloneNode(true);
 			articleElem.replaceWith(restored);
 			const newRoot = restored.ownerDocument || document;
-			setupReader(restored);
+			Reader.setupReader(restored);
 		}
 
 		document.body.classList.remove("reader-mode");
