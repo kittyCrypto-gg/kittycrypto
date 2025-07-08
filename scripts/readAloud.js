@@ -33,9 +33,8 @@ const AZURE_REGIONS = [
 ];
 
 const readAloudMenuHTML = `
-    <div class="read-aloud-header">
-        Read Aloud
-    </div>
+    <span id="read-aloud-close" class="read-aloud-close-button" title="Close menu">❌</span>
+    <div class="read-aloud-header"> Read Aloud </div>
     <div class="read-aloud-controls">
         <input id="read-aloud-apikey" type="password" placeholder="Azure Speech API Key" class="read-aloud-control" />
         <select id="read-aloud-region" class="read-aloud-control">
@@ -249,6 +248,10 @@ export function showReadAloudMenu() {
     if (typeof menu._resetMenuPosition === 'function') {
         menu._resetMenuPosition();
     }
+
+    document.getElementById('read-aloud-close')?.addEventListener('click', () => {
+        toggleReadAloud(); // Use your existing toggle logic
+    });
 }
 
 async function restartReadAloudFromBeginning() {
@@ -585,85 +588,85 @@ function getSpeechRate() {
 }
 
 function initReadAloudMenuDrag() {
-  const menu = document.getElementById('read-aloud-menu');
-  if (!menu || menu._dragListenersAdded) return;
+    const menu = document.getElementById('read-aloud-menu');
+    if (!menu || menu._dragListenersAdded) return;
 
-  const dragHandle = menu.querySelector('.read-aloud-header');
-  if (!dragHandle) return;
+    const dragHandle = menu.querySelector('.read-aloud-header');
+    if (!dragHandle) return;
 
-  let isDragging = false;
-  let dragStarted = false;
-  let offsetX = 0;
-  let offsetY = 0;
-  let startX = 0;
-  let startY = 0;
+    let isDragging = false;
+    let dragStarted = false;
+    let offsetX = 0;
+    let offsetY = 0;
+    let startX = 0;
+    let startY = 0;
 
-  const DRAG_THRESHOLD = 5;
+    const DRAG_THRESHOLD = 5;
 
-  const getClientPos = e => {
-    if (e.touches && e.touches.length) {
-      return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    }
-    return { x: e.clientX, y: e.clientY };
-  };
+    const getClientPos = e => {
+        if (e.touches && e.touches.length) {
+            return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }
+        return { x: e.clientX, y: e.clientY };
+    };
 
-  const startDrag = e => {
-    if (
-      e.target !== dragHandle &&
-      !dragHandle.contains(e.target)
-    ) return;
+    const startDrag = e => {
+        if (
+            e.target !== dragHandle &&
+            !dragHandle.contains(e.target)
+        ) return;
 
-    const tag = (e.target.tagName || '').toLowerCase();
-    if (
-      ['button', 'input', 'select', 'textarea', 'option', 'label'].includes(tag)
-    ) return;
+        const tag = (e.target.tagName || '').toLowerCase();
+        if (
+            ['button', 'input', 'select', 'textarea', 'option', 'label'].includes(tag)
+        ) return;
 
-    const pos = getClientPos(e);
-    isDragging = true;
-    dragStarted = false;
-    startX = pos.x;
-    startY = pos.y;
-    offsetX = pos.x - menu.offsetLeft;
-    offsetY = pos.y - menu.offsetTop;
-  };
+        const pos = getClientPos(e);
+        isDragging = true;
+        dragStarted = false;
+        startX = pos.x;
+        startY = pos.y;
+        offsetX = pos.x - menu.offsetLeft;
+        offsetY = pos.y - menu.offsetTop;
+    };
 
-  const moveDrag = e => {
-    if (!isDragging) return;
-    const pos = getClientPos(e);
+    const moveDrag = e => {
+        if (!isDragging) return;
+        const pos = getClientPos(e);
 
-    if (!dragStarted) {
-      const dx = Math.abs(pos.x - startX);
-      const dy = Math.abs(pos.y - startY);
-      if (dx < DRAG_THRESHOLD && dy < DRAG_THRESHOLD) return;
-      dragStarted = true;
-      menu.classList.add('dragging');
-    }
+        if (!dragStarted) {
+            const dx = Math.abs(pos.x - startX);
+            const dy = Math.abs(pos.y - startY);
+            if (dx < DRAG_THRESHOLD && dy < DRAG_THRESHOLD) return;
+            dragStarted = true;
+            menu.classList.add('dragging');
+        }
 
-    menu.style.left = `${pos.x - offsetX}px`;
-    menu.style.top = `${pos.y - offsetY}px`;
-    menu.style.transform = 'none';
-    e.preventDefault();
-  };
+        menu.style.left = `${pos.x - offsetX}px`;
+        menu.style.top = `${pos.y - offsetY}px`;
+        menu.style.transform = 'none';
+        e.preventDefault();
+    };
 
-  const endDrag = e => {
-    if (!isDragging) return;
-    if (dragStarted) menu.classList.remove('dragging');
-    isDragging = false;
-    dragStarted = false;
-    if (dragStarted && e && e.preventDefault) e.preventDefault();
-  };
+    const endDrag = e => {
+        if (!isDragging) return;
+        if (dragStarted) menu.classList.remove('dragging');
+        isDragging = false;
+        dragStarted = false;
+        if (dragStarted && e && e.preventDefault) e.preventDefault();
+    };
 
-  // Mouse events
-  dragHandle.addEventListener('mousedown', startDrag);
-  window.addEventListener('mousemove', moveDrag);
-  window.addEventListener('mouseup', endDrag);
+    // Mouse events
+    dragHandle.addEventListener('mousedown', startDrag);
+    window.addEventListener('mousemove', moveDrag);
+    window.addEventListener('mouseup', endDrag);
 
-  // Touch events
-  dragHandle.addEventListener('touchstart', startDrag, { passive: false });
-  window.addEventListener('touchmove', moveDrag, { passive: false });
-  window.addEventListener('touchend', endDrag, { passive: false });
+    // Touch events
+    dragHandle.addEventListener('touchstart', startDrag, { passive: false });
+    window.addEventListener('touchmove', moveDrag, { passive: false });
+    window.addEventListener('touchend', endDrag, { passive: false });
 
-  menu._dragListenersAdded = true;
+    menu._dragListenersAdded = true;
 }
 
 function openCustomModal(html, modalId = "readaloud-help-modal") {

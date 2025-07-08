@@ -2484,6 +2484,20 @@ body.reader-mode {
     left 0.2s, top 0.2s;
 }
 
+.read-aloud-close-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 1.1em;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.2s ease;
+}
+
+.read-aloud-close-button:hover {
+  transform: scale(1.2);
+}
+
 #read-aloud-menu.dragging {
   opacity: 0.92;
   cursor: grabbing;
