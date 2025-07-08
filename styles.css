@@ -676,8 +676,8 @@ footer {
 .frame-chat .clusterise-scroll {
   flex: 1 1 auto;
   min-height: 0;
-  max-height: 100vh;
-  height: 100%;
+  /*max-height: 100vh;*/
+  /*height: 100%;*/
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -685,7 +685,7 @@ footer {
 
 .frame-chat .clusterise-content {
   flex: 1 1 auto;
-  min-height: 0;
+  /*min-height: 0;*/
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -758,8 +758,6 @@ footer {
 .chat-nick {
   font-weight: bold;
   display: inline-block;
-  /* For dark mode we often want a distinct colour, but we can keep a default
-       if you want it the same in light mode, remove the override. */
   color: inherit;
 }
 
@@ -770,7 +768,6 @@ footer {
   margin-left: 8px;
 }
 
-/* Overriding the snippet's second mention of chat-timestamp colour (#999) */
 .chat-timestamp {
   color: var(--chat-timestamp-colour);
 }
@@ -780,10 +777,8 @@ footer {
   margin-left: 15px;
   padding-top: 2px;
   display: block;
-  /* In dark mode, it's #ffffff; in light, it’s inherited from body. */
   color: inherit;
   margin-top: 5px;
-  /* from snippet's second .chat-text definition */
 }
 
 /* Chat input box */
@@ -828,7 +823,6 @@ footer {
   background: var(--menu-button-hover-bg-colour, #388e3c);
 }
 
-/* Ensuring fluid design for very small screens */
 .chat-inputs input,
 .chat-inputs button {
   max-width: 100%;
@@ -908,12 +902,10 @@ footer {
   vertical-align: middle;
 }
 
-/* Message ID (hidden from users but present in the HTML) */
 .chat-msg-id {
   display: none;
 }
 
-/* Dark mode styling for the toggle button when .dark-mode is active */
 body.dark-mode .theme-toggle-button {
   background: var(--toggle-btn-bg-colour);
   color: var(--toggle-btn-text-colour);
