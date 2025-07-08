@@ -294,6 +294,7 @@ async function closeReadAloudMenu() {
 
 // Initialise the Speech SDK
 async function readAloud(speechKey, serviceRegion, voiceName = ENGLISH_VOICES[0].name, tag = 'article', id = 'reader', className = 'reader-container', startFromId = null) {
+    await ensureSpeechSDKReady();
     let selector = tag;
     if (id) selector += `#${id}`;
     if (className) selector += `.${className}`;
@@ -327,8 +328,6 @@ async function readAloud(speechKey, serviceRegion, voiceName = ENGLISH_VOICES[0]
 }
 
 async function speakParagraph(idx) {
-    const now = new Date();
-    //console.log('speakParagraph called for idx:', idx, ' at ', now.toLocaleTimeString());
     const state = window.readAloudState;
     if (state.paused || idx >= state.paragraphs.length) return;
 
@@ -713,7 +712,6 @@ function closeCustomModal(modalId = "readaloud-help-modal") {
 }
 
 export async function reloadReadAloud() {
-
     return new Promise((resolve) => {
         const container = document.querySelector("article#reader, main, article");
         if (!container) {
@@ -724,11 +722,60 @@ export async function reloadReadAloud() {
         const paragraphs = Array.from(container.querySelectorAll('.reader-bookmark'));
 
         if (paragraphs.length === 0) return;
-        
+
         window.readAloudState.paragraphs = paragraphs;
         window.readAloudState.currentParagraphIndex = 0;
         window.readAloudState.currentParagraphId = paragraphs[0]?.id || null;
 
         resolve();
     });
+}
+
+async function ensureSpeechSDKReady() {
+    if (window.SpeechSDK) return window.SpeechSDK;
+    if (window._speechSDKReadyPromise) return window._speechSDKReadyPromise;
+
+    window._speechSDKReadyPromise = new Promise((resolve, reject) => {
+        if (window.SpeechSDK) return resolve(window.SpeechSDK);
+
+        let script = document.querySelector("script[src*='microsoft.cognitiveservices.speech.sdk']");
+
+        const handleLoad = () =>
+            window.SpeechSDK
+                ? resolve(window.SpeechSDK)
+                : reject(new Error("SpeechSDK loaded but not available on window"));
+
+        const handleError = (e) => {
+            window._speechSDKReadyPromise = null;
+            reject(e);
+        };
+
+        // If no script tag, create it and set listeners
+        if (!script) {
+            script = document.createElement("script");
+            script.src = "https://aka.ms/csspeech/jsbrowserpackageraw";
+            script.async = true;
+            script.onload = handleLoad;
+            script.onerror = handleError;
+            document.head.appendChild(script);
+            return;
+        }
+
+        // Script tag already present, check for SDK or listen
+        if (window.SpeechSDK) return resolve(window.SpeechSDK);
+
+        const loaded = script.readyState === "complete" || script.readyState === "loaded";
+        if (loaded) {
+            window.SpeechSDK
+                ? resolve(window.SpeechSDK)
+                : reject(new Error("SpeechSDK script loaded but SpeechSDK not found on window"));
+            return;
+        }
+
+        // Otherwise, wait for script to load
+        script.addEventListener("load", handleLoad);
+        script.addEventListener("error", handleError);
+    });
+
+    return window._speechSDKReadyPromise;
 }
