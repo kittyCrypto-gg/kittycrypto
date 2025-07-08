@@ -655,8 +655,8 @@ async function initReadAloudMenuDrag() {
     let startX = 0;
     let startY = 0;
 
-    const DRAG_THRESHOLD = 5;
-
+    const DRAG_THRESHOLD = 2;
+    
     const getClientPos = e => {
         if (e.touches && e.touches.length) {
             return { x: e.touches[0].clientX, y: e.touches[0].clientY };
@@ -665,15 +665,10 @@ async function initReadAloudMenuDrag() {
     };
 
     const startDrag = e => {
-        if (
-            e.target !== dragHandle &&
-            !dragHandle.contains(e.target)
-        ) return;
+        if (e.target !== dragHandle && !dragHandle.contains(e.target)) return;
 
         const tag = (e.target.tagName || '').toLowerCase();
-        if (
-            ['button', 'input', 'select', 'textarea', 'option', 'label'].includes(tag)
-        ) return;
+        if (['button', 'input', 'select', 'textarea', 'option', 'label'].includes(tag)) return;
 
         const pos = getClientPos(e);
         const rect = menu.getBoundingClientRect();
@@ -687,6 +682,7 @@ async function initReadAloudMenuDrag() {
 
     const moveDrag = e => {
         if (!isDragging) return;
+
         const pos = getClientPos(e);
 
         if (!dragStarted) {
@@ -697,9 +693,9 @@ async function initReadAloudMenuDrag() {
             menu.classList.add('dragging');
         }
 
-        menu.style.left = `${pos.x - offsetX}px`;
-        menu.style.top = `${pos.y - offsetY}px`;
-        menu.style.transform = 'none';
+        // Use transform to move the menu smoothly without triggering layout recalculations
+        menu.style.transform = `translate(${pos.x - offsetX}px, ${pos.y - offsetY}px)`;
+
         e.preventDefault();
     };
 
@@ -708,8 +704,8 @@ async function initReadAloudMenuDrag() {
         if (dragStarted) menu.classList.remove('dragging');
         isDragging = false;
         dragStarted = false;
-        if (dragStarted && e && e.preventDefault) e.preventDefault();
 
+        // Store position only when dragging ends
         const menuRect = menu.getBoundingClientRect();
         localStorage.setItem('readAloudMenuPosition', JSON.stringify({
             left: menuRect.left,
@@ -717,7 +713,7 @@ async function initReadAloudMenuDrag() {
         }));
     };
 
-    // Load position from localStorage
+    // Wait for the document to load before initializing
     await new Promise(resolve => {
         if (document.readyState === "complete" || document.readyState === "interactive") {
             resolve();
@@ -725,6 +721,8 @@ async function initReadAloudMenuDrag() {
             document.addEventListener("DOMContentLoaded", resolve, { once: true });
         }
     });
+
+    // Load position from localStorage
     const savedPosition = JSON.parse(localStorage.getItem('readAloudMenuPosition'));
     if (savedPosition) {
         menu.style.left = `${savedPosition.left}px`;
