@@ -622,7 +622,6 @@ function saveSpeechRate(rate) {
 function getSpeechRate() {
     return parseFloat(localStorage.getItem('readAloudSpeechRate')) || 1.0;
 }
-
 function initReadAloudMenuDrag() {
     const menu = document.getElementById('read-aloud-menu');
     if (!menu || menu._dragListenersAdded) return;
@@ -692,28 +691,23 @@ function initReadAloudMenuDrag() {
         dragStarted = false;
         if (dragStarted && e && e.preventDefault) e.preventDefault();
 
-        // Save position to localStorage as a percentage of viewport width and height
         const menuRect = menu.getBoundingClientRect();
-        const menuWidth = window.innerWidth;
-        const menuHeight = window.innerHeight;
         localStorage.setItem('readAloudMenuPosition', JSON.stringify({
-            left: (menuRect.left / menuWidth) * 100,  // Save as a percentage of viewport width
-            top: (menuRect.top / menuHeight) * 100   // Save as a percentage of viewport height
+            left: menuRect.left,
+            top: menuRect.top
         }));
     };
 
-    // Wait until the page is loaded before applying the saved position
+    // Wait for the window to load completely before restoring position
     window.addEventListener('load', () => {
         // Load position from localStorage
         const savedPosition = JSON.parse(localStorage.getItem('readAloudMenuPosition'));
         if (savedPosition) {
-            // Apply position as a percentage of the current window size
-            const menuWidth = window.innerWidth;
-            const menuHeight = window.innerHeight;
-            menu.style.left = `${savedPosition.left}%`;
-            menu.style.top = `${savedPosition.top}%`;
+            // Apply the saved pixel position from localStorage
+            menu.style.left = `${savedPosition.left}px`;
+            menu.style.top = `${savedPosition.top}px`;
         } else {
-            // Default position
+            // Default position: Centered horizontally and top aligned
             menu.style.left = '50%';
             menu.style.top = '0';
             menu.style.transform = 'translateX(-50%)';
