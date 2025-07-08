@@ -308,7 +308,7 @@ async function closeReadAloudMenu() {
 
     // Remove event listeners for dragging
     const dragHandle = menu.querySelector('.read-aloud-header');
-    
+
     await clearReadAloud();
 }
 
@@ -687,7 +687,8 @@ async function initReadAloudMenuDrag() {
         }
 
         // Use transform to move the menu smoothly without triggering layout recalculations
-        menu.style.transform = `translate(${pos.x - offsetX}px, ${pos.y - offsetY}px)`;
+        menu.style.left = `${pos.x - offsetX}px`;
+        menu.style.top = `${pos.y - offsetY}px`;
 
         e.preventDefault();
     };
