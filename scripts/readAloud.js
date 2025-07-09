@@ -270,6 +270,7 @@ export function showReadAloudMenu() {
 
     menuElements.voiceDropdown.addEventListener('change', async (e) => {
         savePreferredVoice(e.target.value);
+        window.readAloudState.voiceName = voiceName;
         const state = window.readAloudState;
         const idx = state.currentParagraphIndex;
         await clearReadAloudBuffer(state, idx).catch(err => {
