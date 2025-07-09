@@ -104,7 +104,7 @@ window.readAloudState = {
     speechKey: '',
     serviceRegion: '',
     speechRate: 1.0,
-    configVisible: true,
+    configVisible: false,
     menuVisible: true,
     buffer: null
 };
@@ -194,8 +194,12 @@ export function showReadAloudMenu() {
     // Restore from localStorage etc.
     menuElements.apikeyInput.value = localStorage.getItem('readAloudSpeechApiKey') || '';
     
-    //window.readAloudState = menuElements.apikeyInput.value;
-    toggleReadAloudConfig(!menuElements.apikeyInput.value ? true : window.readAloudState.configVisible);
+    toggleReadAloudConfig(
+        !localStorage.getItem('readAloudConfigMenuHidden') ||
+        localStorage.getItem('readAloudConfigMenuHidden') === 'false'
+            ? true
+            : window.readAloudState.configVisible
+    );
 
     menuElements.regionDropdown.value = localStorage.getItem('readAloudSpeechRegion') || AZURE_REGIONS[0];
     menuElements.voiceDropdown.value = localStorage.getItem('readAloudPreferredVoice') || ENGLISH_VOICES[0].name;
@@ -758,9 +762,12 @@ async function clearReadAloudBuffer(state, idx = null) {
 function savePreferredVoice(voiceName) {
     localStorage.setItem('readAloudPreferredVoice', voiceName);
 }
+
 function saveApiKey(apiKey) {
     localStorage.setItem('readAloudSpeechApiKey', apiKey);
+    localStorage.setItem('readAloudConfigMenuHidden', apiKey !== '');
 }
+
 function saveRegion(region) {
     localStorage.setItem('readAloudSpeechRegion', region);
 }
