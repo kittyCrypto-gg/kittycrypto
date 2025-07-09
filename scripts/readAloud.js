@@ -1,3 +1,5 @@
+import { forceBookmark } from './reader.js'
+
 const buttons = {
     play: { icon: "▶️", action: "Start Read Aloud" },
     pause: { icon: "⏸️", action: "Pause Read Aloud" },
@@ -509,6 +511,8 @@ async function speakParagraph(idx) {
         paragraphId: state.currentParagraphId,
         paragraphIndex: state.currentParagraphIndex
     }));
+    
+    forceBookmark(state.currentParagraphId);
 
     let audioData;
 
