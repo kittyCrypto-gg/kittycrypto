@@ -453,7 +453,7 @@ async function speakParagraph(idx) {
     if (state.paused || idx >= state.paragraphs.length) return;
 
     // Remove highlight from previous paragraph
-    if (state.currentParagraphIndex !== undefined && state.paragraphs[state.currentParagraphIndex]) {
+    if ( state.currentParagraphIndex !== undefined && state.currentParagraphIndex !== idx && state.paragraphs[state.currentParagraphIndex]) {
         fadeOutHighlight(state.paragraphs[state.currentParagraphIndex]);
     }
 
@@ -659,6 +659,7 @@ function scrollParagraphIntoView(paragraph) {
 
 async function nextParagraph() {
     const state = window.readAloudState;
+    clearReadAloudBuffer(state);
     if (!state.paragraphs.length) return;
 
     // Fade out old paragraph (if any)
@@ -688,6 +689,7 @@ async function nextParagraph() {
 
 async function prevParagraph() {
     const state = window.readAloudState;
+    clearReadAloudBuffer(state);
     if (!state.paragraphs.length) return;
 
     // Fade out old paragraph (if any)
@@ -719,6 +721,9 @@ async function prevParagraph() {
     await speakParagraph(idx);
 }
 
+function clearReadAloudBuffer(state) {
+    state.buffer = null;
+}
 
 function savePreferredVoice(voiceName) {
     localStorage.setItem('readAloudPreferredVoice', voiceName);
