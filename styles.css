@@ -606,7 +606,7 @@ button.menu-crossed::after {
 button.menu-eye::before {
   content: "👁️";
   opacity: 0.5;
-  margin-right: 0.25em;
+  /*margin-right: 0.25em;*/
 }
 
 .menu-button:hover {
