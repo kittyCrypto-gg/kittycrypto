@@ -442,10 +442,11 @@ function readAloudStartIndex(paragraphs, startFromId) {
     return 0;
 }
 
-async function speakParagraph(idx) {
+async function speakParagraph(idx, fromBuffer = false) {
     const state = window.readAloudState;
     if (state.paused || idx >= state.paragraphs.length) return;
 
+    // Remove highlight from previous paragraph
     if (state.currentParagraphIndex !== undefined && state.paragraphs[state.currentParagraphIndex]) {
         fadeOutHighlight(state.paragraphs[state.currentParagraphIndex]);
     }
@@ -453,6 +454,7 @@ async function speakParagraph(idx) {
     const paragraph = state.paragraphs[idx];
     highlightParagraph(paragraph);
     scrollParagraphIntoView(paragraph);
+
     const plainText = paragraph.innerText.replace(/\s+/g, ' ').trim();
     if (!plainText) {
         await speakParagraph(idx + 1);
@@ -469,6 +471,54 @@ async function speakParagraph(idx) {
         return;
     }
 
+    state.currentParagraphIndex = idx;
+    state.currentParagraphId = paragraph.id;
+    state.lastSpokenText = plainText;
+
+    // Save position
+    localStorage.setItem('readAloudAudioPosition', JSON.stringify({
+        paragraphId: state.currentParagraphId,
+        paragraphIndex: state.currentParagraphIndex
+    }));
+
+    let audioData;
+
+    // --- Use buffered audio if available ---
+    if (state.buffer && state.buffer.idx === idx) {
+        audioData = state.buffer.audioData;
+        state.buffer = null; // Consume buffer
+    } else {
+        // No buffer? Synthesize now (slow path)
+        audioData = await bufferParagraphAudio(idx, true); // await and get the result
+    }
+
+    // --- Pre-buffer the NEXT paragraph (async, fire and forget) ---
+    if (idx + 1 < state.paragraphs.length) {
+        bufferParagraphAudio(idx + 1, false);
+    }
+
+    // Play audio and await its completion
+    try {
+        await playAudioBlob(audioData);
+        if (!state.paused) {
+            await speakParagraph(idx + 1);
+        }
+    } catch (error) {
+        console.error(error);
+        if (!state.paused) {
+            await speakParagraph(idx + 1);
+        }
+    }
+}
+
+async function bufferParagraphAudio(idx, blocking = false) {
+    const state = window.readAloudState;
+    if (idx >= state.paragraphs.length) return null;
+    const paragraph = state.paragraphs[idx];
+    const plainText = paragraph.innerText.replace(/\s+/g, ' ').trim();
+    if (!plainText) return null;
+
+    const ssml = buildSSML(plainText, state.voiceName, state.speechRate);
     const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(state.speechKey, state.serviceRegion);
     speechConfig.speechSynthesisVoiceName = state.voiceName;
     speechConfig.setProperty(
@@ -477,52 +527,30 @@ async function speakParagraph(idx) {
     );
     const synthesizer = new SpeechSDK.SpeechSynthesizer(speechConfig, null);
 
-    state.synthesizer = synthesizer;
-    state.currentParagraphIndex = idx;
-    state.currentParagraphId = paragraph.id;
-    state.lastSpokenText = plainText;
+    return new Promise((resolve, reject) => {
+        synthesizer.speakSsmlAsync(
+            ssml,
+            result => {
+                synthesizer.close();
 
-    // Save position on every paragraph spoken
-    localStorage.setItem('readAloudAudioPosition', JSON.stringify({
-        paragraphId: state.currentParagraphId,
-        paragraphIndex: state.currentParagraphIndex
-    }));
-
-    try {
-        const audioData = await new Promise((resolve, reject) => {
-
-            const ssml = buildSSML(plainText, state.voiceName, state.speechRate);
-            synthesizer.speakSsmlAsync(
-                ssml,
-                result => {
-                    if (result.reason === SpeechSDK.ResultReason.SynthesizingAudioCompleted) {
-                        resolve(result.audioData);
-                    } else {
-                        reject(new Error(result.errorDetails || "Speech synthesis failed"));
-                    }
-                },
-                error => {
-                    reject(error);
+                // Fix: Reason check needs to be positive, not negated!
+                if (result.reason !== SpeechSDK.ResultReason.SynthesizingAudioCompleted) {
+                    reject(new Error(result.errorDetails || "Speech synthesis failed"));
+                    return; // Prevents further execution if error
                 }
-            );
-        });
 
-        // Play audio and await its completion
-        await playAudioBlob(audioData);
-
-        synthesizer.close();
-        state.synthesizer = null;
-        if (!state.paused) {
-            await speakParagraph(idx + 1);
-        }
-    } catch (error) {
-        synthesizer.close();
-        state.synthesizer = null;
-        console.error(error);
-        if (!state.paused) {
-            await speakParagraph(idx + 1);
-        }
-    }
+                if (!blocking) {
+                    // Save to buffer only if not blocking (prefetch)
+                    window.readAloudState.buffer = { idx, audioData: result.audioData };
+                }
+                resolve(result.audioData);
+            },
+            error => {
+                synthesizer.close();
+                reject(error);
+            }
+        );
+    });
 }
 
 async function playAudioBlob(audioData) {
