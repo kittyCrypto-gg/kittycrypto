@@ -309,15 +309,12 @@ function toggleReadAloudMenuVisibility() {
     if (!menu) return;
 
     const hideBtn = menu.querySelector('#read-aloud-hide');
-    const allChildren = Array.from(menu.querySelectorAll('*'));
+    const controls = menu.querySelector('.read-aloud-controls');
+    const header = menu.querySelector('.read-aloud-header');
+    const closeBtn = menu.querySelector('#read-aloud-close');
 
-    // Store original sizing
-    if (!window.readAloudState.menuElementVisibility) {
-        window.readAloudState.menuElementVisibility = {};
-        allChildren.forEach(el => {
-            el.id ? window.readAloudState.menuElementVisibility[el.id] = el.style.visibility || '' : null;
-        });
-        // Store original menu sizing
+    // Save sizing and display state on first run
+    if (!window.readAloudState.menuSizing) {
         window.readAloudState.menuSizing = {
             width: menu.style.width,
             height: menu.style.height,
@@ -325,34 +322,41 @@ function toggleReadAloudMenuVisibility() {
             minHeight: menu.style.minHeight,
             padding: menu.style.padding,
             boxSizing: menu.style.boxSizing,
+            controlsDisplay: controls ? controls.style.display : '',
+            headerDisplay: header ? header.style.display : '',
+            closeDisplay: closeBtn ? closeBtn.style.display : '',
         };
     }
 
     if (window.readAloudState.menuVisible === true) {
-        allChildren.forEach(el => {
-            el !== hideBtn ? el.style.visibility = 'hidden' : null;
-        });
-        hideBtn ? hideBtn.style.visibility = 'visible' : null;
-        hideBtn ? hideBtn.classList.remove('remove') : null;
+        // Hide everything except hide button
+        controls ? controls.style.display = 'none' : null;
+        header ? header.style.display = 'none' : null;
+        closeBtn ? closeBtn.style.display = 'none' : null;
 
-        // Shrink menu to fit button
+        // Add .remove class, just for styling if you want
+        hideBtn && hideBtn.classList.remove('remove');
+        // Ensure hideBtn is visible and its parent is visible
+        hideBtn && (hideBtn.style.display = '');
+        (hideBtn && hideBtn.parentElement) ? hideBtn.parentElement.style.display = '' : null;
+
+        // Shrink menu
         menu.style.width = 'fit-content';
         menu.style.height = 'fit-content';
         menu.style.minWidth = '0';
         menu.style.minHeight = '0';
-        menu.style.padding = '0.5rem'; // Optional: just enough for the button
+        menu.style.padding = '0.5rem';
         menu.style.boxSizing = 'border-box';
 
         window.readAloudState.menuVisible = false;
     } else {
-        allChildren.forEach(el => {
-            (el.id && el.id in window.readAloudState.menuElementVisibility)
-                ? el.style.visibility = window.readAloudState.menuElementVisibility[el.id]
-                : el.style.visibility = '';
-        });
-        hideBtn ? hideBtn.classList.add('remove') : null;
+        // Restore everything
+        controls ? controls.style.display = window.readAloudState.menuSizing.controlsDisplay || '' : null;
+        header ? header.style.display = window.readAloudState.menuSizing.headerDisplay || '' : null;
+        closeBtn ? closeBtn.style.display = window.readAloudState.menuSizing.closeDisplay || '' : null;
+        hideBtn && hideBtn.classList.add('remove');
 
-        // Restore original sizing
+        // Restore menu sizing
         const sizing = window.readAloudState.menuSizing || {};
         menu.style.width = sizing.width || '';
         menu.style.height = sizing.height || '';
