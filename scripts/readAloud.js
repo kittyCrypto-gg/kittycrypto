@@ -194,7 +194,7 @@ export function showReadAloudMenu() {
     // Restore from localStorage etc.
     menuElements.apikeyInput.value = localStorage.getItem('readAloudSpeechApiKey') || '';
 
-    if (menuElements.apikeyInput.value && window.readAloudState.configVisible) toggleReadAloudConfig();
+    toggleReadAloudConfig(!menuElements.apikeyInput.value ? true : window.readAloudState.configVisible);
 
     menuElements.regionDropdown.value = localStorage.getItem('readAloudSpeechRegion') || AZURE_REGIONS[0];
     menuElements.voiceDropdown.value = localStorage.getItem('readAloudPreferredVoice') || ENGLISH_VOICES[0].name;
@@ -307,28 +307,29 @@ export function showReadAloudMenu() {
     const fields = document.querySelector('.read-aloud-fields');
     if (!fields) return;
     fields.style.display = window.readAloudState.configVisible ? 'flex' : 'none';
-    toggleReadAloudConfig();
 }
 
-function toggleReadAloudConfig() {
+function toggleReadAloudConfig(forceValue = null) {
     const fields = document.querySelector('.read-aloud-fields');
-    if (!fields) {
-        console.error('Read Aloud config fields not found in DOM');
-        return;
-    }
-
     const configBtn = document.getElementById('read-aloud-config');
+    if (!fields) return;
 
-    if (window.readAloudState.configVisible) {
-        fields.style.display = 'none'
-        window.readAloudState.configVisible = false;
-        configBtn ? configBtn.classList.remove('menu-crossed') : null;
+    let newValue;
+
+    if (forceValue !== null) {
+        newValue = !!forceValue;
     } else {
-        fields.style.display = 'flex';
-        window.readAloudState.configVisible = true;
-        configBtn ? configBtn.classList.add('menu-crossed') : null;
+        newValue = !window.readAloudState.configVisible;
     }
-    return window.readAloudState.configVisible;
+
+    fields.style.display = newValue ? 'flex' : 'none';
+    if (configBtn) {
+        configBtn.classList.toggle('menu-crossed', newValue);
+    }
+    window.readAloudState.configVisible = newValue;
+    localStorage.setItem('readAloudConfigVisible', String(newValue));
+
+    return newValue;
 }
 
 function toggleReadAloudMenuVisibility() {
