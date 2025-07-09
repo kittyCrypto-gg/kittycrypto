@@ -193,7 +193,7 @@ export function showReadAloudMenu() {
     // Restore from localStorage etc.
     menuElements.apikeyInput.value = localStorage.getItem('readAloudSpeechApiKey') || '';
 
-    if (menuElements.apikeyInput.value) toggleReadAloudConfig();
+    if (menuElements.apikeyInput.value && window.readAloudState.configVisible) toggleReadAloudConfig();
 
     menuElements.regionDropdown.value = localStorage.getItem('readAloudSpeechRegion') || AZURE_REGIONS[0];
     menuElements.voiceDropdown.value = localStorage.getItem('readAloudPreferredVoice') || ENGLISH_VOICES[0].name;
@@ -287,6 +287,7 @@ export function showReadAloudMenu() {
         closeReadAloudMenu();
     });
 
+    // just sincing the config visibility with the state
     const fields = document.querySelector('.read-aloud-fields');
     if (!fields) return;
     window.readAloudState.configVisible ? fields.style.display = 'flex' : fields.style.display = 'none';
@@ -382,10 +383,6 @@ async function closeReadAloudMenu() {
     // Remove event listeners for dragging
     const dragHandle = menu.querySelector('.read-aloud-header');
     await pauseReadAloud();
-
-    const fields = document.querySelector('.read-aloud-fields');
-    if (!fields) return;
-    window.readAloudState.configVisible ? fields.style.display = 'flex' : fields.style.display = 'none';
 }
 
 // Initialise the Speech SDK
