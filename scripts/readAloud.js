@@ -5,6 +5,8 @@ const buttons = {
     next: { icon: "⏩", action: "Next Paragraph" },
     prev: { icon: "⏪", action: "Previous Paragraph" },
     restart: { icon: "⏮️", action: "Restart" },
+    config: { icon: "⚙️", action: "Configure Read Aloud" },
+    hide: { icon: "👁️", action: "Hides Read Aloud menu" },
     info: { icon: "ℹ️", action: "Show Info" },
     help: { icon: "❓", action: "Help" }
 };
@@ -37,25 +39,27 @@ const readAloudMenuHTML = `
     <div class="read-aloud-header"> Read Aloud </div>
     <div class="read-aloud-controls">
         <div class="read-aloud-fields">
-        <input id="read-aloud-apikey" type="password" placeholder="Azure Speech API Key" class="read-aloud-control" />
-        <select id="read-aloud-region" class="read-aloud-control">
-            ${AZURE_REGIONS.map(region => `<option value="${region}">${region}</option>`).join('')}
-        </select>
-        <select id="read-aloud-voice" class="read-aloud-control">
-            ${ENGLISH_VOICES.map(v => `<option value="${v.name}">${v.description}</option>`).join('')}
-        </select>
-        <select id="read-aloud-rate" class="read-aloud-control">
-            ${[0.5, 0.75, 1, 1.25, 1.5, 1.75, 2].map(rate => `<option value="${rate}">${rate}x</option>`).join('')}
-        </select>
+            <input id="read-aloud-apikey" type="password" placeholder="Azure Speech API Key" class="read-aloud-control" />
+            <select id="read-aloud-region" class="read-aloud-control">
+                ${AZURE_REGIONS.map(region => `<option value="${region}">${region}</option>`).join('')}
+            </select>
+            <select id="read-aloud-voice" class="read-aloud-control">
+                ${ENGLISH_VOICES.map(v => `<option value="${v.name}">${v.description}</option>`).join('')}
+            </select>
+            <select id="read-aloud-rate" class="read-aloud-control">
+                ${[0.5, 0.75, 1, 1.25, 1.5, 1.75, 2].map(rate => `<option value="${rate}">${rate}x</option>`).join('')}
+            </select>
         </div>
         <div class="read-aloud-buttons">
-        <button id="read-aloud-toggle-playpause">${buttons.play.icon}</button>
-        <button id="read-aloud-stop">${buttons.stop.icon}</button>
-        <button id="read-aloud-prev">${buttons.prev.icon}</button>
-        <button id="read-aloud-next">${buttons.next.icon}</button>
-        <button id="read-aloud-restart">${buttons.restart.icon}</button>
-        <button id="read-aloud-info" title="Info">${buttons.info.icon}</button>
-        <button id="read-aloud-help" title="Help">${buttons.help.icon}</button>
+            <button id="read-aloud-toggle-playpause" title = ${buttons.play.action}>${buttons.play.icon}</button>
+            <button id="read-aloud-stop" title = ${buttons.stop.action}>${buttons.stop.icon}</button>
+            <button id="read-aloud-prev" title = ${buttons.prev.action}>${buttons.prev.icon}</button>
+            <button id="read-aloud-next" title = ${buttons.next.action}>${buttons.next.icon}</button>
+            <button id="read-aloud-restart" title = ${buttons.restart.action}>${buttons.restart.icon}</button>
+            <button id="read-aloud-config" title = ${buttons.config.action}>${buttons.config.icon}</button>
+            <button id="read-aloud-hide" title = ${buttons.hide.action}>${buttons.hide.icon}</button>
+            <button id="read-aloud-info" title = ${buttons.info.action}>${buttons.info.icon}</button>
+            <button id="read-aloud-help" title = ${buttons.help.action}>${buttons.help.icon}</button>
         </div>
     </div>
 `;
@@ -99,7 +103,9 @@ window.readAloudState = {
     voiceName: ENGLISH_VOICES[0].name,
     speechKey: '',
     serviceRegion: '',
-    speechRate: 1.0
+    speechRate: 1.0,
+    configVisible: true,
+    menuVisible: false
 };
 
 function buildSSML(text, voiceName, rate) {
@@ -158,45 +164,56 @@ export function showReadAloudMenu() {
     menu.innerHTML = readAloudMenuHTML;
     menu.style.display = 'flex';
 
-    // Initialize the input fields and buttons
-    const apikeyInput = document.getElementById('read-aloud-apikey');
-    const regionDropdown = document.getElementById('read-aloud-region');
-    const voiceDropdown = document.getElementById('read-aloud-voice');
-    const rateDropdown = document.getElementById('read-aloud-rate');
-    const playPauseBtn = document.getElementById('read-aloud-toggle-playpause');
-    const stopBtn = document.getElementById('read-aloud-stop');
-    const prevBtn = document.getElementById('read-aloud-prev');
-    const nextBtn = document.getElementById('read-aloud-next');
-    const restartBtn = document.getElementById('read-aloud-restart');
-    const infoBtn = document.getElementById('read-aloud-info');
-    const helpBtn = document.getElementById('read-aloud-help');
+    // Initialise Menu Elements
+    const menuElements = {
+        apikeyInput: document.getElementById('read-aloud-apikey'),
+        regionDropdown: document.getElementById('read-aloud-region'),
+        voiceDropdown: document.getElementById('read-aloud-voice'),
+        rateDropdown: document.getElementById('read-aloud-rate'),
+        playPauseBtn: document.getElementById('read-aloud-toggle-playpause'),
+        stopBtn: document.getElementById('read-aloud-stop'),
+        prevBtn: document.getElementById('read-aloud-prev'),
+        nextBtn: document.getElementById('read-aloud-next'),
+        restartBtn: document.getElementById('read-aloud-restart'),
+        configBtn: document.getElementById('read-aloud-config'),
+        hideBtn: document.getElementById('read-aloud-hide'),
+        infoBtn: document.getElementById('read-aloud-info'),
+        helpBtn: document.getElementById('read-aloud-help'),
+    };
 
-    if (!playPauseBtn || !stopBtn || !prevBtn || !nextBtn || !restartBtn || !apikeyInput || !regionDropdown || !voiceDropdown || !rateDropdown || !infoBtn || !helpBtn) {
-        console.error('Read Aloud menu elements not found');
+    const missing = Object.entries(menuElements)
+        .filter(([, el]) => !el)
+        .map(([key]) => key);
+
+    if (missing.length) {
+        console.error('Read Aloud menu elements not found:', missing);
         return;
     }
 
     // Restore from localStorage etc.
-    apikeyInput.value = localStorage.getItem('readAloudSpeechApiKey') || '';
-    regionDropdown.value = localStorage.getItem('readAloudSpeechRegion') || AZURE_REGIONS[0];
-    voiceDropdown.value = localStorage.getItem('readAloudPreferredVoice') || ENGLISH_VOICES[0].name;
-    rateDropdown.value = getSpeechRate().toString();
+    menuElements.apikeyInput.value = localStorage.getItem('readAloudSpeechApiKey') || '';
 
-    apikeyInput.addEventListener('input', e => saveApiKey(e.target.value.trim()));
-    regionDropdown.addEventListener('change', e => saveRegion(e.target.value));
-    voiceDropdown.addEventListener('change', e => savePreferredVoice(e.target.value));
+    if (menuElements.apikeyInput.value) toggleReadAloudConfig();
 
-    playPauseBtn.addEventListener('click', async () => {
+    menuElements.regionDropdown.value = localStorage.getItem('readAloudSpeechRegion') || AZURE_REGIONS[0];
+    menuElements.voiceDropdown.value = localStorage.getItem('readAloudPreferredVoice') || ENGLISH_VOICES[0].name;
+    menuElements.rateDropdown.value = getSpeechRate().toString();
+
+    menuElements.apikeyInput.addEventListener('input', e => saveApiKey(e.target.value.trim()));
+    menuElements.regionDropdown.addEventListener('change', e => saveRegion(e.target.value));
+    menuElements.voiceDropdown.addEventListener('change', e => savePreferredVoice(e.target.value));
+
+    menuElements.playPauseBtn.addEventListener('click', async () => {
         const state = window.readAloudState;
         if (!state.paused) {
-            playPauseBtn.textContent = buttons.play.icon;
+            menuElements.playPauseBtn.textContent = buttons.play.icon;
             await pauseReadAloud()
             return;
         }
-        playPauseBtn.textContent = buttons.pause.icon;
-        state.speechKey = apikeyInput.value.trim();
-        state.serviceRegion = regionDropdown.value;
-        state.voiceName = voiceDropdown.value;
+        menuElements.playPauseBtn.textContent = buttons.pause.icon;
+        state.speechKey = menuElements.apikeyInput.value.trim();
+        state.serviceRegion = menuElements.regionDropdown.value;
+        state.voiceName = menuElements.voiceDropdown.value;
         if (!state.paragraphs.length) {
             await readAloud(state.speechKey, state.serviceRegion, state.voiceName);
             return;
@@ -204,35 +221,43 @@ export function showReadAloudMenu() {
         await resumeReadAloud();
     });
 
-    stopBtn.addEventListener('click', async () => {
-        playPauseBtn.textContent = buttons.play.icon;
+    menuElements.stopBtn.addEventListener('click', async () => {
+        menuElements.playPauseBtn.textContent = buttons.play.icon;
         await clearReadAloud();
     });
 
-    infoBtn.addEventListener('click', () => {
+    menuElements.infoBtn.addEventListener('click', () => {
         const info = Object.entries(buttons)
             .map(([key, val]) => `${val.icon} — ${val.action}`)
             .join('\n');
         window.alert(`Read Aloud Menu Buttons:\n\n${info}`);
     });
 
-    helpBtn.addEventListener('click', () => {
+    menuElements.helpBtn.addEventListener('click', () => {
         openCustomModal(helpModal, "readaloud-help-modal");
     });
 
-    prevBtn.addEventListener('click', async () => {
+    menuElements.prevBtn.addEventListener('click', async () => {
         await prevParagraph();
     });
 
-    nextBtn.addEventListener('click', async () => {
+    menuElements.nextBtn.addEventListener('click', async () => {
         await nextParagraph();
     });
 
-    restartBtn.addEventListener('click', async () => {
+    menuElements.restartBtn.addEventListener('click', async () => {
         await restartReadAloudFromBeginning();
     });
 
-    rateDropdown.addEventListener('change', e => {
+    menuElements.configBtn.addEventListener('click', () => {
+        toggleReadAloudConfig();
+    });
+
+    menuElements.hideBtn.addEventListener('click', () => {
+        toggleReadAloudMenuVisibility();
+    });
+
+    menuElements.rateDropdown.addEventListener('change', e => {
         const rate = parseFloat(e.target.value);
         window.readAloudState.speechRate = rate;
         saveSpeechRate(rate);
@@ -261,6 +286,53 @@ export function showReadAloudMenu() {
     document.getElementById('read-aloud-close')?.addEventListener('click', () => {
         closeReadAloudMenu();
     });
+}
+
+function toggleReadAloudConfig() {
+    const fields = document.querySelector('.read-aloud-fields');
+    const configBtn = document.getElementById('read-aloud-config');
+
+    if (window.readAloudState.configVisible && fields) {
+        fields.style.display = 'none'
+        window.readAloudState.configVisible = false;
+        configBtn ? configBtn.classList.add('remove') : null;
+    } else {
+        fields.style.display = 'flex';
+        window.readAloudState.configVisible = true;
+        configBtn ? configBtn.classList.remove('remove') : null;
+    }
+    return window.readAloudState.configVisible;
+}
+
+function toggleReadAloudMenuVisibility() {
+    const menu = document.getElementById('read-aloud-menu');
+    if (!menu) return;
+
+    const hideBtn = menu.querySelector('#read-aloud-hide');
+    const allChildren = Array.from(menu.querySelectorAll('*'));
+
+    if (!window.readAloudState.menuElementVisibility) {
+        window.readAloudState.menuElementVisibility = {};
+        allChildren.forEach(el => {
+            el.id ? window.readAloudState.menuElementVisibility[el.id] = el.style.visibility || '' : null;
+        });
+    }
+
+    if (window.readAloudState.menuVisible === true) {
+        allChildren.forEach(el => {
+            el !== hideBtn ? el.style.visibility = 'hidden' : null;
+        });
+        hideBtn ? hideBtn.style.visibility = 'visible' : null;
+        window.readAloudState.menuVisible = false;
+    } else {
+        allChildren.forEach(el => {
+            (el.id && el.id in window.readAloudState.menuElementVisibility)
+                ? el.style.visibility = window.readAloudState.menuElementVisibility[el.id]
+                : el.style.visibility = '';
+        });
+        hideBtn ? hideBtn.classList.add('remove') : null;
+        window.readAloudState.menuVisible = true;
+    }
 }
 
 async function restartReadAloudFromBeginning() {

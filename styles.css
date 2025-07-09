@@ -587,6 +587,23 @@ nav::-webkit-scrollbar {
   text-align: center;
 }
 
+button.remove {
+  position: relative;
+  overflow: hidden;
+}
+
+button.remove::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: red;
+  transform: rotate(-45deg);
+  pointer-events: none;
+}
+
 .menu-button:hover {
   background-color: var(--menu-button-hover-bg-colour);
   transform: scale(1.1);
