@@ -306,7 +306,8 @@ export function showReadAloudMenu() {
     // just sincing the config visibility with the state
     const fields = document.querySelector('.read-aloud-fields');
     if (!fields) return;
-    window.readAloudState.configVisible ? fields.style.display = 'flex' : fields.style.display = 'none';
+    fields.style.display = window.readAloudState.configVisible ? 'flex' : 'none';
+    toggleReadAloudConfig();
 }
 
 function toggleReadAloudConfig() {
