@@ -587,12 +587,11 @@ nav::-webkit-scrollbar {
   text-align: center;
 }
 
-button.remove {
+button.menu-crossed {
   position: relative;
-  overflow: hidden;
 }
 
-button.remove::after {
+button.menu-crossed::after {
   content: '';
   position: absolute;
   top: 50%;
@@ -600,25 +599,14 @@ button.remove::after {
   width: 100%;
   height: 2px;
   background: red;
-  transform: rotate(-45deg);
+  transform: rotate(45deg);
   pointer-events: none;
-}
-
-button.menu-eye {
-  position: relative;
-  z-index: 1;
 }
 
 button.menu-eye::before {
   content: "👁️";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
   opacity: 0.5;
-  font-size: 2.5em;
-  z-index: 0;
-  pointer-events: none;
+  margin-right: 0.25em;
 }
 
 .menu-button:hover {
