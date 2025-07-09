@@ -57,7 +57,7 @@ const readAloudMenuHTML = `
             <button id="read-aloud-next" title = ${buttons.next.action}>${buttons.next.icon}</button>
             <button id="read-aloud-restart" title = ${buttons.restart.action}>${buttons.restart.icon}</button>
             <button id="read-aloud-config" title = ${buttons.config.action}>${buttons.config.icon}</button>
-            <button id="read-aloud-hide" title = ${buttons.hide.action}>${buttons.hide.icon}</button>
+            <button id="read-aloud-hide" class = "remove" title = ${buttons.hide.action}>${buttons.hide.icon}</button>
             <button id="read-aloud-info" title = ${buttons.info.action}>${buttons.info.icon}</button>
             <button id="read-aloud-help" title = ${buttons.help.action}>${buttons.help.icon}</button>
         </div>
@@ -306,66 +306,30 @@ function toggleReadAloudConfig() {
 
 function toggleReadAloudMenuVisibility() {
     const menu = document.getElementById('read-aloud-menu');
-    if (!menu) return;
+    const toggleBtn = document.getElementById('read-aloud-toggle');
+    if (!menu || !toggleBtn) return;
 
-    const hideBtn = menu.querySelector('#read-aloud-hide');
-    const controls = menu.querySelector('.read-aloud-controls');
-    const header = menu.querySelector('.read-aloud-header');
-    const closeBtn = menu.querySelector('#read-aloud-close');
-
-    // Save sizing and display state on first run
-    if (!window.readAloudState.menuSizing) {
-        window.readAloudState.menuSizing = {
-            width: menu.style.width,
-            height: menu.style.height,
-            minWidth: menu.style.minWidth,
-            minHeight: menu.style.minHeight,
-            padding: menu.style.padding,
-            boxSizing: menu.style.boxSizing,
-            controlsDisplay: controls ? controls.style.display : '',
-            headerDisplay: header ? header.style.display : '',
-            closeDisplay: closeBtn ? closeBtn.style.display : '',
-        };
+    if (!window.readAloudState.originalMenuDisplay) {
+        const computed = window.getComputedStyle(menu).display;
+        window.readAloudState.originalMenuDisplay = menu.style.display || computed || 'flex';
     }
 
-    if (window.readAloudState.menuVisible === true) {
-        // Hide everything except hide button
-        controls ? controls.style.display = 'none' : null;
-        header ? header.style.display = 'none' : null;
-        closeBtn ? closeBtn.style.display = 'none' : null;
-
-        // Add .remove class, just for styling if you want
-        hideBtn && hideBtn.classList.remove('remove');
-        // Ensure hideBtn is visible and its parent is visible
-        hideBtn && (hideBtn.style.display = '');
-        (hideBtn && hideBtn.parentElement) ? hideBtn.parentElement.style.display = '' : null;
-
-        // Shrink menu
-        menu.style.width = 'fit-content';
-        menu.style.height = 'fit-content';
-        menu.style.minWidth = '0';
-        menu.style.minHeight = '0';
-        menu.style.padding = '0.5rem';
-        menu.style.boxSizing = 'border-box';
-
+    if (window.readAloudState.menuVisible) {
+        menu.style.display = 'none';
         window.readAloudState.menuVisible = false;
+        toggleBtn.textContent = toggleBtn.getAttribute('data-enable');
+        toggleBtn.classList.remove('active');
+        toggleBtn.classList.add('hidden');
+        toggleBtn.removeEventListener('click', closeReadAloudMenu);
+        toggleBtn.addEventListener('click', toggleReadAloudMenuVisibility);
     } else {
-        // Restore everything
-        controls ? controls.style.display = window.readAloudState.menuSizing.controlsDisplay || '' : null;
-        header ? header.style.display = window.readAloudState.menuSizing.headerDisplay || '' : null;
-        closeBtn ? closeBtn.style.display = window.readAloudState.menuSizing.closeDisplay || '' : null;
-        hideBtn && hideBtn.classList.add('remove');
-
-        // Restore menu sizing
-        const sizing = window.readAloudState.menuSizing || {};
-        menu.style.width = sizing.width || '';
-        menu.style.height = sizing.height || '';
-        menu.style.minWidth = sizing.minWidth || '';
-        menu.style.minHeight = sizing.minHeight || '';
-        menu.style.padding = sizing.padding || '';
-        menu.style.boxSizing = sizing.boxSizing || '';
-
+        menu.style.display = window.readAloudState.originalMenuDisplay;
         window.readAloudState.menuVisible = true;
+        toggleBtn.textContent = toggleBtn.getAttribute('data-disable');
+        toggleBtn.classList.add('active');
+        toggleBtn.classList.remove('hidden');
+        toggleBtn.removeEventListener('click', toggleReadAloudMenuVisibility);
+        toggleBtn.addEventListener('click', closeReadAloudMenu);
     }
 }
 

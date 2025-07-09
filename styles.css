@@ -604,6 +604,23 @@ button.remove::after {
   pointer-events: none;
 }
 
+button.hidden {
+  position: relative;
+  z-index: 1;
+}
+
+button.hidden::before {
+  content: "👁️";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.5;
+  font-size: 2.5em;
+  z-index: 0;
+  pointer-events: none;
+}
+
 .menu-button:hover {
   background-color: var(--menu-button-hover-bg-colour);
   transform: scale(1.1);
