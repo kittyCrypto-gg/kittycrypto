@@ -295,9 +295,14 @@ export function showReadAloudMenu() {
 
 function toggleReadAloudConfig() {
     const fields = document.querySelector('.read-aloud-fields');
+    if (!fields) {
+        console.error('Read Aloud config fields not found in DOM');
+        return;
+    }
+
     const configBtn = document.getElementById('read-aloud-config');
 
-    if (window.readAloudState.configVisible && fields) {
+    if (window.readAloudState.configVisible) {
         fields.style.display = 'none'
         window.readAloudState.configVisible = false;
         configBtn ? configBtn.classList.remove('menu-crossed') : null;
@@ -442,7 +447,7 @@ function readAloudStartIndex(paragraphs, startFromId) {
     return 0;
 }
 
-async function speakParagraph(idx, fromBuffer = false) {
+async function speakParagraph(idx) {
     const state = window.readAloudState;
     if (state.paused || idx >= state.paragraphs.length) return;
 
@@ -483,24 +488,25 @@ async function speakParagraph(idx, fromBuffer = false) {
 
     let audioData;
 
-    // --- Use buffered audio if available ---
     if (state.buffer && state.buffer.idx === idx) {
+        console.log(`[DEBUG] Using buffered audio for paragraph ${idx}`);
         audioData = state.buffer.audioData;
-        state.buffer = null; // Consume buffer
+        state.buffer = null;
     } else {
-        // No buffer? Synthesize now (slow path)
+        console.log(`[DEBUG] Buffering audio for paragraph ${idx}`);
         audioData = await bufferParagraphAudio(idx, true); // await and get the result
     }
 
-    // --- Pre-buffer the NEXT paragraph (async, fire and forget) ---
     if (idx + 1 < state.paragraphs.length) {
         bufferParagraphAudio(idx + 1, false);
+        console.log(`[DEBUG] Prefetching audio for next paragraph ${idx + 1}`);
     }
 
     // Play audio and await its completion
     try {
         await playAudioBlob(audioData);
         if (!state.paused) {
+            console.log(`[DEBUG] Finished speaking paragraph ${idx}, moving to next.`);
             await speakParagraph(idx + 1);
         }
     } catch (error) {
