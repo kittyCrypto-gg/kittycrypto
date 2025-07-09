@@ -334,6 +334,7 @@ function toggleReadAloudConfig(forceValue = null) {
     window.readAloudState.configVisible = newValue;
     localStorage.setItem('readAloudConfigVisible', String(newValue));
 
+    localStorage.setItem('readAloudConfigMenuHidden', !newValue);
     return newValue;
 }
 
