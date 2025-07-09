@@ -221,9 +221,6 @@ export function showReadAloudMenu() {
         await resumeReadAloud();
     });
 
-    const fields = document.querySelector('.read-aloud-fields');
-    window.readAloudState.configVisible ? fields.style.display = 'flex' : fields.style.display = 'none';
-
     menuElements.stopBtn.addEventListener('click', async () => {
         menuElements.playPauseBtn.textContent = buttons.play.icon;
         await clearReadAloud();
@@ -273,7 +270,7 @@ export function showReadAloudMenu() {
     }
 
     initialiseMenuDrag().catch(err => {
-        console.error('Error initializing Read Aloud menu drag:', err);
+        console.error('Error initialising Read Aloud menu drag:', err);
     }).then(() => {
         const savedPosition = JSON.parse(localStorage.getItem('readAloudMenuPosition'));
         if (savedPosition) {
@@ -289,6 +286,10 @@ export function showReadAloudMenu() {
     document.getElementById('read-aloud-close')?.addEventListener('click', () => {
         closeReadAloudMenu();
     });
+
+    const fields = document.querySelector('.read-aloud-fields');
+    if (!fields) return;
+    window.readAloudState.configVisible ? fields.style.display = 'flex' : fields.style.display = 'none';
 }
 
 function toggleReadAloudConfig() {
