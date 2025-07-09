@@ -659,7 +659,6 @@ function scrollParagraphIntoView(paragraph) {
 
 async function nextParagraph() {
     const state = window.readAloudState;
-    clearReadAloudBuffer(state);
     if (!state.paragraphs.length) return;
 
     // Fade out old paragraph (if any)
@@ -684,12 +683,11 @@ async function nextParagraph() {
     scrollParagraphIntoView(state.paragraphs[idx]);
 
     state.paused = false;
-    await speakParagraph(idx);
+    await clearReadAloudBuffer(state, idx);
 }
 
 async function prevParagraph() {
     const state = window.readAloudState;
-    clearReadAloudBuffer(state);
     if (!state.paragraphs.length) return;
 
     // Fade out old paragraph (if any)
@@ -718,11 +716,15 @@ async function prevParagraph() {
     scrollParagraphIntoView(state.paragraphs[idx]);
 
     state.paused = false;
-    await speakParagraph(idx);
+    await clearReadAloudBuffer(state, idx);
 }
 
-function clearReadAloudBuffer(state) {
-    state.buffer = null;
+async function clearReadAloudBuffer(state, idx = null) {
+    const pausedState = state.paused ; // Save the current paused state
+    state.buffer = null; // Clear the buffer
+    await stopSpeakingAsync(); // Hard stop any ongoing speech
+    state.paused = pausedState; // Restore the paused state
+    if (!state.paused) await speakParagraph(idx !== null ? idx : state.currentParagraphIndex); // Resume speaking if not paused
 }
 
 function savePreferredVoice(voiceName) {
