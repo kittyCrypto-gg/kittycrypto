@@ -604,12 +604,12 @@ button.remove::after {
   pointer-events: none;
 }
 
-button.hidden {
+button.menu-eye {
   position: relative;
   z-index: 1;
 }
 
-button.hidden::before {
+button.menu-eye::before {
   content: "👁️";
   position: absolute;
   left: 50%;

@@ -319,7 +319,7 @@ function toggleReadAloudMenuVisibility() {
         window.readAloudState.menuVisible = false;
         toggleBtn.textContent = toggleBtn.getAttribute('data-enable');
         toggleBtn.classList.remove('active');
-        toggleBtn.classList.add('hidden');
+        toggleBtn.classList.add('menu-eye');
         toggleBtn.removeEventListener('click', closeReadAloudMenu);
         toggleBtn.addEventListener('click', toggleReadAloudMenuVisibility);
     } else {
@@ -327,7 +327,7 @@ function toggleReadAloudMenuVisibility() {
         window.readAloudState.menuVisible = true;
         toggleBtn.textContent = toggleBtn.getAttribute('data-disable');
         toggleBtn.classList.add('active');
-        toggleBtn.classList.remove('hidden');
+        toggleBtn.classList.remove('menu-eye');
         toggleBtn.removeEventListener('click', toggleReadAloudMenuVisibility);
         toggleBtn.addEventListener('click', closeReadAloudMenu);
     }
