@@ -143,7 +143,7 @@ function escapeXml(unsafe) {
 
 export function showReadAloudMenu() {
 
-    const stopAndRestart = async () => {
+    const stopAndRestart = async (state, idx) => {
             await clearReadAloudBuffer(state, idx);
         }
 
@@ -268,7 +268,7 @@ export function showReadAloudMenu() {
         saveSpeechRate(rate);
         const state = window.readAloudState;
         const idx = state.currentParagraphIndex;
-        stopAndRestart().catch(err => {
+        stopAndRestart(state, idx).catch(err => {
             console.error('[Change Rate] Error clearing Read Aloud buffer:', err);
         });
     });
@@ -277,7 +277,7 @@ export function showReadAloudMenu() {
         savePreferredVoice(e.target.value);
         const state = window.readAloudState;
         const idx = state.currentParagraphIndex;
-        stopAndRestart().catch(err => {
+        stopAndRestart(state, idx).catch(err => {
             console.error('[Change Voice] Error clearing Read Aloud buffer:', err);
         });
     });
