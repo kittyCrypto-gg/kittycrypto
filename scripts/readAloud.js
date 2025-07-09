@@ -194,7 +194,7 @@ export function showReadAloudMenu() {
     // Restore from localStorage etc.
     menuElements.apikeyInput.value = localStorage.getItem('readAloudSpeechApiKey') || '';
     
-    window.readAloudState = menuElements.apikeyInput.value;
+    //window.readAloudState = menuElements.apikeyInput.value;
     toggleReadAloudConfig(!menuElements.apikeyInput.value ? true : window.readAloudState.configVisible);
 
     menuElements.regionDropdown.value = localStorage.getItem('readAloudSpeechRegion') || AZURE_REGIONS[0];
