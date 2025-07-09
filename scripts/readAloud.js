@@ -142,6 +142,11 @@ function escapeXml(unsafe) {
 
 
 export function showReadAloudMenu() {
+
+    const stopAndRestart = async () => {
+            await clearReadAloudBuffer(state, idx);
+        }
+
     window.readAloudState.pressed = true;
 
     const toggleBtn = document.getElementById('read-aloud-toggle');
@@ -202,7 +207,6 @@ export function showReadAloudMenu() {
 
     menuElements.apikeyInput.addEventListener('input', e => saveApiKey(e.target.value.trim()));
     menuElements.regionDropdown.addEventListener('change', e => saveRegion(e.target.value));
-    menuElements.voiceDropdown.addEventListener('change', e => savePreferredVoice(e.target.value));
 
     menuElements.playPauseBtn.addEventListener('click', async () => {
         const state = window.readAloudState;
@@ -262,6 +266,20 @@ export function showReadAloudMenu() {
         const rate = parseFloat(e.target.value);
         window.readAloudState.speechRate = rate;
         saveSpeechRate(rate);
+        const state = window.readAloudState;
+        const idx = state.currentParagraphIndex;
+        stopAndRestart().catch(err => {
+            console.error('[Change Rate] Error clearing Read Aloud buffer:', err);
+        });
+    });
+
+    menuElements.voiceDropdown.addEventListener('change', e => {
+        savePreferredVoice(e.target.value);
+        const state = window.readAloudState;
+        const idx = state.currentParagraphIndex;
+        stopAndRestart().catch(err => {
+            console.error('[Change Voice] Error clearing Read Aloud buffer:', err);
+        });
     });
 
     window.readAloudState.speechRate = getSpeechRate();
@@ -724,7 +742,7 @@ async function clearReadAloudBuffer(state, idx = null) {
     state.buffer = null; // Clear the buffer
     await stopSpeakingAsync(); // Hard stop any ongoing speech
     state.paused = pausedState; // Restore the paused state
-    if (!state.paused) await speakParagraph(idx !== null ? idx : state.currentParagraphIndex); // Resume speaking if not paused
+    if (!state.paused) await speakParagraph(idx !== undefined ? idx : (state.currentParagraphIndex ?? 0));
 }
 
 function savePreferredVoice(voiceName) {
