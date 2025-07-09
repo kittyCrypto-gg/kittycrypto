@@ -56,7 +56,7 @@ const readAloudMenuHTML = `
             <button id="read-aloud-prev" title = ${buttons.prev.action}>${buttons.prev.icon}</button>
             <button id="read-aloud-next" title = ${buttons.next.action}>${buttons.next.icon}</button>
             <button id="read-aloud-restart" title = ${buttons.restart.action}>${buttons.restart.icon}</button>
-            <button id="read-aloud-config" title = ${buttons.config.action}>${buttons.config.icon}</button>
+            <button id="read-aloud-config" class = "menu-crossed" title = ${buttons.config.action}>${buttons.config.icon}</button>
             <button id="read-aloud-hide" class = "menu-crossed" title = ${buttons.hide.action}>${buttons.hide.icon}</button>
             <button id="read-aloud-info" title = ${buttons.info.action}>${buttons.info.icon}</button>
             <button id="read-aloud-help" title = ${buttons.help.action}>${buttons.help.icon}</button>
