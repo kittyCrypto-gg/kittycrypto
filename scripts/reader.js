@@ -809,4 +809,18 @@ export function getParams() {
   };
 }
 
+export function forceBookmark(bookmarkId) {
+  const storyKey = makeStoryKey(window.storyPath);
+  const key = `bookmark_${storyKey}_ch${window.chapter}`;
+  const target = document.getElementById(bookmarkId);
+
+  if (!target) {
+    console.warn(`No element found with ID "${bookmarkId}".`);
+    return;
+  }
+
+  localStorage.setItem(key, bookmarkId);
+  showTemporaryNotice("Bookmark manually set.");
+}
+
 if (window.location.pathname.endsWith("reader.html")) initiateReader();
