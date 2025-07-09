@@ -142,11 +142,6 @@ function escapeXml(unsafe) {
 
 
 export function showReadAloudMenu() {
-
-    const stopAndRestart = async (state, idx) => {
-            await clearReadAloudBuffer(state, idx);
-        }
-
     window.readAloudState.pressed = true;
 
     const toggleBtn = document.getElementById('read-aloud-toggle');
@@ -262,22 +257,22 @@ export function showReadAloudMenu() {
         toggleReadAloudMenuVisibility();
     });
 
-    menuElements.rateDropdown.addEventListener('change', e => {
+    menuElements.rateDropdown.addEventListener('change', async (e) => {
         const rate = parseFloat(e.target.value);
         window.readAloudState.speechRate = rate;
         saveSpeechRate(rate);
         const state = window.readAloudState;
         const idx = state.currentParagraphIndex;
-        stopAndRestart(state, idx).catch(err => {
+        await clearReadAloudBuffer(state, idx).catch(err => {
             console.error('[Change Rate] Error clearing Read Aloud buffer:', err);
         });
     });
 
-    menuElements.voiceDropdown.addEventListener('change', e => {
+    menuElements.voiceDropdown.addEventListener('change', async (e) => {
         savePreferredVoice(e.target.value);
         const state = window.readAloudState;
         const idx = state.currentParagraphIndex;
-        stopAndRestart(state, idx).catch(err => {
+        await clearReadAloudBuffer(state, idx).catch(err => {
             console.error('[Change Voice] Error clearing Read Aloud buffer:', err);
         });
     });
@@ -471,7 +466,7 @@ async function speakParagraph(idx) {
     if (state.paused || idx >= state.paragraphs.length) return;
 
     // Remove highlight from previous paragraph
-    if ( state.currentParagraphIndex !== undefined && state.currentParagraphIndex !== idx && state.paragraphs[state.currentParagraphIndex]) {
+    if (state.currentParagraphIndex !== undefined && state.currentParagraphIndex !== idx && state.paragraphs[state.currentParagraphIndex]) {
         fadeOutHighlight(state.paragraphs[state.currentParagraphIndex]);
     }
 
@@ -631,6 +626,15 @@ async function clearReadAloud() {
 
 async function stopSpeakingAsync() {
     const state = window.readAloudState;
+
+    // Stop and reset browser Audio if present
+    if (state.currentAudio) {
+        state.currentAudio.pause();
+        state.currentAudio.currentTime = 0;
+        state.currentAudio = null;
+    }
+
+    // Stop synthesiser if running
     if (state.synthesizer && typeof state.synthesizer.stopSpeakingAsync === "function") {
         return new Promise(resolve => {
             state.synthesizer.stopSpeakingAsync(() => {
@@ -643,6 +647,7 @@ async function stopSpeakingAsync() {
         state.synthesizer.close();
         state.synthesizer = null;
     }
+
     return Promise.resolve();
 }
 
@@ -738,7 +743,7 @@ async function prevParagraph() {
 }
 
 async function clearReadAloudBuffer(state, idx = null) {
-    const pausedState = state.paused ; // Save the current paused state
+    const pausedState = state.paused; // Save the current paused state
     state.buffer = null; // Clear the buffer
     await stopSpeakingAsync(); // Hard stop any ongoing speech
     state.paused = pausedState; // Restore the paused state
