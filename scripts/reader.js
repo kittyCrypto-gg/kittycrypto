@@ -820,7 +820,7 @@ export function forceBookmark(bookmarkId) {
   }
 
   localStorage.setItem(key, bookmarkId);
-  showTemporaryNotice("Bookmark manually set.");
+  //showTemporaryNotice("Bookmark manually set.");
 }
 
 if (window.location.pathname.endsWith("reader.html")) initiateReader();
