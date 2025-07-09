@@ -221,6 +221,9 @@ export function showReadAloudMenu() {
         await resumeReadAloud();
     });
 
+    const fields = document.querySelector('.read-aloud-fields');
+    window.readAloudState.configVisible ? fields.style.display = 'flex' : fields.style.display = 'none';
+
     menuElements.stopBtn.addEventListener('click', async () => {
         menuElements.playPauseBtn.textContent = buttons.play.icon;
         await clearReadAloud();
