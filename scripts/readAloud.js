@@ -383,7 +383,9 @@ async function closeReadAloudMenu() {
     const dragHandle = menu.querySelector('.read-aloud-header');
     await pauseReadAloud();
 
-    //await clearReadAloud();
+    const fields = document.querySelector('.read-aloud-fields');
+    if (!fields) return;
+    window.readAloudState.configVisible ? fields.style.display = 'flex' : fields.style.display = 'none';
 }
 
 // Initialise the Speech SDK
