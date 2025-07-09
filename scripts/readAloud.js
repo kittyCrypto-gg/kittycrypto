@@ -105,7 +105,8 @@ window.readAloudState = {
     serviceRegion: '',
     speechRate: 1.0,
     configVisible: true,
-    menuVisible: true
+    menuVisible: true,
+    buffer: null
 };
 
 function buildSSML(text, voiceName, rate) {
@@ -488,32 +489,27 @@ async function speakParagraph(idx) {
 
     let audioData;
 
-    if (state.buffer && state.buffer.idx === idx) {
-        console.log(`[DEBUG] Using buffered audio for paragraph ${idx}`);
-        audioData = state.buffer.audioData;
-        state.buffer = null;
-    } else {
-        console.log(`[DEBUG] Buffering audio for paragraph ${idx}`);
-        audioData = await bufferParagraphAudio(idx, true); // await and get the result
-    }
-
-    if (idx + 1 < state.paragraphs.length) {
-        bufferParagraphAudio(idx + 1, false);
-        console.log(`[DEBUG] Prefetching audio for next paragraph ${idx + 1}`);
-    }
-
-    // Play audio and await its completion
     try {
+        if (state.buffer && state.buffer.idx === idx) {
+            audioData = state.buffer.audioData;
+            state.buffer = null;
+        } else {
+            audioData = await bufferParagraphAudio(idx, true);
+        }
+
+        if (idx + 1 < state.paragraphs.length) {
+            bufferParagraphAudio(idx + 1, false);
+        }
+
         await playAudioBlob(audioData);
+
         if (!state.paused) {
-            console.log(`[DEBUG] Finished speaking paragraph ${idx}, moving to next.`);
             await speakParagraph(idx + 1);
         }
     } catch (error) {
-        console.error(error);
-        if (!state.paused) {
-            await speakParagraph(idx + 1);
-        }
+        window.alert('Read Aloud stopped due to a connection issue.');
+        await pauseReadAloud();
+        return;
     }
 }
 
