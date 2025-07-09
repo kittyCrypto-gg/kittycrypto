@@ -105,7 +105,7 @@ window.readAloudState = {
     serviceRegion: '',
     speechRate: 1.0,
     configVisible: true,
-    menuVisible: false
+    menuVisible: true
 };
 
 function buildSSML(text, voiceName, rate) {
@@ -295,11 +295,11 @@ function toggleReadAloudConfig() {
     if (window.readAloudState.configVisible && fields) {
         fields.style.display = 'none'
         window.readAloudState.configVisible = false;
-        configBtn ? configBtn.classList.add('remove') : null;
+        configBtn ? configBtn.classList.remove('remove') : null;
     } else {
         fields.style.display = 'flex';
         window.readAloudState.configVisible = true;
-        configBtn ? configBtn.classList.remove('remove') : null;
+        configBtn ? configBtn.classList.add('remove') : null;
     }
     return window.readAloudState.configVisible;
 }
@@ -311,11 +311,21 @@ function toggleReadAloudMenuVisibility() {
     const hideBtn = menu.querySelector('#read-aloud-hide');
     const allChildren = Array.from(menu.querySelectorAll('*'));
 
+    // Store original sizing
     if (!window.readAloudState.menuElementVisibility) {
         window.readAloudState.menuElementVisibility = {};
         allChildren.forEach(el => {
             el.id ? window.readAloudState.menuElementVisibility[el.id] = el.style.visibility || '' : null;
         });
+        // Store original menu sizing
+        window.readAloudState.menuSizing = {
+            width: menu.style.width,
+            height: menu.style.height,
+            minWidth: menu.style.minWidth,
+            minHeight: menu.style.minHeight,
+            padding: menu.style.padding,
+            boxSizing: menu.style.boxSizing,
+        };
     }
 
     if (window.readAloudState.menuVisible === true) {
@@ -323,6 +333,16 @@ function toggleReadAloudMenuVisibility() {
             el !== hideBtn ? el.style.visibility = 'hidden' : null;
         });
         hideBtn ? hideBtn.style.visibility = 'visible' : null;
+        hideBtn ? hideBtn.classList.remove('remove') : null;
+
+        // Shrink menu to fit button
+        menu.style.width = 'fit-content';
+        menu.style.height = 'fit-content';
+        menu.style.minWidth = '0';
+        menu.style.minHeight = '0';
+        menu.style.padding = '0.5rem'; // Optional: just enough for the button
+        menu.style.boxSizing = 'border-box';
+
         window.readAloudState.menuVisible = false;
     } else {
         allChildren.forEach(el => {
@@ -331,6 +351,16 @@ function toggleReadAloudMenuVisibility() {
                 : el.style.visibility = '';
         });
         hideBtn ? hideBtn.classList.add('remove') : null;
+
+        // Restore original sizing
+        const sizing = window.readAloudState.menuSizing || {};
+        menu.style.width = sizing.width || '';
+        menu.style.height = sizing.height || '';
+        menu.style.minWidth = sizing.minWidth || '';
+        menu.style.minHeight = sizing.minHeight || '';
+        menu.style.padding = sizing.padding || '';
+        menu.style.boxSizing = sizing.boxSizing || '';
+
         window.readAloudState.menuVisible = true;
     }
 }
