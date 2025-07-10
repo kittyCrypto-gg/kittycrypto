@@ -318,22 +318,22 @@ export function showReadAloudMenu() {
     fields.style.display = window.readAloudState.configVisible ? 'flex' : 'none';
 }
 
-function enableNavigatorControls() {
+async function enableNavigatorControls() {
     if ('mediaSession' in navigator) {
-      navigator.mediaSession.setActionHandler('play', () => {
-        resumeReadAloud();
+      navigator.mediaSession.setActionHandler('play', async () => {
+        await resumeReadAloud();
       });
     
-      navigator.mediaSession.setActionHandler('pause', () => {
-        pauseReadAloud();
+      navigator.mediaSession.setActionHandler('pause', async () => {
+        await pauseReadAloud();
       });
     
-      navigator.mediaSession.setActionHandler('previoustrack', () => {
-        prevParagraph();
+      navigator.mediaSession.setActionHandler('previoustrack', async () => {
+        await prevParagraph();
       });
     
-      navigator.mediaSession.setActionHandler('nexttrack', () => {
-        nextParagraph();
+      navigator.mediaSession.setActionHandler('nexttrack', async () => {
+        await nextParagraph();
       });
     }
 }
