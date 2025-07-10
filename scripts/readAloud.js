@@ -631,9 +631,9 @@ async function playAudioBlob(audioData) {
         // Save the audio reference to state
         window.readAloudState.currentAudio = audio;
         
-        audio.onpause = () => {
+        /*audio.onpause = () => {
             if (!window.readAloudState.paused) pauseReadAloud();
-        };
+        };*/
 
         audio.onended = () => {
             window.readAloudState.currentAudio = null;
