@@ -650,16 +650,25 @@ async function playAudioBlob(audioData) {
 }
 
 async function pauseReadAloud() {
-    const state = window.readAloudState;
-    state.paused = true;
-    if (state.currentAudio) state.currentAudio.pause();
-    fadeOutHighlight(state.paragraphs[state.currentParagraphIndex]);
+  const state = window.readAloudState;
+  state.paused = true;
 
-    await stopSpeakingAsync();
-    localStorage.setItem('readAloudAudioPosition', JSON.stringify({
-        paragraphId: state.currentParagraphId,
-        paragraphIndex: state.currentParagraphIndex
-    }));
+  if (state.currentAudio) state.currentAudio.pause();
+
+  fadeOutHighlight(state.paragraphs[state.currentParagraphIndex]);
+
+  await stopSpeakingAsync();
+
+  localStorage.setItem('readAloudAudioPosition', JSON.stringify({
+    paragraphId: state.currentParagraphId,
+    paragraphIndex: state.currentParagraphIndex
+  }));
+
+  const playPauseBtn = document.getElementById('read-aloud-toggle-playpause');
+  if (playPauseBtn) {
+    playPauseBtn.textContent = buttons.play.icon;
+    playPauseBtn.title = buttons.play.action;
+  }
 }
 
 async function resumeReadAloud() {
