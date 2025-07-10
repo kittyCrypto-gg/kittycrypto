@@ -287,6 +287,8 @@ export function showReadAloudMenu() {
     });
 
     window.readAloudState.speechRate = getSpeechRate();
+    
+    enableNavigatorControls();
 
     const initialiseMenuDrag = async () => {
         await initReadAloudMenuDrag();
@@ -314,6 +316,26 @@ export function showReadAloudMenu() {
     const fields = document.querySelector('.read-aloud-fields');
     if (!fields) return;
     fields.style.display = window.readAloudState.configVisible ? 'flex' : 'none';
+}
+
+function enableNavigatorControls() {
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.setActionHandler('play', () => {
+        resumeReadAloud();
+      });
+    
+      navigator.mediaSession.setActionHandler('pause', () => {
+        pauseReadAloud();
+      });
+    
+      navigator.mediaSession.setActionHandler('previoustrack', () => {
+        prevParagraph();
+      });
+    
+      navigator.mediaSession.setActionHandler('nexttrack', () => {
+        nextParagraph();
+      });
+    }
 }
 
 function toggleReadAloudConfig(forceValue = null) {
@@ -491,7 +513,25 @@ async function speakParagraph(idx) {
         await speakParagraph(idx + 1);
         return;
     }
-
+    
+    if ('mediaSession' in navigator) {
+      const params = new URLSearchParams(window.location.search);
+      const rawStory = params.get('story') || '';
+      const chapter = params.get('chapter') || '';
+    
+      const storyName = decodeURIComponent(rawStory).split('/').pop() || 'Unknown Story';
+      const chapterName = `Chapter ${chapter}`;
+      const artist = window.location.origin;
+    
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: plainText.slice(0, 60),
+        artist,
+        album: storyName,
+        track: chapterName,
+        artwork: []
+      });
+    }
+    
     if (!state.speechKey || !state.serviceRegion) {
         window.alert('Please enter your Azure Speech API key and region in the Read Aloud menu.');
         return;
@@ -587,9 +627,13 @@ async function playAudioBlob(audioData) {
         const audioBlob = new Blob([audioData], { type: 'audio/mp3' });
         const audioUrl = URL.createObjectURL(audioBlob);
         const audio = new Audio(audioUrl);
-
+        
         // Save the audio reference to state
         window.readAloudState.currentAudio = audio;
+        
+        audio.onpause = () => {
+            if (!window.readAloudState.paused) pauseReadAloud();
+        };
 
         audio.onended = () => {
             window.readAloudState.currentAudio = null;
