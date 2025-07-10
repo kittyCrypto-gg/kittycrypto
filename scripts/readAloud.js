@@ -318,7 +318,7 @@ export function showReadAloudMenu() {
     fields.style.display = window.readAloudState.configVisible ? 'flex' : 'none';
 }
 
-async function enableNavigatorControls() {
+function enableNavigatorControls() {
     if ('mediaSession' in navigator) {
       navigator.mediaSession.setActionHandler('play', async () => {
         await resumeReadAloud();
