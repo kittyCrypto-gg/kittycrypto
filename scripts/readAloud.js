@@ -631,9 +631,11 @@ async function playAudioBlob(audioData) {
         // Save the audio reference to state
         window.readAloudState.currentAudio = audio;
         
-        /*audio.onpause = () => {
-            if (!window.readAloudState.paused) pauseReadAloud();
-        };*/
+        audio.onpause = () => {
+          // Only trigger pauseReadAloud if audio wasn't expected to pause as part of normal flow
+          const wasInterrupted = !audio.ended && !window.readAloudState.paused;
+          if (wasInterrupted) pauseReadAloud();
+        };
 
         audio.onended = () => {
             window.readAloudState.currentAudio = null;
