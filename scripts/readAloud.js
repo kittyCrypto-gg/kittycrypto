@@ -290,7 +290,7 @@ export function showReadAloudMenu() {
     
     enableNavigatorControls();
 
-    const initialiseMenuDrag = async () => {
+    /*const initialiseMenuDrag = async () => {
         await initReadAloudMenuDrag();
     }
 
@@ -306,7 +306,7 @@ export function showReadAloudMenu() {
             menu.style.top = '0';
             menu.style.transform = 'translateX(-50%)';
         }
-    });
+    });*/
 
     document.getElementById('read-aloud-close')?.addEventListener('click', () => {
         closeReadAloudMenu();
@@ -839,7 +839,7 @@ function getSpeechRate() {
     return parseFloat(localStorage.getItem('readAloudSpeechRate')) || 1.0;
 }
 
-async function initReadAloudMenuDrag() {
+/*async function initReadAloudMenuDrag() {
     const menu = document.getElementById('read-aloud-menu');
     if (!menu) return;
 
@@ -941,7 +941,7 @@ async function initReadAloudMenuDrag() {
     dragHandle.addEventListener('touchstart', startDrag, { passive: false });
     window.addEventListener('touchmove', moveDrag, { passive: false });
     window.addEventListener('touchend', endDrag, { passive: false });
-}
+}*/
 
 function openCustomModal(html, modalId = "readaloud-help-modal") {
     // Only one modal at a time
