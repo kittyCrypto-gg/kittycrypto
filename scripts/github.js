@@ -70,14 +70,14 @@ async function renderCommits(commits, containerId, clusteriserInstanceName) {
 // Run on load:
 (async () => {
   try {
-    const frontendCommits = await fetchCommits('kittyCrypto-gg', 'kittycrypto');
+    const frontendCommits = await fetchCommits('kittyCrypto-gg', 'website');
     await renderCommits(frontendCommits, 'github-commits-frontend', 'frontendClusteriser');
   } catch (err) {
     document.getElementById('github-commits').textContent = 'Error: ' + err.message;
   }
 
   try {
-    const backendCommits = await fetchCommits('kittyCrypto-gg', 'kittyServer');
+    const backendCommits = await fetchCommits('kittyCrypto-gg', 'server');
     await renderCommits(backendCommits, 'github-commits-backend', 'backendClusteriser');
   } catch (err) {
     document.getElementById('github-commits').textContent = 'Error: ' + err.message;
